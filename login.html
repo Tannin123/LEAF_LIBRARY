@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEAF Library - Cổng Đăng Nhập</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- ==============================================
+             01. MÀN HÌNH ĐĂNG NHẬP
+        =============================================== -->
+        <div id="form-login" class="card active">
+            <div class="header">
+                <div class="logo-icon">
+                    <img class="logo-img" src="logo.png" alt="LEAF Library Logo">
+                 </div>
+            </div>
+            
+            <div class="input-group">
+                <label>Tên người dùng</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-envelope left-icon"></i>
+                    <input type="text" id="demo-login-email" placeholder="example123@gmail.com">
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>Mật khẩu</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock left-icon"></i>
+                    <input type="password" id="demo-login-pwd" placeholder="••••••••">
+                    <i class="fa-regular fa-eye right-icon" onclick="togglePassword(this)"></i>
+                </div>
+            </div>
+            
+            <div class="actions-row">
+                <a href="#" onclick="switchForm('form-phone')">Quên mật khẩu?</a>
+            </div>
+
+            <button type="button" class="btn btn-primary">Đăng nhập</button>
+            
+            <div class="bottom-links">
+                Chưa có tài khoản? <a href="#" onclick="switchForm('form-register')">Đăng ký ngay</a>
+            </div>
+        </div>
+
+        <!-- ==============================================
+             02. MÀN HÌNH ĐĂNG KÝ
+        =============================================== -->
+        <div id="form-register" class="card">
+            <div class="header">
+                <div class="logo-icon">
+                    <img class="logo-img" src="logo.png" alt="LEAF Library Logo">
+                </div>
+                <div class="subtitle">Đăng ký tài khoản mới</div>
+            </div>
+            
+            <div class="input-group">
+                <label>Họ và tên</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-user left-icon"></i>
+                    <input type="text" id="reg-name" placeholder="Nguyễn Văn A">
+                </div>
+                <div id="err-reg-name" class="field-error"></div>
+            </div>
+            
+            <div class="input-group">
+                <label>Số điện thoại</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-phone left-icon"></i>
+                    <input type="text" id="reg-phone" placeholder="0912 345 678">
+                </div>
+                <div id="err-reg-phone" class="field-error"></div>
+            </div>
+
+            <div class="input-group">
+                <label>Mã nhân viên hoặc Email</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-envelope left-icon"></i>
+                    <input type="text" id="reg-email" placeholder="nhanvien@ixslibrary.vn">
+                </div>
+                <div id="err-reg-email" class="field-error"></div>
+            </div>
+
+            <div class="input-group">
+                <label>Mật khẩu</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock left-icon"></i>
+                    <input type="password" id="reg-pwd" placeholder="Tối thiểu 6 ký tự">
+                    <i class="fa-regular fa-eye right-icon" onclick="togglePassword(this)"></i>
+                </div>
+                <div id="err-reg-pwd" class="field-error"></div>
+            </div>
+
+            <div class="input-group">
+                <label>Xác nhận mật khẩu</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock left-icon"></i>
+                    <input type="password" id="reg-pwd-confirm" placeholder="Nhập lại mật khẩu">
+                </div>
+                <div id="err-reg-pwd-confirm" class="field-error"></div>
+            </div>
+            
+            <div class="actions-row reg-terms" style="margin-bottom: 15px;">
+                <label class="checkbox-label" style="align-items: flex-start;">
+                    <input type="checkbox" id="reg-terms" style="margin-top: 3px;" checked> 
+                    <span>Tôi đồng ý với Điều khoản sử dụng và Quy định bảo mật</span>
+                </label>
+            </div>
+            
+            <div id="register-error" class="error-msg"></div>
+            
+            <button type="button" class="btn btn-primary" onclick="validateRegister()">Đăng ký tài khoản</button>
+            
+            <div class="bottom-links" style="margin-bottom: 0;">
+                <a href="#" onclick="switchForm('form-login'); document.getElementById('register-error').style.display = 'none'; clearFieldErrors();">← Quay lại Đăng nhập</a>
+            </div>
+        </div>
+
+        <!-- ==============================================
+             03. NHẬP SĐT NHẬN OTP
+        =============================================== -->
+        <div id="form-phone" class="card">
+            <div class="header">
+                <div class="logo-icon">
+                    <img class="logo-img" src="logo.png" alt="LEAF Library Logo">
+                 </div>
+            </div>
+
+            <p class="description">Vui lòng nhập số điện thoại của bạn để lấy mã<br>OTP</p>
+            
+            <div class="input-group">
+                <label>Nhập số điện thoại</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-phone left-icon"></i>
+                    <input type="text" id="forgot-phone" placeholder="0987654389">
+                </div>
+                <div id="err-forgot-phone" class="field-error"></div>
+            </div>
+            
+            <button type="button" class="btn btn-primary" style="margin-top: 10px;" onclick="goToOTP()">Tiếp tục</button>
+            
+            <div class="bottom-links" style="margin-bottom: 0;">
+                <a href="#" onclick="switchForm('form-login')">← Quay lại Đăng nhập</a>
+            </div>
+        </div>
+
+        <!-- ==============================================
+             04. NHẬP & XÁC THỰC OTP
+        =============================================== -->
+        <div id="form-otp" class="card">
+            <div class="header">
+                <div class="logo-icon">
+                    <img class="logo-img" src="logo.png" alt="LEAF Library Logo">
+                </div>
+    
+            </div>
+
+            <p class="description" style="margin-bottom: 25px;">
+                Vui lòng nhập mã OTP đã được gửi về số điện thoại <br>
+                <span class="highlight" id="display-phone">09******89</span>. Mã sẽ hết hiệu lực sau <span class="highlight" id="countdown-timer">101 giây</span>
+            </p>
+            
+            <div class="input-group" style="text-align: center;">
+                <label style="text-align: left;">Nhập mã OTP</label>
+                <div class="otp-container">
+                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
+                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
+                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
+                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
+                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
+                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
+                </div>
+            </div>
+            
+            <button type="button" class="btn btn-primary" onclick="switchForm('form-reset')">Tiếp tục</button>
+            <button type="button" class="btn btn-secondary" onclick="cancelOTP()">Hủy</button>
+            
+            <div class="bottom-links">
+                Chưa nhận được mã? <a href="#" onclick="startCountdown(101)" style="color: #6b7280; text-decoration: underline;">Gửi lại</a>
+            </div>
+
+            <div class="pill-wrapper">
+                <button class="btn-pill" onclick="fillDemoOTP()"><i class="fa-solid fa-rotate-right"></i> Điền mã OTP mẫu (842915)</button>
+            </div>
+        </div>
+
+        <!-- ==============================================
+             05. CẬP NHẬT MẬT KHẨU
+        =============================================== -->
+        <div id="form-reset" class="card">
+            <div class="header">
+                <div class="logo-icon">
+                    <img class="logo-img" src="logo.png" alt="LEAF Library Logo">
+                </div>
+            
+            </div>
+            
+            <div class="input-group">
+                <label>Mật khẩu mới</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock left-icon"></i>
+                    <input type="password" id="demo-new-pwd" placeholder="••••••••">
+                    <i class="fa-regular fa-eye right-icon" onclick="togglePassword(this)"></i>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>Mật khẩu hiện tại</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock left-icon"></i>
+                    <input type="password" id="demo-cur-pwd" placeholder="••••••••">
+                    <i class="fa-regular fa-eye right-icon" onclick="togglePassword(this)"></i>
+                </div>
+            </div>
+            
+            <button type="button" class="btn btn-primary" style="margin-top: 10px;" onclick="alert('Cập nhật thành công!'); switchForm('form-login');">Cập nhật</button>
+            <button type="button" class="btn btn-secondary" onclick="switchForm('form-login')">Hủy</button>
+
+            <div class="pill-wrapper" style="margin-top: 10px;">
+                <button class="btn-pill" onclick="fillDemoReset()">Điền nhanh mật khẩu mới mẫu</button>
+            </div>
+        </div>
+
+    </div>
+
+   <script>
+        // Hàm chuyển đổi Form
+        function switchForm(targetFormId) {
+            const forms = document.querySelectorAll('.card');
+            forms.forEach(form => {
+                form.classList.remove('active');
+            });
+            const targetForm = document.getElementById(targetFormId);
+            if(targetForm) {
+                targetForm.classList.add('active');
+            }
+        }
+
+        // Bật/tắt hiển thị mật khẩu
+        function togglePassword(icon) {
+            const input = icon.previousElementSibling;
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+
+        // Tự động nhảy ô nhập OTP
+        function moveOtpFocus(current, event) {
+            if (event.key === 'Backspace' && current.value === '') {
+                const prev = current.previousElementSibling;
+                if (prev) {
+                    prev.focus();
+                }
+            } 
+            else if (current.value.length === 1) {
+                const next = current.nextElementSibling;
+                if (next) {
+                    next.focus();
+                }
+            }
+        }
+
+        /* =========================================
+           HÀM HỖ TRỢ HIỂN THỊ / XÓA LỖI TỪNG TRƯỜNG
+           ========================================= */
+        function showFieldError(id, msg) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.innerText = msg;
+                el.style.display = 'block';
+            }
+        }
+
+        function clearFieldErrors() {
+            document.querySelectorAll('.field-error').forEach(el => {
+                el.style.display = 'none';
+                el.innerText = '';
+            });
+            document.getElementById('register-error').style.display = 'none';
+        }
+
+        /* =========================================
+           1. VALIDATE VÀ RESET FORM ĐĂNG KÝ
+           ========================================= */
+        function validateRegister() {
+            clearFieldErrors();
+            let isValid = true;
+
+            const name = document.getElementById('reg-name').value.trim();
+            const phoneRaw = document.getElementById('reg-phone').value.trim();
+            const phone = phoneRaw.replace(/\s+/g, '');
+            const email = document.getElementById('reg-email').value.trim();
+            const pwd = document.getElementById('reg-pwd').value.trim();
+            const pwdConfirm = document.getElementById('reg-pwd-confirm').value.trim();
+            const isTermsChecked = document.getElementById('reg-terms').checked;
+            const mainError = document.getElementById('register-error');
+
+            if (!name) {
+                showFieldError('err-reg-name', 'Vui lòng nhập họ và tên');
+                isValid = false;
+            }
+
+            if (!phone) {
+                showFieldError('err-reg-phone', 'Vui lòng nhập số điện thoại');
+                isValid = false;
+            } else if (!/^\d{10}$/.test(phone)) {
+                showFieldError('err-reg-phone', 'Số điện thoại phải bao gồm đúng 10 chữ số');
+                isValid = false;
+            }
+
+            if (!email) {
+                showFieldError('err-reg-email', 'Vui lòng nhập mã nhân viên hoặc email');
+                isValid = false;
+            }
+
+            if (!pwd) {
+                showFieldError('err-reg-pwd', 'Vui lòng nhập mật khẩu');
+                isValid = false;
+            } else if (pwd.length < 6) {
+                showFieldError('err-reg-pwd', 'Mật khẩu phải có tối thiểu 6 ký tự');
+                isValid = false;
+            }
+
+            if (!pwdConfirm) {
+                showFieldError('err-reg-pwd-confirm', 'Vui lòng xác nhận mật khẩu');
+                isValid = false;
+            } else if (pwd !== pwdConfirm) {
+                showFieldError('err-reg-pwd-confirm', 'Mật khẩu xác nhận không khớp');
+                isValid = false;
+            }
+
+            if (!isTermsChecked) {
+                mainError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Vui lòng đồng ý với Điều khoản sử dụng!';
+                mainError.style.display = 'block';
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            alert('Đăng ký thành công!');
+            
+            document.getElementById('reg-name').value = '';
+            document.getElementById('reg-phone').value = '';
+            document.getElementById('reg-email').value = '';
+            document.getElementById('reg-pwd').value = '';
+            document.getElementById('reg-pwd-confirm').value = '';
+            document.getElementById('reg-terms').checked = true;
+
+            switchForm('form-login');
+        }
+
+        /* =========================================
+           2. CHE SỐ ĐIỆN THOẠI & ĐỒNG HỒ ĐẾM NGƯỢC
+           ========================================= */
+        let countdownInterval;
+
+        function goToOTP() {
+            clearFieldErrors();
+            
+            const phoneInput = document.getElementById('forgot-phone').value.trim();
+            const phone = phoneInput.replace(/\s+/g, '');
+            
+            if (!phone) {
+                showFieldError('err-forgot-phone', 'Vui lòng nhập số điện thoại');
+                return;
+            }
+            if (!/^\d{10}$/.test(phone)) {
+                showFieldError('err-forgot-phone', 'Số điện thoại phải bao gồm đúng 10 chữ số');
+                return;
+            }
+
+            let maskedPhone = phone;
+            if (phone.length === 10) {
+                const first2 = phone.substring(0, 2);
+                const last2 = phone.substring(8, 10);
+                const middleStars = '******';
+                maskedPhone = first2 + middleStars + last2;
+            }
+            
+            document.getElementById('display-phone').innerText = maskedPhone;
+            switchForm('form-otp');
+            startCountdown(101);
+        }
+
+        function startCountdown(seconds) {
+            clearInterval(countdownInterval);
+            let timeLeft = seconds;
+            const timerDisplay = document.getElementById('countdown-timer');
+            
+            timerDisplay.innerText = timeLeft + " giây";
+
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft >= 0) {
+                    timerDisplay.innerText = timeLeft + " giây";
+                } else {
+                    clearInterval(countdownInterval);
+                    timerDisplay.innerText = "0 giây (Đã hết hạn)";
+                }
+            }, 1000);
+        }
+
+        function cancelOTP() {
+            clearInterval(countdownInterval); 
+            switchForm('form-phone');
+        }
+
+        // --- CÁC HÀM XỬ LÝ NÚT FILL DATA MẪU ---
+        function fillDemoLogin() {
+            document.getElementById('demo-login-email').value = "nhanvien123@ixslibrary.vn";
+            document.getElementById('demo-login-pwd').value = "MatKhau#2024";
+        }
+
+        function fillDemoOTP() {
+            const otpBoxes = document.querySelectorAll('.otp-box');
+            const demoOTP = ['8', '4', '2', '9', '1', '5'];
+            otpBoxes.forEach((box, index) => {
+                box.value = demoOTP[index];
+            });
+        }
+
+        function fillDemoReset() {
+            document.getElementById('demo-new-pwd').value = "MatKhauMoi@2026";
+            document.getElementById('demo-cur-pwd').value = "MatKhauCu@2025";
+        }
+    </script> 
+</body>
+</html>
