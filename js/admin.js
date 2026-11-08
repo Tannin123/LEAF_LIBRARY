@@ -589,12 +589,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderEmployeeStatus(emp) {
       if (!emp.hasAccount || emp.status === 'Hồ sơ') {
-        return `<span class="status-indicator"><span class="status-dot hoso"></span><span class="status-text hoso">Hồ sơ</span></span>`;
+        return `<span class="status-indicator status-badge"><span class="status-dot hoso"></span><span class="status-text hoso">Hồ sơ</span></span>`;
       }
       if (emp.status === 'Khóa') {
-        return `<span class="status-indicator"><span class="status-dot locked"></span><span class="status-text locked">Đã khóa</span></span>`;
+        return `<span class="status-indicator status-badge"><span class="status-dot locked"></span><span class="status-text locked">Đã khóa</span></span>`;
       }
-      return `<span class="status-indicator"><span class="status-dot active"></span><span class="status-text active">Active</span></span>`;
+      return `<span class="status-indicator status-badge"><span class="status-dot active"></span><span class="status-text active">Active</span></span>`;
     }
 
     function renderEmployeeActions(emp) {
@@ -653,7 +653,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="table-row" data-id="${emp.id}">
               <div style="font-weight: 600;">${emp.id}</div>
               <div style="font-weight: 500;">${emp.name}</div>
-              <div><span class="badge ${getRoleBadgeClass(emp.role)}">${emp.role}</span></div>
+              <div><span class="badge status-badge ${getRoleBadgeClass(emp.role)}">${emp.role}</span></div>
               <div>${phoneLine}${mailLine}</div>
               <div>${renderEmployeeStatus(emp)}</div>
               <div>${renderEmployeeActions(emp)}</div>
@@ -1169,7 +1169,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="log-user-name">${item.user}</div>
                 <div class="log-user-sub">(${item.userId})</div>
               </div>
-              <div><span class="badge-log ${getLogBadgeClass(item.action)}">${item.action}</span></div>
+              <div><span class="badge-log status-badge ${getLogBadgeClass(item.action)}">${item.action}</span></div>
               <div style="font-weight: 600; color: var(--primary-navy);">${item.target}</div>
               <div>${item.detail}</div>
             </div>
@@ -1587,15 +1587,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getPhysicalBadge(status) {
-      if (status === 'TỐT') return `<span class="badge-copy badge-phys-good">TỐT</span>`;
-      if (status === 'RÁCH NÁT') return `<span class="badge-copy badge-phys-torn">RÁCH NÁT</span>`;
-      return `<span class="badge-copy badge-phys-worn">${status}</span>`;
+      if (status === 'TỐT') return `<span class="badge-copy status-badge badge-phys-good">TỐT</span>`;
+      if (status === 'RÁCH NÁT') return `<span class="badge-copy status-badge badge-phys-torn">RÁCH NÁT</span>`;
+      return `<span class="badge-copy status-badge badge-phys-worn">${status}</span>`;
     }
 
     function getCirculationBadge(status) {
-      if (status === 'SẴN SÀNG') return `<span class="badge-copy badge-circ-ready">SẴN SÀNG</span>`;
-      if (status === 'KHÓA') return `<span class="badge-copy badge-circ-locked">KHÓA</span>`;
-      return `<span class="badge-copy badge-circ-borrowed">${status}</span>`;
+      if (status === 'SẴN SÀNG') return `<span class="badge-copy status-badge badge-circ-ready">SẴN SÀNG</span>`;
+      if (status === 'KHÓA') return `<span class="badge-copy status-badge badge-circ-locked">KHÓA</span>`;
+      return `<span class="badge-copy status-badge badge-circ-borrowed">${status}</span>`;
     }
 
     function renderBookCopiesTable() {
@@ -2145,8 +2145,8 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         paged.forEach(s => {
           const badge = s.status === 'HOẠT ĐỘNG'
-            ? `<span class="badge-supplier-active">HOẠT ĐỘNG</span>`
-            : `<span class="badge-supplier-inactive">NGỪNG GD</span>`;
+            ? `<span class="badge-supplier-active status-badge">HOẠT ĐỘNG</span>`
+            : `<span class="badge-supplier-inactive status-badge">NGỪNG GD</span>`;
 
           html += `
             <div class="supplier-table-row" data-id="${s.id}">
@@ -2371,9 +2371,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterReaderStatus = document.getElementById('filterReaderStatus');
 
     function getReaderStatusBadge(status) {
-      if (status === 'HỢP LỆ') return `<span class="badge-reader-valid">HỢP LỆ</span>`;
-      if (status === 'HẾT HẠN') return `<span class="badge-reader-expired">HẾT HẠN</span>`;
-      return `<span class="badge-reader-locked">BỊ KHÓA</span>`;
+      if (status === 'HỢP LỆ') return `<span class="badge-reader-valid status-badge">HỢP LỆ</span>`;
+      if (status === 'HẾT HẠN') return `<span class="badge-reader-expired status-badge">HẾT HẠN</span>`;
+      return `<span class="badge-reader-locked status-badge">BỊ KHÓA</span>`;
     }
 
     function renderReaderActions(reader) {
@@ -2755,9 +2755,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterReaderHistoryStatus = document.getElementById('filterReaderHistoryStatus');
 
     function getHistoryBadge(status) {
-      if (status === 'ĐANG MƯỢN') return `<span class="badge-copy badge-circ-borrowed">ĐANG MƯỢN</span>`;
-      if (status === 'ĐÃ TRẢ') return `<span class="badge-copy badge-phys-good">ĐÃ TRẢ</span>`;
-      return `<span class="badge-copy badge-phys-torn">QUÁ HẠN</span>`;
+      if (status === 'ĐANG MƯỢN') return `<span class="badge-copy status-badge badge-circ-borrowed">ĐANG MƯỢN</span>`;
+      if (status === 'ĐÃ TRẢ') return `<span class="badge-copy status-badge badge-phys-good">ĐÃ TRẢ</span>`;
+      return `<span class="badge-copy status-badge badge-phys-torn">QUÁ HẠN</span>`;
     }
 
     function renderReaderHistoryTable() {

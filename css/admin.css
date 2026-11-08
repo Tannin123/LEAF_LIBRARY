@@ -6,7 +6,8 @@
   gap: 14px;
 }
 
-.header-container {
+.header-container,
+.navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -244,7 +245,8 @@
   width: 100%;
 }
 
-.sidebar-menu {
+.sidebar-menu,
+.admin-sidebar {
   width: 210px;
   display: flex;
   flex-direction: column;
@@ -253,7 +255,8 @@
   transition: width 0.25s ease;
 }
 
-.sidebar-menu.collapsed {
+.sidebar-menu.collapsed,
+.admin-sidebar.collapsed {
   width: 64px;
 }
 
@@ -295,12 +298,14 @@
   color: var(--primary-navy);
 }
 
-.sidebar-menu.collapsed .sidebar-item {
+.sidebar-menu.collapsed .sidebar-item,
+.admin-sidebar.collapsed .sidebar-item {
   justify-content: center;
   padding: 0;
 }
 
-.sidebar-menu.collapsed .sidebar-item span {
+.sidebar-menu.collapsed .sidebar-item span,
+.admin-sidebar.collapsed .sidebar-item span {
   display: none;
 }
 
@@ -411,13 +416,15 @@
   gap: 10px;
 }
 
-.search-box {
+.search-box,
+.book-search {
   position: relative;
   flex: 1 1 240px;
   max-width: 420px;
 }
 
-.search-box input {
+.search-box input,
+.book-search input {
   width: 100%;
   height: 38px;
   padding: 0 36px 0 12px;
@@ -432,7 +439,8 @@
   transition: border-color 0.2s;
 }
 
-.search-box input:focus {
+.search-box input:focus,
+.book-search input:focus {
   border-color: var(--primary-navy);
 }
 
@@ -484,7 +492,8 @@
   align-items: center;
 }
 
-.btn-add {
+.btn-add,
+.btn-add-book {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -504,7 +513,8 @@
   transition: all 0.2s;
 }
 
-.btn-add:hover {
+.btn-add:hover,
+.btn-add-book:hover {
   border-color: var(--primary-navy);
   color: var(--primary-navy);
   background-color: var(--primary-light);
@@ -616,6 +626,7 @@ td {
   min-height: 54px;
 }
 
+.status-badge,
 .badge,
 .badge-log,
 .badge-copy,
@@ -1193,7 +1204,8 @@ td {
   margin-top: 1px;
 }
 
-.book-cards-grid {
+.book-cards-grid,
+.book-cards-grid.books-table {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
@@ -1973,7 +1985,8 @@ td {
   justify-content: center;
 }
 
-.modal-overlay {
+.modal-overlay,
+.confirm-modal {
   display: none;
   position: fixed;
   inset: 0;
@@ -1984,7 +1997,8 @@ td {
   padding: 16px;
 }
 
-.modal-overlay.active {
+.modal-overlay.active,
+.confirm-modal.active {
   display: flex;
 }
 
@@ -2794,6 +2808,14 @@ td {
   flex-direction: column;
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
   min-width: 0;
+}
+
+.stat-card {
+  background-color: #FFFFFF;
+  border: 1px solid #DCE4EC;
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .rules-form-list {

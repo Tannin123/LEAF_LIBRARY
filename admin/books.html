@@ -14,7 +14,7 @@
 
   <div class="app-wrapper">
 
-    <header class="header-container">
+    <header class="header-container navbar">
       <div class="header-logo" id="sidebarToggle" title="Thu gọn / Mở rộng menu">
         <img class="logo-full" src="../assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false">
         <img class="logo-compact" src="../assets/images/logo-leaf.png" alt="Leaf Library Logo" draggable="false">
@@ -38,7 +38,7 @@
             <div class="user-dropdown-name" id="dropdownUserName">Quản trị viên</div>
             <div class="user-dropdown-meta">
               <span id="dropdownUserCode">Mã NV: 12026001</span>
-              <span class="badge badge-admin" id="dropdownUserRole">QUẢN TRỊ VIÊN</span>
+              <span class="badge status-badge badge-admin" id="dropdownUserRole">QUẢN TRỊ VIÊN</span>
             </div>
           </div>
           <button type="button" class="user-dropdown-item" id="btnOpenMyAccount">
@@ -60,7 +60,7 @@
 
     <div class="main-body">
 
-      <aside class="sidebar-menu" id="sidebarMenu">
+      <aside class="sidebar-menu admin-sidebar" id="sidebarMenu">
         <a href="index.html" class="sidebar-item" title="Quản lý hệ thống">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           <span>Quản lý hệ thống</span>
@@ -98,8 +98,8 @@
         <div class="tab-content-panel active" id="tabBookTitles">
           <div class="toolbar-container">
             <div class="toolbar-left-group">
-              <div class="search-box">
-                <input type="text" id="searchBookTitleInput" placeholder="Tìm mã đầu sách, tên sách, tác giả, ISBN...">
+              <div class="search-box book-search">
+                <input type="text" id="searchBookTitleInput" class="book-search" placeholder="Tìm mã đầu sách, tên sách, tác giả, ISBN...">
                 <span class="search-icon">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 </span>
@@ -120,13 +120,13 @@
               </div>
             </div>
 
-            <button type="button" class="btn-add" id="btnAddBookTitle">
+            <button type="button" class="btn-add btn-add-book" id="btnAddBookTitle">
               <span>Thêm đầu sách</span>
               <span style="font-size: 16px; font-weight: 600;">+</span>
             </button>
           </div>
 
-          <div class="book-cards-grid" id="bookTitlesGrid">
+          <div class="book-cards-grid books-table" id="bookTitlesGrid">
           </div>
 
           <div class="pagination-wrapper" id="btPagination"></div>
@@ -135,8 +135,8 @@
         <div class="tab-content-panel" id="tabBookCopies">
           <div class="toolbar-container">
             <div class="toolbar-left-group">
-              <div class="search-box">
-                <input type="text" id="searchBookCopyInput" placeholder="Quét mã vạch, tên sách,...">
+              <div class="search-box book-search">
+                <input type="text" id="searchBookCopyInput" class="book-search" placeholder="Quét mã vạch, tên sách,...">
                 <span class="search-icon">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 </span>
@@ -167,13 +167,13 @@
               </div>
             </div>
 
-            <button type="button" class="btn-add" id="btnAddBookCopy">
+            <button type="button" class="btn-add btn-add-book" id="btnAddBookCopy">
               <span>Thêm cuốn sách</span>
               <span style="font-size: 16px; font-weight: 600;">+</span>
             </button>
           </div>
 
-          <div class="table-responsive">
+          <div class="table-responsive books-table">
             <div class="copies-table-header">
               <div>Mã cá biệt</div>
               <div>Thuộc đầu sách</div>
@@ -183,7 +183,7 @@
               <div>Hành động</div>
             </div>
 
-            <div class="table-frame" id="bookCopiesTableContent">
+            <div class="table-frame books-table" id="bookCopiesTableContent">
             </div>
           </div>
 
@@ -208,13 +208,13 @@
               </button>
             </div>
 
-            <button type="button" class="btn-add" id="btnCreateImportReceipt">
+            <button type="button" class="btn-add btn-add-book" id="btnCreateImportReceipt">
               <span>Tạo phiếu nhập mới</span>
               <span style="font-size: 16px; font-weight: 600;">+</span>
             </button>
           </div>
 
-          <div class="table-responsive">
+          <div class="table-responsive books-table">
             <div class="import-table-header">
               <div>Mã phiếu</div>
               <div>Ngày nhập</div>
@@ -225,7 +225,7 @@
               <div>Thao tác</div>
             </div>
 
-            <div class="table-frame" id="importReceiptsTableContent">
+            <div class="table-frame books-table" id="importReceiptsTableContent">
             </div>
           </div>
 
@@ -235,8 +235,8 @@
         <div class="tab-content-panel" id="tabSuppliers">
           <div class="toolbar-container">
             <div class="toolbar-left-group">
-              <div class="search-box">
-                <input type="text" id="searchSupplierInput" placeholder="Tìm theo Mã NCC, tên đối tác, SĐT...">
+              <div class="search-box book-search">
+                <input type="text" id="searchSupplierInput" class="book-search" placeholder="Tìm theo Mã NCC, tên đối tác, SĐT...">
                 <span class="search-icon">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 </span>
@@ -444,7 +444,7 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="modalDeleteBookTitle">
+  <div class="modal-overlay confirm-modal" id="modalDeleteBookTitle">
     <div class="modal-box modal-box-sm">
       <div class="modal-header">
         <div class="modal-title">LEAF LIBRARY - XÁC NHẬN XÓA ĐẦU SÁCH</div>
@@ -556,7 +556,7 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="modalDeleteBookCopy">
+  <div class="modal-overlay confirm-modal" id="modalDeleteBookCopy">
     <div class="modal-box modal-box-sm">
       <div class="modal-header">
         <div class="modal-title">LEAF LIBRARY - XÓA CUỐN SÁCH</div>
@@ -625,7 +625,7 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="modalDeleteSupplier">
+  <div class="modal-overlay confirm-modal" id="modalDeleteSupplier">
     <div class="modal-box modal-box-sm">
       <div class="modal-header">
         <div class="modal-title">LEAF LIBRARY - XÓA ĐỐI TÁC CUNG CẤP</div>
