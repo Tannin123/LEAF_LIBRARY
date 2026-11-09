@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEAF LIBRARY - Cổng Đăng Nhập</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-page">
+
+    <div class="container">
+        
+        <div id="form-login" class="card active">
+            <div class="header">
+                <div class="logo-icon">
+                    <img class="logo-img" src="assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false">
+                 </div>
+            </div>
+            
+            <div class="input-group">
+                <label>Tên người dùng</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-envelope left-icon"></i>
+                    <input type="text" id="demo-login-email" placeholder="example123@gmail.com">
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>Mật khẩu</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock left-icon"></i>
+                    <input type="password" id="demo-login-pwd" placeholder="••••••••">
+                    <i class="fa-regular fa-eye right-icon" onclick="togglePassword(this)"></i>
+                </div>
+            </div>
+            
+            <div class="actions-row">
+                <a href="#" onclick="switchForm('form-phone')">Quên mật khẩu?</a>
+            </div>
+
+            <div id="login-error" class="error-msg"></div>
+
+            <button type="button" class="btn btn-primary" onclick="handleLogin()">Đăng nhập</button>
+            
+            <div class="bottom-links">
+                Chưa có tài khoản? <a href="#" onclick="switchForm('form-register')">Đăng ký ngay</a>
+            </div>
+        </div>
+
+        <div id="form-register" class="card">
+            <div class="header">
+                <div class="logo-icon">
+                    <img class="logo-img" src="assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false">
+                </div>
+                <div class="subtitle">Đăng ký tài khoản mới</div>
+            </div>
+            
+            <div class="input-group">
+                <label>Họ và tên</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-user left-icon"></i>
+                    <input type="text" id="reg-name" placeholder="Nguyễn Văn A">
+                </div>
+                <div id="err-reg-name" class="field-error"></div>
+            </div>
+            
+            <div class="input-group">
+                <label>Số điện thoại</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-phone left-icon"></i>
+                    <input type="text" id="reg-phone" placeholder="0912 345 678">
+                </div>
+                <div id="err-reg-phone" class="field-error"></div>
+            </div>
+
+            <div class="input-group">
+                <label>Mã nhân viên hoặc Email</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-envelope left-icon"></i>
+                    <input type="text" id="reg-email" placeholder="nhanvien@leaflibrary.vn">
+                </div>
+                <div id="err-reg-email" class="field-error"></div>
+            </div>
+
+            <div class="input-group">
+                <label>Mật khẩu</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock left-icon"></i>
+                    <input type="password" id="reg-pwd" placeholder="Tối thiểu 6 ký tự">
+                    <i class="fa-regular fa-eye right-icon" onclick="togglePassword(this)"></i>
+                </div>
+                <div id="err-reg-pwd" class="field-error"></div>
+            </div>
+
+            <div class="input-group">
+                <label>Xác nhận mật khẩu</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock left-icon"></i>
+                    <input type="password" id="reg-pwd-confirm" placeholder="Nhập lại mật khẩu">
+                </div>
+                <div id="err-reg-pwd-confirm" class="field-error"></div>
+            </div>
+            
+            <div class="actions-row reg-terms" style="margin-bottom: 15px;">
+                <label class="checkbox-label" style="align-items: flex-start;">
+                    <input type="checkbox" id="reg-terms" style="margin-top: 3px;" checked> 
+                    <span>Tôi đồng ý với Điều khoản sử dụng và Quy định bảo mật</span>
+                </label>
+            </div>
+            
+            <div id="register-error" class="error-msg"></div>
+            
+            <button type="button" class="btn btn-primary" onclick="validateRegister()">Đăng ký tài khoản</button>
+            
+            <div class="bottom-links" style="margin-bottom: 0;">
+                <a href="#" onclick="switchForm('form-login'); document.getElementById('register-error').style.display = 'none'; clearFieldErrors();">← Quay lại Đăng nhập</a>
+            </div>
+        </div>
+
+        <div id="form-phone" class="card">
+            <div class="header">
+                <div class="logo-icon">
+                    <img class="logo-img" src="assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false">
+                 </div>
+            </div>
+
+            <p class="description">Vui lòng nhập số điện thoại của bạn để lấy mã<br>OTP</p>
+            
+            <div class="input-group">
+                <label>Nhập số điện thoại</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-phone left-icon"></i>
+                    <input type="text" id="forgot-phone" placeholder="0987654389">
+                </div>
+                <div id="err-forgot-phone" class="field-error"></div>
+            </div>
+            
+            <button type="button" class="btn btn-primary" style="margin-top: 10px;" onclick="goToOTP()">Tiếp tục</button>
+            
+            <div class="bottom-links" style="margin-bottom: 0;">
+                <a href="#" onclick="switchForm('form-login')">← Quay lại Đăng nhập</a>
+            </div>
+        </div>
+
+        <div id="form-otp" class="card">
+            <div class="header">
+                <div class="logo-icon">
+                    <img class="logo-img" src="assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false">
+                </div>
+            </div>
+
+            <p class="description" style="margin-bottom: 25px;">
+                Vui lòng nhập mã OTP đã được gửi về số điện thoại <br>
+                <span class="highlight" id="display-phone">09******89</span>. Mã sẽ hết hiệu lực sau <span class="highlight" id="countdown-timer">101 giây</span>
+            </p>
+            
+            <div class="input-group" style="text-align: center;">
+                <label style="text-align: left;">Nhập mã OTP</label>
+                <div class="otp-container">
+                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
+                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
+                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
+                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
+                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
+                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
+                </div>
+            </div>
+            
+            <button type="button" class="btn btn-primary" onclick="switchForm('form-reset')">Tiếp tục</button>
+            <button type="button" class="btn btn-secondary" onclick="cancelOTP()">Hủy</button>
+            
+            <div class="bottom-links">
+                Chưa nhận được mã? <a href="#" onclick="startCountdown(101)" style="color: #6b7280; text-decoration: underline;">Gửi lại</a>
+            </div>
+
+            <div class="pill-wrapper">
+                <button class="btn-pill" onclick="fillDemoOTP()"><i class="fa-solid fa-rotate-right"></i> Điền mã OTP mẫu (842915)</button>
+            </div>
+        </div>
+
+        <div id="form-reset" class="card">
+            <div class="header">
+                <div class="logo-icon">
+                    <img class="logo-img" src="assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false">
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>Mật khẩu mới</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock left-icon"></i>
+                    <input type="password" id="demo-new-pwd" placeholder="••••••••">
+                    <i class="fa-regular fa-eye right-icon" onclick="togglePassword(this)"></i>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>Mật khẩu hiện tại</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock left-icon"></i>
+                    <input type="password" id="demo-cur-pwd" placeholder="••••••••">
+                    <i class="fa-regular fa-eye right-icon" onclick="togglePassword(this)"></i>
+                </div>
+            </div>
+            
+            <button type="button" class="btn btn-primary" style="margin-top: 10px;" onclick="handlePasswordReset()">Cập nhật</button>
+            <button type="button" class="btn btn-secondary" onclick="switchForm('form-login')">Hủy</button>
+
+            <div class="pill-wrapper" style="margin-top: 10px;">
+                <button class="btn-pill" onclick="fillDemoReset()">Điền nhanh mật khẩu mới mẫu</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

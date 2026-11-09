@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý hệ thống - LEAF LIBRARY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+  <div class="app-wrapper">
+
+    <header class="header-container navbar">
+      <div class="header-logo" id="sidebarToggle" title="Thu gọn / Mở rộng menu">
+        <img class="logo-full" src="../assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false">
+        <img class="logo-compact" src="../assets/images/logo-leaf.png" alt="Leaf Library Logo" draggable="false">
+      </div>
+
+      <div class="header-greeting">
+        <span class="greeting-hello">hello,</span>
+        <span class="greeting-name" id="headerGreetingName">Quản trị viên</span>
+      </div>
+
+      <div class="header-user" id="headerUserContainer">
+        <div class="user-avatar-circle" id="btnUserAvatar" title="Tài khoản của tôi">
+          <svg id="headerAvatarDefaultIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <img id="headerAvatarImg" class="avatar-img-fill" src="" alt="Avatar" style="display: none;">
+        </div>
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <div class="user-dropdown-header">
+            <div class="user-dropdown-name" id="dropdownUserName">Quản trị viên</div>
+            <div class="user-dropdown-meta">
+              <span id="dropdownUserCode">Mã NV: 12026001</span>
+              <span class="badge status-badge badge-admin" id="dropdownUserRole">QUẢN TRỊ VIÊN</span>
+            </div>
+          </div>
+          <button type="button" class="user-dropdown-item" id="btnOpenMyAccount">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Thông tin tài khoản</span>
+          </button>
+          <button type="button" class="user-dropdown-item" id="btnOpenChangePassword">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            <span>Đổi mật khẩu</span>
+          </button>
+          <div class="user-dropdown-divider"></div>
+          <button type="button" class="user-dropdown-item logout-item" id="btnUserLogout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span>Đăng xuất</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="main-body">
+
+      <aside class="sidebar-menu admin-sidebar" id="sidebarMenu">
+        <a href="index.html" class="sidebar-item active" title="Quản lý hệ thống">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Quản lý hệ thống</span>
+        </a>
+        <a href="books.html" class="sidebar-item" title="Quản lý kho sách">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span>Quản lý kho sách</span>
+        </a>
+        <a href="readers.html" class="sidebar-item" title="Quản lý độc giả">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Quản lý độc giả</span>
+        </a>
+        <a href="circulation.html" class="sidebar-item" title="Quản lý mượn - trả">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          <span>Quản lý mượn - trả</span>
+        </a>
+        <a href="reports.html" class="sidebar-item" title="Báo cáo, thống kê">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span>Báo cáo, thống kê</span>
+        </a>
+      </aside>
+
+      <main class="content-section">
+
+        <div class="subtabs-container">
+          <div class="subtabs-list">
+            <button type="button" class="subtab-item active" data-tab="tabEmployeeList">Danh sách nhân viên</button>
+            <button type="button" class="subtab-item" data-tab="tabPermissions">Phân quyền truy cập</button>
+            <button type="button" class="subtab-item" data-tab="tabRegulations">Thiết lập quy định</button>
+            <button type="button" class="subtab-item" data-tab="tabAuditLog">Lịch sử thao tác</button>
+          </div>
+          <div class="subtabs-line"></div>
+        </div>
+
+        <div class="tab-content-panel active" id="tabEmployeeList">
+          <div class="toolbar-container">
+            <div class="toolbar-left-group">
+              <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Tìm theo mã, tên, số điện thoại,...">
+                <span class="search-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </span>
+              </div>
+
+              <div class="filter-box">
+                <select id="roleFilter">
+                  <option value="all">Tất cả vai trò</option>
+                  <option value="QUẢN TRỊ VIÊN">Quản trị viên</option>
+                  <option value="THỦ THƯ KHO">Thủ thư kho</option>
+                  <option value="THỦ THƯ QUẦY">Thủ thư quầy</option>
+                  <option value="NHÂN VIÊN">Nhân viên</option>
+                </select>
+                <span class="filter-arrow">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </div>
+            </div>
+
+            <button type="button" class="btn-add" id="btnAddEmployee">
+              <span>Thêm nhân viên</span>
+              <span style="font-size: 16px; font-weight: 600;">+</span>
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <div class="table-header-row">
+              <div>Mã NV</div>
+              <div>Nhân viên</div>
+              <div>Tài khoản &amp; vai trò</div>
+              <div>Liên hệ</div>
+              <div>Trạng thái</div>
+              <div>Hành động</div>
+            </div>
+
+            <div class="table-frame" id="tableContent">
+            </div>
+          </div>
+
+          <div class="pagination-wrapper" id="empPagination"></div>
+        </div>
+
+        <div class="tab-content-panel" id="tabPermissions">
+          <div class="perm-toolbar">
+            <div class="perm-role-group">
+              <span>Chọn nhóm quyền:</span>
+              <div class="perm-role-select-box">
+                <select id="permRoleSelect">
+                  <option value="QUẢN TRỊ VIÊN">Quản trị viên</option>
+                  <option value="THỦ THƯ KHO">Thủ thư kho</option>
+                  <option value="THỦ THƯ QUẦY">Thủ thư quầy</option>
+                  <option value="NHÂN VIÊN">Nhân viên</option>
+                </select>
+                <span class="filter-arrow">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </div>
+            </div>
+
+            <button type="button" class="btn-save-perm" id="btnSavePerm">Lưu cấu hình</button>
+          </div>
+
+          <div class="table-responsive">
+            <div class="perm-table-header">
+              <div>Chức năng</div>
+              <div>Xem</div>
+              <div>Thêm</div>
+              <div>Sửa</div>
+              <div>Xóa</div>
+            </div>
+
+            <div class="perm-table-frame" id="permTableContent">
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-content-panel" id="tabRegulations">
+          <div class="rules-toolbar">
+            <div class="rules-status-left">
+              <span class="rules-status-text" id="rulesStatusInfo">Cập nhật lần cuối: 21 / 02 / 2026 bởi Trần Giang Tuấn Kiệt</span>
+              <span class="rules-feedback-badge" id="rulesFeedbackBadge"></span>
+            </div>
+            <div class="rules-actions-right">
+              <button type="button" class="btn-rules-restore" id="btnRestoreDefaultRules">Khôi phục mặc định</button>
+              <button type="button" class="btn-rules-save" id="btnSaveRules">Lưu quy định</button>
+            </div>
+          </div>
+
+          <div class="rules-grid">
+            <div class="rules-card">
+              <div class="modal-section-title">Quy định mượn - trả &amp; gia hạn</div>
+              <div class="rules-form-list">
+                <div class="rules-form-row">
+                  <label class="rules-label" for="ruleMaxBorrowBooks">Số sách mượn tối đa / độc giả</label>
+                  <div class="rules-input-group">
+                    <input type="number" min="0" class="rules-input" id="ruleMaxBorrowBooks" value="5">
+                    <span class="rules-unit">cuốn</span>
+                  </div>
+                </div>
+                <div class="rules-form-row">
+                  <label class="rules-label" for="ruleMaxBorrowDays">Thời hạn mượn tối đa / lần</label>
+                  <div class="rules-input-group">
+                    <input type="number" min="0" class="rules-input" id="ruleMaxBorrowDays" value="14">
+                    <span class="rules-unit">ngày</span>
+                  </div>
+                </div>
+                <div class="rules-form-row">
+                  <label class="rules-label" for="ruleMaxRenewals">Số lần gia hạn tối đa / phiếu</label>
+                  <div class="rules-input-group">
+                    <input type="number" min="0" class="rules-input" id="ruleMaxRenewals" value="2">
+                    <span class="rules-unit">lần</span>
+                  </div>
+                </div>
+                <div class="rules-form-row">
+                  <label class="rules-label" for="ruleRenewalDays">Số ngày mỗi lần gia hạn</label>
+                  <div class="rules-input-group">
+                    <input type="number" min="0" class="rules-input" id="ruleRenewalDays" value="7">
+                    <span class="rules-unit">ngày</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="rules-card">
+              <div class="modal-section-title">Quy định thẻ thư viện &amp; độc giả</div>
+              <div class="rules-form-list">
+                <div class="rules-form-row">
+                  <label class="rules-label" for="ruleNewCardFee">Phí cấp thẻ mới (Mặc định)</label>
+                  <div class="rules-input-group">
+                    <input type="number" min="0" step="1000" class="rules-input" id="ruleNewCardFee" value="50000">
+                    <span class="rules-unit">VNĐ</span>
+                  </div>
+                </div>
+                <div class="rules-form-row">
+                  <label class="rules-label" for="ruleRenewCardFee">Phí cấp lại / gia hạn thẻ</label>
+                  <div class="rules-input-group">
+                    <input type="number" min="0" step="1000" class="rules-input" id="ruleRenewCardFee" value="50000">
+                    <span class="rules-unit">VNĐ</span>
+                  </div>
+                </div>
+                <div class="rules-form-row">
+                  <label class="rules-label" for="ruleCardValidityMonths">Thời hạn hiệu lực của thẻ</label>
+                  <div class="rules-input-group">
+                    <input type="number" min="0" class="rules-input" id="ruleCardValidityMonths" value="12">
+                    <span class="rules-unit">tháng</span>
+                  </div>
+                </div>
+                <div class="rules-form-row">
+                  <label class="rules-label" for="ruleHoldBookHours">Thời gian giữ sách đăng ký chờ</label>
+                  <div class="rules-input-group">
+                    <input type="number" min="0" class="rules-input" id="ruleHoldBookHours" value="48">
+                    <span class="rules-unit">giờ</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="rules-card">
+              <div class="modal-section-title">Quy định xử phạt &amp; đền bù</div>
+              <div class="rules-form-list">
+                <div class="rules-form-row">
+                  <label class="rules-label" for="ruleLateFeePerDay">Tiền phạt trả sách trễ hạn</label>
+                  <div class="rules-input-group">
+                    <input type="number" min="0" step="1000" class="rules-input" id="ruleLateFeePerDay" value="5000">
+                    <span class="rules-unit">VNĐ / ngày</span>
+                  </div>
+                </div>
+                <div class="rules-form-row">
+                  <label class="rules-label" for="ruleDamageFee">Phạt làm hư hỏng sách (Sờn gáy, bẩn)</label>
+                  <div class="rules-input-group">
+                    <input type="number" min="0" step="1000" class="rules-input" id="ruleDamageFee" value="30000">
+                    <span class="rules-unit">VNĐ</span>
+                  </div>
+                </div>
+                <div class="rules-form-row">
+                  <label class="rules-label" for="ruleLostCompensationPercent">Đền bù mất sách / Rách nát (% giá bìa)</label>
+                  <div class="rules-input-group">
+                    <input type="number" min="0" class="rules-input" id="ruleLostCompensationPercent" value="100">
+                    <span class="rules-unit">% giá bìa</span>
+                  </div>
+                </div>
+                <div class="rules-form-row">
+                  <label class="rules-label" for="ruleMaxLateDaysBeforeLock">Số ngày trễ tối đa trước khi khóa thẻ</label>
+                  <div class="rules-input-group">
+                    <input type="number" min="0" class="rules-input" id="ruleMaxLateDaysBeforeLock" value="30">
+                    <span class="rules-unit">ngày</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="rules-card">
+              <div class="modal-section-title">Quy định kho sách &amp; lưu thông</div>
+              <div class="rules-form-list">
+                <div class="rules-form-row">
+                  <label class="rules-label" for="ruleMinCopiesInStock">Số bản sao tối thiểu giữ tại kho (Chỉ đọc tại chỗ)</label>
+                  <div class="rules-input-group">
+                    <input type="number" min="0" class="rules-input" id="ruleMinCopiesInStock" value="1">
+                    <span class="rules-unit">cuốn</span>
+                  </div>
+                </div>
+                <div class="rules-form-row">
+                  <label class="rules-label" for="ruleAutoLockTornBooks">Tự động khóa lưu thông sách ở tình trạng "Rách nát"</label>
+                  <div class="rules-input-group">
+                    <select class="rules-select" id="ruleAutoLockTornBooks">
+                      <option value="Bật">Bật</option>
+                      <option value="Tắt">Tắt</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="rules-form-row">
+                  <label class="rules-label" for="ruleAllowBookPurchaseRequest">Cho phép độc giả gửi đề xuất mua sách mới</label>
+                  <div class="rules-input-group">
+                    <select class="rules-select" id="ruleAllowBookPurchaseRequest">
+                      <option value="Bật">Bật</option>
+                      <option value="Tắt">Tắt</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="rules-form-row">
+                  <label class="rules-label" for="ruleAllowOnlineRenewal">Cho phép gia hạn online khi sách chưa quá hạn</label>
+                  <div class="rules-input-group">
+                    <select class="rules-select" id="ruleAllowOnlineRenewal">
+                      <option value="Bật">Bật</option>
+                      <option value="Tắt">Tắt</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-content-panel" id="tabAuditLog">
+          <div class="log-filter-bar">
+            <div class="log-filter-item">
+              <span class="log-filter-label">Từ ngày</span>
+              <div class="log-filter-input-wrap">
+                <input type="text" class="log-filter-input" id="logDateFrom" value="" placeholder="DD / MM / YYYY">
+                <span class="log-filter-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </span>
+              </div>
+            </div>
+
+            <div class="log-filter-item">
+              <span class="log-filter-label">Đến ngày</span>
+              <div class="log-filter-input-wrap">
+                <input type="text" class="log-filter-input" id="logDateTo" value="" placeholder="DD / MM / YYYY">
+                <span class="log-filter-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </span>
+              </div>
+            </div>
+
+            <div class="log-filter-item">
+              <span class="log-filter-label">Người thực hiện</span>
+              <div class="log-filter-input-wrap">
+                <select class="log-filter-select" id="logUserSelect">
+                  <option value="all">Tất cả nhân viên</option>
+                </select>
+                <span class="log-filter-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </div>
+            </div>
+
+            <div class="log-filter-item">
+              <span class="log-filter-label">Loại hành động</span>
+              <div class="log-filter-input-wrap">
+                <select class="log-filter-select" id="logActionSelect">
+                  <option value="all">Tất cả hành động</option>
+                  <option value="ĐĂNG NHẬP">Đăng nhập</option>
+                  <option value="GIA HẠN">Gia hạn</option>
+                  <option value="TẠO MỚI">Tạo mới</option>
+                  <option value="XÓA DỮ LIỆU">Xóa dữ liệu</option>
+                  <option value="CẬP NHẬT">Cập nhật</option>
+                  <option value="KHÓA TÀI KHOẢN">Khóa tài khoản</option>
+                  <option value="CẤP TÀI KHOẢN">Cấp tài khoản</option>
+                  <option value="RESET MẬT KHẨU">Reset mật khẩu</option>
+                </select>
+                <span class="log-filter-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </div>
+            </div>
+
+            <div class="log-filter-item">
+              <span class="log-filter-label">Tìm kiếm nội dung</span>
+              <div class="log-filter-input-wrap">
+                <input type="text" class="log-filter-input" id="logSearchInput" placeholder="Nhập mã phiếu, mã sách,...">
+                <span class="log-filter-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </span>
+              </div>
+            </div>
+
+            <button type="button" class="btn-log-filter" id="btnApplyLogFilter">
+              <span>Lọc</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <div class="log-table-header">
+              <div>Thời gian</div>
+              <div>Nhân viên</div>
+              <div>Hành động</div>
+              <div>Mã đối tượng</div>
+              <div>Chi tiết thao tác</div>
+            </div>
+
+            <div class="log-table-frame" id="logTableContent">
+            </div>
+          </div>
+
+          <div class="pagination-wrapper" id="logPagination"></div>
+        </div>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <div class="modal-overlay" id="modalViewEmployee">
+    <div class="modal-box modal-box-card">
+      <div class="modal-header">
+        <div class="modal-title">LEAF LIBRARY - HỒ SƠ CÁ NHÂN</div>
+        <button type="button" class="modal-close-btn" data-close="modalViewEmployee">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-card-layout">
+          <div class="modal-card-col-media">
+            <div class="modal-media-banner" id="viewEmpMediaBanner">
+              <div class="default-avatar-graphic" id="viewEmpDefaultAvatar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+                <span style="font-size: 13px; font-weight: 700;">ẢNH CÁ NHÂN</span>
+              </div>
+              <img id="viewEmpImagePreview" class="media-preview-img" alt="Ảnh nhân viên">
+            </div>
+            <div class="modal-id-group">
+              <div class="employee-code-meta">Mã nhân viên (TK)</div>
+              <div class="employee-code-large" id="viewIdLarge">12026001</div>
+            </div>
+          </div>
+
+          <div class="modal-card-col-main">
+            <div class="modal-section-title">Phần thông tin cá nhân</div>
+            <div class="form-grid-row">
+              <label class="form-field-label">Họ và tên</label>
+              <input type="text" class="form-input-text" id="viewName" readonly>
+            </div>
+            <div class="form-grid-row">
+              <label class="form-field-label">Giới tính</label>
+              <select class="form-select-control" id="viewGender" disabled>
+                <option value="Nam">Nam</option>
+                <option value="Nữ">Nữ</option>
+              </select>
+            </div>
+            <div class="form-grid-row">
+              <label class="form-field-label">Ngày sinh</label>
+              <input type="text" class="form-input-text" id="viewDob" readonly>
+            </div>
+            <div class="form-grid-row">
+              <label class="form-field-label">CCCD</label>
+              <select class="form-select-control" id="viewCccd" disabled>
+                <option value=""></option>
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-card-col-side">
+            <div class="modal-section-title">Phần thông tin liên hệ &amp; nhóm quyền</div>
+            <div class="form-grid-row">
+              <label class="form-field-label">Địa chỉ</label>
+              <input type="text" class="form-input-text" id="viewAddress" readonly>
+            </div>
+            <div class="form-grid-row">
+              <label class="form-field-label">SĐT</label>
+              <input type="text" class="form-input-text" id="viewPhone" readonly>
+            </div>
+            <div class="form-grid-row">
+              <label class="form-field-label">Email</label>
+              <input type="text" class="form-input-text" id="viewEmail" readonly>
+            </div>
+            <div class="form-grid-row">
+              <label class="form-field-label">Nhóm quyền</label>
+              <select class="form-select-control" id="viewRole" disabled>
+                <option value="QUẢN TRỊ VIÊN">Quản trị viên</option>
+                <option value="THỦ THƯ KHO">Thủ thư kho</option>
+                <option value="THỦ THƯ QUẦY">Thủ thư quầy</option>
+                <option value="NHÂN VIÊN">Nhân viên</option>
+              </select>
+            </div>
+
+            <div class="modal-actions-bottom" style="margin-top: 10px;">
+              <button type="button" class="btn-action-gray" data-close="modalViewEmployee">THOÁT</button>
+              <button type="button" class="btn-action-outline" id="btnViewResetPassword">RESET MK</button>
+              <button type="button" class="btn-action-blue" id="btnViewEditInfo">CHỈNH SỬA THÔNG TIN</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalEditEmployee">
+    <div class="modal-box modal-box-card">
+      <div class="modal-header">
+        <div class="modal-title" id="editModalHeaderTitle">LEAF LIBRARY - CHỈNH SỬA THÔNG TIN NHÂN VIÊN</div>
+        <button type="button" class="modal-close-btn" data-close="modalEditEmployee">✕</button>
+      </div>
+      <div class="modal-body">
+        <form class="modal-card-layout" id="editEmployeeForm">
+          <div class="modal-card-col-media">
+            <div class="modal-media-banner" id="empMediaBanner">
+              <div class="default-avatar-graphic" id="empDefaultAvatar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+                <span style="font-size: 13px; font-weight: 700;">ẢNH CÁ NHÂN</span>
+              </div>
+              <div class="upload-placeholder-view" id="empUploadPlaceholder">
+                <img class="upload-placeholder-logo" src="../assets/images/logo-leaf.png" alt="Leaf Library Logo" draggable="false">
+                <div class="upload-placeholder-title">CHƯA CÓ ẢNH HỒ SƠ</div>
+                <div class="upload-placeholder-sub">Tải ảnh từ máy hoặc dán URL bên dưới</div>
+              </div>
+              <img id="empImagePreview" class="media-preview-img" alt="Ảnh nhân viên">
+              <button type="button" class="btn-media-clear" id="btnResetEmpImage">Đổi ảnh / Xóa ảnh</button>
+            </div>
+
+            <div class="media-upload-controls">
+              <label class="btn-upload-file" for="empImageFileInput">Tải ảnh từ máy</label>
+              <input type="file" id="empImageFileInput" accept="image/*" hidden>
+              <input type="url" class="img-url-input" id="empImageUrlInput" placeholder="Hoặc dán URL hình ảnh...">
+            </div>
+
+            <div class="modal-id-group">
+              <div class="employee-code-meta">Mã nhân viên (TK)</div>
+              <div class="employee-code-large" id="editIdLarge">12026001</div>
+            </div>
+          </div>
+
+          <div class="modal-card-col-main">
+            <div class="modal-section-title">Phần thông tin cá nhân</div>
+            <div class="form-grid-row">
+              <label class="form-field-label">Họ và tên</label>
+              <div class="name-fields-container">
+                <input type="text" class="form-input-text" id="editFirstName" placeholder="Họ đệm">
+                <input type="text" class="form-input-text" id="editLastName" placeholder="Tên">
+              </div>
+            </div>
+            <div class="form-grid-row">
+              <label class="form-field-label">Giới tính</label>
+              <select class="form-select-control" id="editGender">
+                <option value="Nam">Nam</option>
+                <option value="Nữ">Nữ</option>
+              </select>
+            </div>
+            <div class="form-grid-row">
+              <label class="form-field-label">Ngày sinh</label>
+              <input type="text" class="form-input-text" id="editDob" placeholder="21 / 02 / 2026">
+            </div>
+            <div class="form-grid-row">
+              <label class="form-field-label">Dân tộc</label>
+              <div class="dual-fields-container">
+                <select class="form-select-control" id="editEthnicity">
+                  <option value="Kinh">Kinh</option>
+                  <option value="Tày">Tày</option>
+                  <option value="Thái">Thái</option>
+                  <option value="Mường">Mường</option>
+                  <option value="Khác">Khác</option>
+                </select>
+                <div class="sub-field-group">
+                  <span class="form-sub-label">Tôn giáo</span>
+                  <select class="form-select-control" id="editReligion">
+                    <option value="Không">Không</option>
+                    <option value="Phật giáo">Phật giáo</option>
+                    <option value="Công giáo">Công giáo</option>
+                    <option value="Tin lành">Tin lành</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-card-col-side">
+            <div class="modal-section-title">Phần thông tin liên hệ &amp; nhóm quyền</div>
+            <div class="form-grid-row">
+              <label class="form-field-label">Địa chỉ</label>
+              <input type="text" class="form-input-text" id="editAddress">
+            </div>
+            <div class="form-grid-row">
+              <label class="form-field-label">SĐT</label>
+              <input type="text" class="form-input-text" id="editPhone">
+            </div>
+            <div class="form-grid-row">
+              <label class="form-field-label">Email</label>
+              <input type="text" class="form-input-text" id="editEmail">
+            </div>
+            <div class="form-grid-row">
+              <label class="form-field-label">Nhóm quyền</label>
+              <select class="form-select-control" id="editRole">
+                <option value="QUẢN TRỊ VIÊN">Quản trị viên</option>
+                <option value="THỦ THƯ KHO">Thủ thư kho</option>
+                <option value="THỦ THƯ QUẦY">Thủ thư quầy</option>
+                <option value="NHÂN VIÊN">Nhân viên</option>
+              </select>
+            </div>
+            <div class="form-grid-row">
+              <label class="form-field-label">Tài khoản</label>
+              <select class="form-select-control" id="editAccountStatus">
+                <option value="Active">Active (Đã cấp tài khoản)</option>
+                <option value="Hồ sơ">Hồ sơ (Chưa cấp TK)</option>
+                <option value="Khóa">Đã khóa</option>
+              </select>
+            </div>
+
+            <div class="modal-actions-bottom" style="margin-top: 10px;">
+              <button type="button" class="btn-action-gray" data-close="modalEditEmployee">THOÁT</button>
+              <button type="button" class="btn-action-outline" id="btnEditResetPassword">RESET MẬT KHẨU</button>
+              <button type="button" class="btn-action-blue" id="btnSaveEmployeeInfo">LƯU THÔNG TIN</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay confirm-modal" id="modalResetPassword">
+    <div class="modal-box modal-box-sm">
+      <div class="modal-header">
+        <div class="modal-title">LEAF LIBRARY - RESET MẬT KHẨU</div>
+        <button type="button" class="modal-close-btn" data-close="modalResetPassword">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="confirm-text-message">
+          Mật khẩu của tài khoản <span id="resetAccountCode" style="color: #B91C1C; font-weight: 700;">12026001</span> sau khi được reset sẽ được gửi qua gmail của tài khoản. Xin vui lòng kiểm tra cả hộp thư spam.
+        </div>
+        <div class="confirm-buttons-row">
+          <button type="button" class="btn-action-gray" data-close="modalResetPassword">QUAY LẠI</button>
+          <button type="button" class="btn-action-blue" id="btnConfirmResetPassword">XÁC NHẬN RESET</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay confirm-modal" id="modalLockEmployee">
+    <div class="modal-box modal-box-sm">
+      <div class="modal-header">
+        <div class="modal-title" id="lockEmpModalTitle">LEAF LIBRARY - KHÓA / MỞ KHÓA TÀI KHOẢN</div>
+        <button type="button" class="modal-close-btn" data-close="modalLockEmployee">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="confirm-text-message" id="lockEmpModalMessage">
+          Bạn có chắc chắn muốn thay đổi trạng thái hoạt động của nhân viên <strong id="lockEmployeeCode" style="color: var(--primary-navy);">12026004</strong> không?
+        </div>
+        <div class="confirm-buttons-row">
+          <button type="button" class="btn-action-gray" data-close="modalLockEmployee">HỦY BỎ</button>
+          <button type="button" class="btn-action-blue" id="btnConfirmLockEmployee">XÁC NHẬN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay confirm-modal" id="modalDeleteEmployee">
+    <div class="modal-box modal-box-sm">
+      <div class="modal-header">
+        <div class="modal-title">LEAF LIBRARY - XÓA NHÂN VIÊN</div>
+        <button type="button" class="modal-close-btn" data-close="modalDeleteEmployee">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="confirm-text-message">
+          Bạn có chắc chắn muốn xóa nhân viên <span id="deleteEmployeeCode" style="font-weight: 700;">NV2026001</span> không, khi đồng ý xóa, trạng thái nhân viên sẽ thành 0: đã nghỉ việc.
+        </div>
+        <div class="confirm-buttons-row">
+          <button type="button" class="btn-action-gray" data-close="modalDeleteEmployee">QUAY LẠI</button>
+          <button type="button" class="btn-action-blue" id="btnConfirmDeleteEmployee">XÁC NHẬN XÓA</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay confirm-modal" id="modalGrantAccount">
+    <div class="modal-box modal-box-sm">
+      <div class="modal-header">
+        <div class="modal-title">LEAF LIBRARY - CẤP TÀI KHOẢN</div>
+        <button type="button" class="modal-close-btn" data-close="modalGrantAccount">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="confirm-text-message">
+          Xác nhận cấp tài khoản cho nhân viên có mã nhân viên <span id="grantEmployeeCode" style="font-weight: 700;">NV2026001</span>. Mật khẩu sẽ được gửi về gmail của nhân viên bên cạnh đó chọn nhóm quyền cho nhân viên dưới đây.
+        </div>
+        <div class="form-grid-row" style="margin-top: 14px;">
+          <label class="form-field-label">Nhóm quyền</label>
+          <select class="form-select-control" id="grantRoleSelect">
+            <option value="QUẢN TRỊ VIÊN">Quản trị viên</option>
+            <option value="THỦ THƯ KHO">Thủ thư kho</option>
+            <option value="THỦ THƯ QUẦY">Thủ thư quầy</option>
+            <option value="NHÂN VIÊN">Nhân viên</option>
+          </select>
+        </div>
+        <div class="confirm-buttons-row">
+          <button type="button" class="btn-action-gray" data-close="modalGrantAccount">QUAY LẠI</button>
+          <button type="button" class="btn-action-blue" id="btnConfirmGrantAccount">XÁC NHẬN CẤP TÀI KHOẢN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>
