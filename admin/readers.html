@@ -14,7 +14,7 @@
 
   <div class="app-wrapper">
 
-    <header class="header-container">
+    <header class="header-container navbar">
       <div class="header-logo" id="sidebarToggle" title="Thu gọn / Mở rộng menu">
         <img class="logo-full" src="../assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false">
         <img class="logo-compact" src="../assets/images/logo-leaf.png" alt="Leaf Library Logo" draggable="false">
@@ -38,7 +38,7 @@
             <div class="user-dropdown-name" id="dropdownUserName">Quản trị viên</div>
             <div class="user-dropdown-meta">
               <span id="dropdownUserCode">Mã NV: 12026001</span>
-              <span class="badge badge-admin" id="dropdownUserRole">QUẢN TRỊ VIÊN</span>
+              <span class="badge status-badge badge-admin" id="dropdownUserRole">QUẢN TRỊ VIÊN</span>
             </div>
           </div>
           <button type="button" class="user-dropdown-item" id="btnOpenMyAccount">
@@ -60,7 +60,7 @@
 
     <div class="main-body">
 
-      <aside class="sidebar-menu" id="sidebarMenu">
+      <aside class="sidebar-menu admin-sidebar" id="sidebarMenu">
         <a href="index.html" class="sidebar-item" title="Quản lý hệ thống">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           <span>Quản lý hệ thống</span>
@@ -459,7 +459,7 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="modalRenewCard">
+  <div class="modal-overlay confirm-modal" id="modalRenewCard">
     <div class="modal-box modal-box-md">
       <div class="modal-header">
         <div class="modal-title">LEAF LIBRARY - CẤP LẠI THẺ ĐỘC GIẢ</div>
@@ -601,7 +601,7 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="modalLockReader">
+  <div class="modal-overlay confirm-modal" id="modalLockReader">
     <div class="modal-box modal-box-sm">
       <div class="modal-header">
         <div class="modal-title">LEAF LIBRARY - KHÓA THẺ ĐỘC GIẢ</div>
@@ -619,7 +619,7 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="modalDeleteReader">
+  <div class="modal-overlay confirm-modal" id="modalDeleteReader">
     <div class="modal-box modal-box-sm">
       <div class="modal-header">
         <div class="modal-title">LEAF LIBRARY - XÓA HỒ SƠ ĐỘC GIẢ</div>
