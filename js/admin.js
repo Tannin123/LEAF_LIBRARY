@@ -2828,3 +2828,122 @@ document.addEventListener('DOMContentLoaded', () => {
     renderReaderHistoryTable();
   }
 });
+document.addEventListener('DOMContentLoaded', function() {
+    const btnShow = document.getElementById('btnShowCreateLoan');
+    const modal = document.getElementById('modalCreateLoan');
+    const btnClose = document.getElementById('btnCloseCreateLoan');
+    const btnCancel = document.getElementById('btnCancelCreateLoan');
+
+    if(btnShow && modal) {
+        // Mở Modal khi bấm nút Thêm phiếu +
+        btnShow.addEventListener('click', () => {
+            modal.style.display = 'flex';
+            // Ví dụ khi mở modal Thêm mới:
+            document.getElementById('statusFieldWrapper').classList.remove('show-status'); // Ẩn trạng thái đi
+        });
+
+        // Tắt Modal qua nút X hoặc nút Hủy
+        const hideModal = () => modal.style.display = 'none';
+        if(btnClose) btnClose.addEventListener('click', hideModal);
+        if(btnCancel) btnCancel.addEventListener('click', hideModal);
+        
+        // Bấm ra ngoài vùng nền mờ để ẩn Modal
+        modal.addEventListener('click', (e) => {
+            if(e.target === modal) hideModal();
+        });
+    }
+});
+// --- LOGIC MẪU CHO SỬA & XÓA (Chờ kết nối Backend sau này) ---
+document.addEventListener('click', function(e) {
+    // 1. Khi bấm vào nút Xóa (icon thùng rác 🗑️)
+    if (e.target.closest('.btn-delete-loan')) {
+        const row = e.target.closest('tr');
+        const loanId = row ? row.cells[0].textContent : 'này';
+        
+        // Hiện hộp thoại xác nhận trước khi xóa
+        if (confirm(`Bạn có chắc chắn muốn xóa phiếu mượn ${loanId} không?`)) {
+            // Sau này gọi API xóa ở đây, hiện tại chỉ xóa dòng trên giao diện tạm thời
+            if(row) row.remove();
+            alert('Đã xóa thành công!');
+        }
+    }
+
+    // 2. Khi bấm vào nút Sửa (icon bút chì ✏️)
+    if (e.target.closest('.btn-edit-loan')) {
+        const row = e.target.closest('tr');
+        const loanId = row ? row.cells[0].textContent : '';
+        
+        // Mở Modal (dùng chung modal thêm phiếu nhưng đổi tiêu đề)
+        const modal = document.getElementById('modalCreateLoan');
+        if (modal) {
+            const title = modal.querySelector('.loan-modal-title');
+            const submitBtn = modal.querySelector('.loan-btn-submit');
+            
+            if(title) title.textContent = "CẬP NHẬT PHIẾU MƯỢN";
+            if(submitBtn) submitBtn.textContent = "Lưu thay đổi";
+            
+            modal.style.display = 'flex';
+            document.getElementById('statusFieldWrapper').classList.add('show-status');
+            
+            // Sau này viết code lấy dữ liệu của dòng `row` đổ vào các ô input trong modal tại đây
+            console.log("Đang mở modal sửa cho phiếu:", loanId);
+        }
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const subtabs = document.querySelectorAll('.subtab-item');
+    const panels = document.querySelectorAll('.tab-content-panel');
+
+    subtabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // 1. Xóa class active của tất cả các tab và panel
+            subtabs.forEach(t => t.classList.remove('active'));
+            panels.forEach(p => p.classList.remove('active'));
+
+            // 2. Thêm class active cho tab được bấm
+            this.classList.add('active');
+
+            // 3. Hiện panel tương ứng bằng cách thêm class active
+            const targetId = this.getAttribute('data-tab');
+            const targetPanel = document.getElementById(targetId);
+            if (targetPanel) {
+                targetPanel.classList.add('active');
+            }
+        });
+    });
+});
+document.addEventListener('DOMContentLoaded', function() {
+    const reportTabs = document.querySelectorAll('.subtab-item');
+    
+    reportTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-tab');
+            // Chỉ xử lý các tab thuộc phân hệ báo cáo thống kê
+            if (!targetId || !targetId.startsWith('tabReport')) return;
+
+            // Xóa active tất cả các tab báo cáo
+            reportTabs.forEach(t => {
+                if(t.getAttribute('data-tab')?.startsWith('tabReport')) {
+                    t.classList.remove('active');
+                }
+            });
+            this.classList.add('active');
+
+            // Ẩn tất cả các panel báo cáo và bỏ active
+            document.querySelectorAll('.tab-content-panel').forEach(panel => {
+                if(panel.id.startsWith('tabReport')) {
+                    panel.style.display = 'none';
+                    panel.classList.remove('active');
+                }
+            });
+
+            // Hiển thị panel được chọn
+            const targetPanel = document.getElementById(targetId);
+            if (targetPanel) {
+                targetPanel.style.display = 'block';
+                targetPanel.classList.add('active');
+            }
+        });
+    });
+});
