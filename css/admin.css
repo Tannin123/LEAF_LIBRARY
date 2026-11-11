@@ -3157,3 +3157,534 @@ td {
     display: none !important;
   }
 }
+/* --- CSS BỔ SUNG CHO PHẦN DASHBOARD BÁO CÁO --- */
+.dashboard-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.summary-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.summary-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.summary-value {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.dashboard-charts-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.chart-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+/* UI Mockup Biểu đồ tròn tạm thời khi chưa có Chart.js */
+.placeholder-pie-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.pie-circle {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--primary-navy) 0% 45%,
+    #38bdf8 45% 75%,
+    #94A3B8 75% 100%
+  );
+}
+
+.pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+@media (max-width: 992px) {
+  .dashboard-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dashboard-charts-layout {
+    grid-template-columns: 1fr;
+  }
+}
+/* --- CSS CHO QUẢN LÝ MƯỢN TRẢ --- */
+
+/* 1. Thanh công cụ (Toolbar) */
+.loan-toolbar {
+  display: flex; 
+  gap: 16px; 
+  align-items: flex-end; 
+  justify-content: space-between; 
+  margin-bottom: 20px; 
+  flex-wrap: wrap;
+}
+.loan-toolbar-left {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.search-input-wrapper {
+  flex: 1; 
+  min-width: 250px; 
+  max-width: 400px; 
+  position: relative;
+}
+
+.search-input-field {
+  width: 100%; 
+  padding-left: 36px;
+}
+
+.search-icon-span {
+  position: absolute; 
+  left: 12px; 
+  top: 50%; 
+  transform: translateY(-50%); 
+  color: #94A3B8; 
+  font-size: 14px;
+}
+
+.filter-group {
+  display: flex; 
+  gap: 12px; 
+  align-items: flex-end;
+}
+
+.filter-col {
+  display: flex; 
+  flex-direction: column; 
+  gap: 4px;
+}
+
+.date-filter-label {
+  font-size: 11px; 
+  color: #64748B; 
+  font-weight: 500;
+}
+
+.date-filter-input {
+  width: 130px; 
+  height: 36px; 
+  padding: 0 8px; 
+  color: #475569;
+}
+
+.status-filter-select {
+  width: 150px; 
+  height: 36px; 
+  color: #475569;
+}
+
+.add-loan-btn-style {
+  height: 36px; 
+  padding: 0 16px; 
+  border-radius: 6px;
+}
+
+.add-loan-btn-icon {
+  font-size: 18px; 
+  margin-left: 4px; 
+  line-height: 1;
+}
+
+/* 2. Bảng dữ liệu (Table & Empty State) */
+.table-header-cell {
+  color: #334155; 
+  font-weight: 600;
+  padding: 12px 8px;
+}
+
+.empty-state-container {
+  margin-top: 16px; 
+  padding: 40px 20px; 
+  text-align: center; 
+  color: #64748B; 
+  font-style: italic; 
+  border: 1px solid #E2E8F0; 
+  border-radius: 8px; 
+  background-color: #ffffff;
+}
+
+
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 4px;
+}
+
+.pagination-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #E2E8F0;
+  background: #ffffff;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #475569;
+  cursor: pointer;
+}
+
+.pagination-btn:hover {
+  background: #F1F5F9;
+}
+
+.pagination-btn.disabled {
+  color: #94A3B8;
+  background: #F8FAFC;
+  cursor: not-allowed;
+}
+
+.pagination-btn.active {
+  border-color: #1D5D86;
+  background: #EFF6FF;
+  color: #1D5D86;
+  font-weight: bold;
+}
+
+/* 3. Modal Thêm Phiếu Mượn */
+.loan-modal-box {
+  background: #ffffff;
+  width: 800px;
+  max-width: 95%;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.loan-modal-header {
+  background: #1D5D86; 
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.loan-modal-title {
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.loan-modal-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.loan-modal-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 20px 24px;
+}
+
+.loan-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.loan-section-title {
+  font-style: italic;
+  color: #64748B;
+  font-size: 13px;
+  border-bottom: 1px solid #CBD5E1;
+  padding-bottom: 4px;
+  margin-bottom: 12px;
+}
+
+.loan-form-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.loan-form-row label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.loan-input {
+  width: 100%;
+  height: 34px;
+  border: 1px solid #CBD5E1;
+  border-radius: 4px;
+  padding: 0 8px;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.loan-input-center {
+  font-weight: bold; 
+  text-align: center; 
+  font-size: 16px;
+}
+
+.loan-add-book-wrapper {
+  position: relative; 
+  width: 100%;
+}
+
+.loan-input-pr32 {
+  padding-right: 32px; 
+  width: 100%;
+}
+
+.loan-textarea {
+  width: 100%;
+  height: 80px;
+  border: 1px solid #CBD5E1;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 13px;
+  resize: none;
+  margin-top: 12px;
+  box-sizing: border-box;
+}
+
+.loan-add-book-btn {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 26px;
+  height: 26px;
+  border: 1px solid #CBD5E1;
+  background: white;
+  border-radius: 2px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loan-book-list-container {
+  border: 1px solid #CBD5E1;
+  border-radius: 4px;
+  height: 180px;
+  margin-top: 12px;
+  padding: 8px;
+  overflow-y: auto;
+  margin-bottom: auto; 
+}
+
+.loan-book-item {
+  display: flex;
+  gap: 12px;
+  border: 1px solid #E2E8F0;
+  padding: 6px;
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.loan-book-img {
+  width: 40px;
+  height: 50px;
+  background: #CBD5E1;
+}
+
+.loan-book-info {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.loan-book-stock {
+  color: #64748B; 
+  font-size: 11px;
+}
+
+.loan-book-remove {
+  position: absolute;
+  right: 8px;
+  top: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #64748B;
+}
+
+.loan-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.loan-btn {
+  width: 100%;
+  height: 36px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  color: white;
+}
+
+.loan-btn-reset { background: #60A5FA; }
+.loan-btn-submit { background: #3B82F6; }
+.loan-btn-cancel { background: #D1D5DB; color: #4B5563; }
+/* Mặc định ẩn trường trạng thái (dùng cho modal Thêm phiếu) */
+.loan-status-group {
+  display: none;
+}
+
+/* Khi thêm class này vào thì hiện trường trạng thái (dùng cho modal Sửa phiếu) */
+.loan-status-group.show-status {
+  display: flex;
+  flex-direction: column;
+}
+/* --- THANH CÔNG CỤ BÁO CÁO THỐNG KÊ --- */
+.report-toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 20px 0;
+  flex-wrap: nowrap;
+}
+
+/* Chuẩn hóa tất cả các nút chức năng trong thanh công cụ báo cáo sang màu trắng đồng bộ */
+.report-toolbar .btn-report-action {
+  background: var(--bg-card, #ffffff) !important;
+  color: var(--text-main, #1E293B) !important;
+  border: 1px solid var(--border-color, #CBD5E1) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  width: auto !important;
+  padding: 0 16px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+/* --- KHUNG TỔNG QUAN & BIỂU ĐỒ --- */
+.report-overview-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr 220px;
+  gap: 20px;
+  margin-bottom: 24px;
+  background: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.report-stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13.5px;
+  justify-content: center;
+}
+
+.report-stats-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.report-stats-label {
+  color: var(--text-muted);
+}
+
+.report-stats-value {
+  font-weight: bold;
+}
+
+.report-chart-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px dashed var(--border-color);
+  border-right: 1px dashed var(--border-color);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-style: italic;
+  padding: 0 15px;
+  text-align: center;
+}
+
+.report-pie-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.report-pie-chart {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.report-pie-inner {
+  width: 60px;
+  height: 60px;
+  background: white;
+  border-radius: 50%;
+}
+
+.report-empty-cell {
+  text-align: center;
+  padding: 30px;
+  color: var(--text-muted);
+  font-style: italic;
+}

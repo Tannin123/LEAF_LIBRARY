@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Báo cáo, thống kê - LEAF LIBRARY</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/admin.css">
 </head>
+
 <body>
 
   <div class="app-wrapper">
@@ -27,9 +31,10 @@
 
       <div class="header-user" id="headerUserContainer">
         <div class="user-avatar-circle" id="btnUserAvatar" title="Tài khoản của tôi">
-          <svg id="headerAvatarDefaultIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
+          <svg id="headerAvatarDefaultIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
           </svg>
           <img id="headerAvatarImg" class="avatar-img-fill" src="" alt="Avatar" style="display: none;">
         </div>
@@ -42,16 +47,26 @@
             </div>
           </div>
           <button type="button" class="user-dropdown-item" id="btnOpenMyAccount">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
             <span>Thông tin tài khoản</span>
           </button>
           <button type="button" class="user-dropdown-item" id="btnOpenChangePassword">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path
+                d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+            </svg>
             <span>Đổi mật khẩu</span>
           </button>
           <div class="user-dropdown-divider"></div>
           <button type="button" class="user-dropdown-item logout-item" id="btnUserLogout">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
             <span>Đăng xuất</span>
           </button>
         </div>
@@ -62,38 +77,251 @@
 
       <aside class="sidebar-menu admin-sidebar" id="sidebarMenu">
         <a href="index.html" class="sidebar-item" title="Quản lý hệ thống">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
           <span>Quản lý hệ thống</span>
         </a>
         <a href="books.html" class="sidebar-item" title="Quản lý kho sách">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+          </svg>
           <span>Quản lý kho sách</span>
         </a>
         <a href="readers.html" class="sidebar-item" title="Quản lý độc giả">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
           <span>Quản lý độc giả</span>
         </a>
         <a href="circulation.html" class="sidebar-item" title="Quản lý mượn - trả">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+            <line x1="7" y1="7" x2="7.01" y2="7" />
+          </svg>
           <span>Quản lý mượn - trả</span>
         </a>
         <a href="reports.html" class="sidebar-item active" title="Báo cáo, thống kê">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
           <span>Báo cáo, thống kê</span>
         </a>
       </aside>
 
       <main class="content-section">
-        <div class="tab-placeholder-view">
-          Phân hệ Báo cáo, thống kê của LEAF LIBRARY.
+
+        <!-- Các Tab Chuyển Đổi Thống Kê -->
+        <div class="subtabs-container">
+          <div class="subtabs-list">
+            <button type="button" class="subtab-item active" data-tab="tabReportBook">Thống kê sách</button>
+            <button type="button" class="subtab-item" data-tab="tabReportReader">Thống kê độc giả</button>
+            <button type="button" class="subtab-item" data-tab="tabReportLoan">Thống kê mượn trả</button>
+          </div>
+          <div class="subtabs-line"></div>
         </div>
+
+        <!-- THANH CÔNG CỤ BỘ LỌC BÁO CÁO -->
+        <div class="report-toolbar">
+          <div class="filter-col">
+            <label class="date-filter-label">Từ ngày</label>
+            <input type="date" class="form-input-text date-filter-input">
+          </div>
+
+          <div class="filter-col">
+            <label class="date-filter-label">Đến ngày</label>
+            <input type="date" class="form-input-text date-filter-input">
+          </div>
+
+          <!-- Nút Lọc -->
+          <button type="button" class="btn-action-gray btn-report-action">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+            </svg>
+            Lọc
+          </button>
+
+          <!-- Nút Reset -->
+          <button type="button" class="btn-action-gray btn-report-action">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="1 4 1 10 7 10" />
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+            </svg>
+            Reset
+          </button>
+
+          <!-- Nút Xuất Excel -->
+          <button type="button" class="btn-action-gray btn-report-action btn-excel">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <line x1="3" y1="9" x2="21" y2="9" />
+              <line x1="9" y1="21" x2="9" y2="9" />
+            </svg>
+            Xuất Excel
+          </button>
+        </div>
+
+        <!--  1. TAB THỐNG KÊ SÁCH -->
+        <div class="tab-content-panel active" id="tabReportBook">
+          <div class="report-overview-grid">
+            <div class="report-stats-list">
+              <div class="report-stats-row"><span class="report-stats-label">Tổng số sách</span> <span
+                  class="report-stats-value">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Số sách còn trong kho</span> <span
+                  class="report-stats-value">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Số sách đang được mượn</span> <span
+                  class="report-stats-value">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Sách hỏng / mất</span> <span
+                  class="report-stats-value">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Sách mượn nhiều nhất</span> <span
+                  class="report-stats-value" style="font-style: italic;">---</span></div>
+            </div>
+            <div class="report-chart-placeholder">
+              [Biểu đồ thống kê thể loại sách - Chờ dữ liệu từ hệ thống]
+            </div>
+            <div class="report-pie-container">
+              <div class="report-pie-chart"
+                style="background: conic-gradient(#3b82f6 0deg 270deg, #94a3b8 270deg 360deg);">
+                <div class="report-pie-inner"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="leaf-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border-color);">
+                  <th class="table-header-cell" style="text-align: center; width: 60px;">STT</th>
+                  <th class="table-header-cell">Tên sách</th>
+                  <th class="table-header-cell">Thể loại</th>
+                  <th class="table-header-cell" style="text-align: center;">Số lượng</th>
+                  <th class="table-header-cell" style="text-align: center;">Đang mượn</th>
+                  <th class="table-header-cell" style="text-align: center;">Còn lại</th>
+                  <th class="table-header-cell" style="text-align: center;">Số lượt mượn</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="7" class="report-empty-cell">
+                    Chưa có dữ liệu thống kê. Vui lòng chọn khoảng thời gian và bấm Lọc.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+
+        <!-- 2. TAB THỐNG KÊ ĐỘC GIẢ  -->
+        <div class="tab-content-panel" id="tabReportReader" style="display: none;">
+          <div class="report-overview-grid">
+            <div class="report-stats-list">
+              <div class="report-stats-row"><span class="report-stats-label">Tổng số độc giả</span> <span
+                  class="report-stats-value">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Độc giả mới</span> <span
+                  class="report-stats-value">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Độc giả bị khóa</span> <span
+                  class="report-stats-value">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Độc giả mượn sách</span> <span
+                  class="report-stats-value">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Mượn nhiều nhất</span> <span
+                  class="report-stats-value" style="font-style: italic;">---</span></div>
+            </div>
+            <div class="report-chart-placeholder">
+              [Biểu đồ phân loại độc giả - Chờ dữ liệu từ hệ thống]
+            </div>
+            <div class="report-pie-container">
+              <div class="report-pie-chart"
+                style="background: conic-gradient(#10b981 0deg 200deg, #f59e0b 200deg 360deg);">
+                <div class="report-pie-inner"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="leaf-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border-color);">
+                  <th class="table-header-cell" style="text-align: center; width: 60px;">STT</th>
+                  <th class="table-header-cell">Tên độc giả</th>
+                  <th class="table-header-cell">Loại</th>
+                  <th class="table-header-cell" style="text-align: center;">Số lần mượn</th>
+                  <th class="table-header-cell" style="text-align: center;">Đang mượn</th>
+                  <th class="table-header-cell" style="text-align: center;">Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="6" class="report-empty-cell">
+                    Chưa có dữ liệu thống kê độc giả.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+
+        <!-- 3. TAB THỐNG KÊ MƯỢN TRẢ -->
+        <div class="tab-content-panel" id="tabReportLoan" style="display: none;">
+          <div class="report-overview-grid">
+            <div class="report-stats-list">
+              <div class="report-stats-row"><span class="report-stats-label">Tổng số phiếu mượn</span> <span
+                  class="report-stats-value">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Số phiếu trong kỳ</span> <span
+                  class="report-stats-value">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Số lượt mượn trong kỳ</span> <span
+                  class="report-stats-value">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Sách phiếu quá hạn</span> <span
+                  class="report-stats-value">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Tỷ lệ trả đúng hạn</span> <span
+                  class="report-stats-value">--%</span></div>
+            </div>
+            <div class="report-chart-placeholder">
+              [Biểu đồ biến động mượn trả theo tháng - Chờ dữ liệu]
+            </div>
+            <div class="report-pie-container">
+              <div class="report-pie-chart"
+                style="background: conic-gradient(#6366f1 0deg 310deg, #ef4444 310deg 360deg);">
+                <div class="report-pie-inner"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="leaf-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border-color);">
+                  <th class="table-header-cell" style="text-align: center; width: 60px;">STT</th>
+                  <th class="table-header-cell">Thời gian</th>
+                  <th class="table-header-cell" style="text-align: center;">Lượt mượn</th>
+                  <th class="table-header-cell" style="text-align: center;">Lượt trả</th>
+                  <th class="table-header-cell" style="text-align: center;">Chưa trả</th>
+                  <th class="table-header-cell" style="text-align: center;">Quá hạn</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="6" class="report-empty-cell">
+                    Chưa có dữ liệu thống kê mượn trả.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </main>
 
-    </div>
-
-  </div>
-
-  <script src="../js/data.js"></script>
-  <script src="../js/admin.js"></script>
+      <script src="../js/data.js"></script>
+      <script src="../js/admin.js"></script>
 </body>
+
 </html>
