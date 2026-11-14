@@ -7,7 +7,7 @@
 ## 🛠️ Công nghệ sử dụng
 
 - **Frontend:** HTML5, CSS3 (Flexbox/Grid, CSS Variables), JavaScript Vanilla (ES6+ Modules).
-- **Lưu trữ dữ liệu:** `localStorage` (Giả lập CSDL phía Client).
+- **Lưu trữ dữ liệu:** PostgreSQL qua REST API TypeScript trong Docker. `localStorage` chỉ giữ phiên đăng nhập và tùy chọn giao diện; dữ liệu nghiệp vụ không lưu ở đó.
 - **Thiết kế UI:** Khung bo tròn (Border Radius), hệ màu Badge vai trò/trạng thái chuẩn Figma.
 - **Fonts & Icons:** Playfair Display (Chữ chào hỏi), Inter/Roboto (Nội dung), SVG Icons.
 - **Công cụ chạy:** Live Server (Extension trên VS Code).
@@ -43,7 +43,7 @@ ixs-library/
 │   └── admin.css            # CSS riêng giao diện Admin (Sidebar, Data Tables, Badges)
 │
 ├── js/                      # CHỨA CÁC FILE LOGIC JAVASCRIPT
-│   ├── data.js              # Khởi tạo CSDL mẫu & Quản lý dữ liệu localStorage
+│   ├── data.js              # Repository frontend gọi REST API, cache trong bộ nhớ phiên
 │   ├── auth.js              # Logic kiểm tra Đăng nhập & Chuyển hướng theo Role
 │   ├── user.js              # Logic tương tác UI các trang Bạn đọc
 │   └── admin.js             # Logic tương tác UI các trang Admin
@@ -67,6 +67,22 @@ ixs-library/
 10. **Báo cáo & Thống kê:** Tổng hợp dữ liệu số lượng đầu sách, tồn kho, tình hình mượn trả, sách quá hạn/hư hỏng và doanh thu phí phạt.
 
 ## 🚀 Hướng dẫn chạy dự án
+
+### Backend TypeScript + PostgreSQL bằng Docker
+
+1. Cài và mở Docker Desktop.
+2. Tạo file `.env` từ `.env.example`, rồi đặt `DB_PASSWORD` thành mật khẩu riêng của bạn.
+3. Chạy ở thư mục gốc project:
+
+   ```bash
+   docker compose up --build
+   ```
+
+4. Kiểm tra API và database tại `http://localhost:3000/api/health`.
+5. Mở frontend bằng Live Server như hướng dẫn bên dưới; `js/data.js` tải và ghi dữ liệu nghiệp vụ qua API tại `http://localhost:3000/api`. Dữ liệu chỉ cache trong bộ nhớ khi trang đang mở, không ghi vào `localStorage`.
+6. Kết nối PostgreSQL từ công cụ trên máy host bằng `localhost:5434` (container dùng cổng nội bộ `5432`).
+
+Các bảng PostgreSQL được khởi tạo từ `database/library_db.sql` ở lần chạy đầu tiên. Nếu thay đổi schema sau khi volume đã tạo, chạy `docker compose down -v` rồi `docker compose up --build` để tạo lại database (lệnh này xóa dữ liệu hiện tại).
 
 1. **Tải / Clone mã nguồn** về máy tính.
 2. Mở thư mục `ixs-library/` bằng trình soạn thảo **VS Code**.
@@ -100,3 +116,12 @@ Nút thêm sách	btn-add-book
 Huy hiệu trạng thái	status-badge
 Hộp thoại xác nhận	confirm-modal
 Ô tìm kiếm sách	book-search
+
+
+## Database migrations
+
+Versioned SQL migrations live in `backend/migrations/`. The API applies unapplied migration files in filename order and records them in `ixs_schema_migrations` before it starts listening. Add a new numbered file for each schema change; do not modify a migration that has already run. The initial `database/library_db.sql` file is still used to create a fresh PostgreSQL volume.
+
+## Password reset SMS
+
+Password reset codes use eOTP's SMS API. Create and approve an eOTP project, then put its API key and secret in the untracked `.env` file as `EOTP_API_KEY` and `EOTP_API_SECRET`. Configure the project for numeric six-digit OTPs and the SMS channel. The API stores eOTP's `request_id` and asks eOTP to verify the code; OTP values are never sent to the browser by this app. Restart with `docker compose up -d --build api` after editing `.env`.

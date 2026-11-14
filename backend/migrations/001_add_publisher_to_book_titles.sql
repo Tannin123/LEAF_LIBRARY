@@ -1,0 +1,2 @@
+ALTER TABLE dausach
+  ADD COLUMN IF NOT EXISTS nhaxuatban VARCHAR(255);

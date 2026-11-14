@@ -1,286 +1,172 @@
 let countdownInterval;
 let resetTargetPhone = '';
 
-/**
- * Chuyển đổi qua lại giữa các thẻ Card (Đăng nhập / Đăng ký / Quên mật khẩu / OTP)
- */
 function switchForm(targetFormId) {
-  const forms = document.querySelectorAll('.card');
-  forms.forEach(form => {
-    form.classList.remove('active');
-  });
-  const targetForm = document.getElementById(targetFormId);
-  if (targetForm) {
-    targetForm.classList.add('active');
-  }
+  document.querySelectorAll('.card').forEach(form => form.classList.remove('active'));
+  const target = document.getElementById(targetFormId);
+  if (target) target.classList.add('active');
 }
 
-/**
- * Ẩn / Hiện mật khẩu trong ô input
- */
 function togglePassword(icon) {
   const input = icon.previousElementSibling;
   if (!input) return;
-  if (input.type === 'password') {
-    input.type = 'text';
-    icon.classList.remove('fa-eye');
-    icon.classList.add('fa-eye-slash');
-  } else {
-    input.type = 'password';
-    icon.classList.remove('fa-eye-slash');
-    icon.classList.add('fa-eye');
-  }
+  input.type = input.type === 'password' ? 'text' : 'password';
+  icon.classList.toggle('fa-eye', input.type === 'password');
+  icon.classList.toggle('fa-eye-slash', input.type !== 'password');
 }
 
 function moveOtpFocus(current, event) {
   if (event.key === 'Backspace' && current.value === '') {
-    const prev = current.previousElementSibling;
-    if (prev) prev.focus();
+    const previous = current.previousElementSibling;
+    if (previous) previous.focus();
   } else if (current.value.length === 1) {
     const next = current.nextElementSibling;
     if (next) next.focus();
   }
 }
 
-function showFieldError(id, msg) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.innerText = msg;
-    el.style.display = 'block';
+function showFieldError(id, message) {
+  const element = document.getElementById(id);
+  if (element) {
+    element.innerText = message;
+    element.style.display = 'block';
   }
 }
 
 function clearFieldErrors() {
-  document.querySelectorAll('.field-error').forEach(el => {
-    el.style.display = 'none';
-    el.innerText = '';
+  document.querySelectorAll('.field-error').forEach(element => {
+    element.style.display = 'none';
+    element.innerText = '';
   });
-  const regErr = document.getElementById('register-error');
-  if (regErr) regErr.style.display = 'none';
-  const loginErr = document.getElementById('login-error');
-  if (loginErr) loginErr.style.display = 'none';
+  ['register-error', 'login-error', 'otp-error', 'reset-error'].forEach(id => {
+    const element = document.getElementById(id);
+    if (element) element.style.display = 'none';
+  });
 }
 
-/**
- * Xử lý đăng nhập hệ thống (Hỗ trợ tạo phiên tạm thời khi bảng employees đang rỗng)
- */
-function handleLogin() {
+/** Authenticate against the PostgreSQL-backed API. */
+async function handleLogin() {
   clearFieldErrors();
-  const emailInput = document.getElementById('demo-login-email');
-  const pwdInput = document.getElementById('demo-login-pwd');
-  const loginErr = document.getElementById('login-error');
-
-  const rawUser = emailInput ? emailInput.value.trim() : '';
-  const rawPwd = pwdInput ? pwdInput.value.trim() : '';
-
-  if (!rawUser || !rawPwd) {
-    if (loginErr) {
-      loginErr.innerText = 'Vui lòng nhập đầy đủ tên người dùng và mật khẩu!';
-      loginErr.style.display = 'block';
-    }
+  const usernameInput = document.getElementById('demo-login-email');
+  const passwordInput = document.getElementById('demo-login-pwd');
+  const error = document.getElementById('login-error');
+  const username = usernameInput ? usernameInput.value.trim() : '';
+  const password = passwordInput ? passwordInput.value : '';
+  if (!username || !password) {
+    if (error) { error.innerText = 'Please enter your username and password.'; error.style.display = 'block'; }
     return;
   }
-
-  const employees = typeof getEmployees === 'function' ? getEmployees() : [];
-  const q = rawUser.toLowerCase();
-
-  let matchedUser = employees.find(emp => {
-    const matchId = emp.id && emp.id.toLowerCase() === q;
-    const matchUsername = emp.username && emp.username.toLowerCase() === q;
-    const matchEmail = emp.email && emp.email.toLowerCase() === q;
-    const matchEmailDomain = emp.email && `${emp.email.toLowerCase()}@leaflibrary.vn` === q;
-    const matchPhone = emp.phone && emp.phone.replace(/\./g, '') === rawUser.replace(/\s+|\./g, '');
-    return matchId || matchUsername || matchEmail || matchEmailDomain || matchPhone;
-  });
-
-  if (!matchedUser && employees.length === 0) {
-    const displayName = rawUser.includes('@') ? 'Quản trị viên' : (rawUser || 'Quản trị viên');
-    matchedUser = {
-      id: '12026001',
-      fullName: displayName,
-      name: displayName,
-      role: 'QUẢN TRỊ VIÊN',
-      email: rawUser.split('@')[0] || 'admin',
-      phone: '0906.789.982',
-      status: 'Active',
-      hasAccount: true
+  try {
+    const result = await DataService.request('POST', '/auth/login', { username, password });
+    const user = result && result.user;
+    if (!user) throw new Error('Invalid credentials');
+    const session = {
+      id: user.id, username: user.username, fullName: user.fullName || user.name,
+      name: user.fullName || user.name, role: user.role, accountType: user.accountType,
+      email: user.email || '', phone: user.phone || '', cccd: user.cccd || '',
+      dob: '', gender: '', address: '', avatarUrl: ''
     };
-  }
-
-  if (!matchedUser) {
-    if (loginErr) {
-      loginErr.innerText = 'Tài khoản không tồn tại trong hệ thống!';
-      loginErr.style.display = 'block';
+    localStorage.setItem('ixs_library_session', JSON.stringify(session));
+    localStorage.setItem('ixs_library_current_user', JSON.stringify(session));
+    if (typeof addLog === 'function') addLog('LOGIN', session.id, `User <strong>${session.name}</strong> signed in.`);
+    window.location.href = user.accountType === 'reader' ? 'user/index.html' : 'admin/index.html';
+  } catch (err) {
+    if (error) {
+      error.innerText = err.status === 403
+        ? 'This account is blocked or inactive.'
+        : err.status === 0
+          ? 'Cannot connect to the server. Check that the backend is running.'
+          : 'Incorrect username or password.';
+      error.style.display = 'block';
     }
-    return;
   }
-
-  if (matchedUser.password && rawPwd !== matchedUser.password) {
-    if (loginErr) {
-      loginErr.innerText = 'Mật khẩu không chính xác!';
-      loginErr.style.display = 'block';
-    }
-    return;
-  }
-
-  if (matchedUser.hasAccount === false || matchedUser.status === 'Hồ sơ' || matchedUser.status === 'Khóa' || matchedUser.status === 'Bị khóa') {
-    if (loginErr) {
-      loginErr.innerText = 'Tài khoản chưa được cấp quyền hoặc đã bị khóa!';
-      loginErr.style.display = 'block';
-    }
-    return;
-  }
-
-  const sessionPayload = {
-    id: matchedUser.id || '12026001',
-    fullName: matchedUser.fullName || matchedUser.name || 'Quản trị viên',
-    name: matchedUser.fullName || matchedUser.name || 'Quản trị viên',
-    role: matchedUser.role || 'QUẢN TRỊ VIÊN',
-    email: matchedUser.email || '',
-    phone: matchedUser.phone || '',
-    dob: matchedUser.dob || '',
-    gender: matchedUser.gender || 'Nam',
-    address: matchedUser.address || '',
-    avatarUrl: matchedUser.avatarUrl || ''
-  };
-
-  localStorage.setItem('ixs_library_session', JSON.stringify(sessionPayload));
-  localStorage.setItem('ixs_library_current_user', JSON.stringify(sessionPayload));
-
-  if (typeof addLog === 'function') {
-    addLog('ĐĂNG NHẬP', sessionPayload.id, `Người dùng <strong>${sessionPayload.name}</strong> đăng nhập vào hệ thống quản trị.`);
-  }
-
-  window.location.href = 'admin/index.html';
 }
 
-/**
- * Xử lý đăng ký tài khoản nhân viên mới từ trang login.html
- */
-function validateRegister() {
+/** Register an employee account in PostgreSQL. */
+async function validateRegister() {
   clearFieldErrors();
   let isValid = true;
-
   const name = document.getElementById('reg-name').value.trim();
-  const phoneRaw = document.getElementById('reg-phone').value.trim();
-  const phone = phoneRaw.replace(/\s+|\./g, '');
-  const email = document.getElementById('reg-email').value.trim();
-  const pwd = document.getElementById('reg-pwd').value.trim();
-  const pwdConfirm = document.getElementById('reg-pwd-confirm').value.trim();
-  const isTermsChecked = document.getElementById('reg-terms').checked;
-  const mainError = document.getElementById('register-error');
-
-  if (!name) {
-    showFieldError('err-reg-name', 'Vui lòng nhập họ và tên');
-    isValid = false;
-  }
-
-  if (!phone) {
-    showFieldError('err-reg-phone', 'Vui lòng nhập số điện thoại');
-    isValid = false;
-  } else if (!/^\d{10}$/.test(phone)) {
-    showFieldError('err-reg-phone', 'Số điện thoại phải bao gồm đúng 10 chữ số');
-    isValid = false;
-  }
-
-  if (!email) {
-    showFieldError('err-reg-email', 'Vui lòng nhập mã nhân viên hoặc email');
-    isValid = false;
-  }
-
-  if (!pwd) {
-    showFieldError('err-reg-pwd', 'Vui lòng nhập mật khẩu');
-    isValid = false;
-  } else if (pwd.length < 6) {
-    showFieldError('err-reg-pwd', 'Mật khẩu phải có tối thiểu 6 ký tự');
-    isValid = false;
-  }
-
-  if (!pwdConfirm) {
-    showFieldError('err-reg-pwd-confirm', 'Vui lòng xác nhận mật khẩu');
-    isValid = false;
-  } else if (pwd !== pwdConfirm) {
-    showFieldError('err-reg-pwd-confirm', 'Mật khẩu xác nhận không khớp');
-    isValid = false;
-  }
-
-  if (!isTermsChecked) {
-    mainError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Vui lòng đồng ý với Điều khoản sử dụng!';
-    mainError.style.display = 'block';
-    isValid = false;
-  }
-
+  const phone = document.getElementById('reg-phone').value.trim().replace(/[\s.-]/g, '');
+  const identifier = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-pwd').value;
+  const confirmation = document.getElementById('reg-pwd-confirm').value;
+  const terms = document.getElementById('reg-terms').checked;
+  const error = document.getElementById('register-error');
+  if (!name) { showFieldError('err-reg-name', 'Please enter your full name.'); isValid = false; }
+  if (!/^\d{10}$/.test(phone)) { showFieldError('err-reg-phone', 'Phone number must contain exactly 10 digits.'); isValid = false; }
+  if (!identifier) { showFieldError('err-reg-email', 'Please enter an employee ID or email.'); isValid = false; }
+  if (password.length < 8) { showFieldError('err-reg-pwd', 'Password must contain at least 8 characters.'); isValid = false; }
+  if (!confirmation || password !== confirmation) { showFieldError('err-reg-pwd-confirm', 'Passwords do not match.'); isValid = false; }
+  if (!terms) { error.innerText = 'Please accept the terms of use.'; error.style.display = 'block'; isValid = false; }
   if (!isValid) return;
 
-  if (typeof getEmployees === 'function' && typeof saveEmployees === 'function') {
-    const list = getEmployees();
-    const parts = name.split(' ');
-    const lastName = parts.slice(-1).join(' ');
-    const firstName = parts.slice(0, -1).join(' ') || name;
-    const newId = typeof DataService !== 'undefined'
-      ? DataService.generateNextId(DataService.KEYS.EMPLOYEES, '12026', 3)
-      : ('12026' + String(list.length + 1).padStart(3, '0'));
-    const formattedPhone = phone.replace(/(\d{4})(\d{3})(\d{3})/, '$1.$2.$3');
-
-    list.push({
-      id: newId,
-      name,
-      firstName,
-      lastName,
-      role: list.length === 0 ? 'QUẢN TRỊ VIÊN' : 'NHÂN VIÊN',
-      phone: formattedPhone,
-      email: email.replace('@leaflibrary.vn', ''),
-      password: pwd,
-      status: 'Active',
-      hasAccount: true,
-      gender: 'Nam',
-      dob: '21 / 02 / 2026',
-      ethnicity: 'Kinh',
-      religion: 'Không',
-      address: 'Thành phố Hồ Chí Minh'
+  const username = identifier.toLowerCase();
+  try {
+    await DataService.request('POST', '/auth/register', {
+      name, username, email: username.includes('@') ? username : '', phone, password
     });
-    saveEmployees(list);
-
-    if (typeof addLog === 'function') {
-      addLog('TẠO MỚI', newId, `Đăng ký tài khoản nhân viên mới <strong>${name}</strong> (${newId}).`);
-    }
+  } catch (err) {
+    error.innerText = err.status === 409
+      ? 'Username already exists. Please choose another one.'
+      : err.status === 0
+        ? 'Cannot connect to the server. Check that the backend is running.'
+        : 'Could not create the account. Check your details and try again.';
+    error.style.display = 'block';
+    return;
   }
-
   document.getElementById('reg-name').value = '';
   document.getElementById('reg-phone').value = '';
   document.getElementById('reg-email').value = '';
   document.getElementById('reg-pwd').value = '';
   document.getElementById('reg-pwd-confirm').value = '';
   document.getElementById('reg-terms').checked = true;
-
-  const loginEmail = document.getElementById('demo-login-email');
-  if (loginEmail) loginEmail.value = email;
-
+  const loginInput = document.getElementById('demo-login-email');
+  if (loginInput) loginInput.value = username;
   switchForm('form-login');
+  const loginError = document.getElementById('login-error');
+  if (loginError) { loginError.innerText = 'Account created. You can now sign in.'; loginError.style.display = 'block'; }
 }
 
-function goToOTP() {
+async function goToOTP() {
   clearFieldErrors();
-  const phoneInput = document.getElementById('forgot-phone').value.trim();
-  const phone = phoneInput.replace(/\s+|\./g, '');
-
-  if (!phone) {
-    showFieldError('err-forgot-phone', 'Vui lòng nhập số điện thoại');
-    return;
-  }
+  const input = document.getElementById('forgot-phone');
+  const phone = input ? input.value.replace(/\D/g, '') : '';
   if (!/^\d{10}$/.test(phone)) {
-    showFieldError('err-forgot-phone', 'Số điện thoại phải bao gồm đúng 10 chữ số');
+    showFieldError('err-forgot-phone', 'Phone number must contain exactly 10 digits.');
     return;
   }
+  try {
+    await DataService.request('POST', '/auth/password-reset/request', { phone });
+    resetTargetPhone = phone;
+    document.querySelectorAll('.otp-box').forEach(box => { box.value = ''; });
+    document.getElementById('display-phone').innerText = `${phone.slice(0, 2)}******${phone.slice(-2)}`;
+    switchForm('form-otp');
+    startCountdown(300);
+  } catch (error) {
+    const message = error.status === 429
+      ? 'Wait one minute before requesting another code.'
+      : error.status === 0
+        ? 'Cannot connect to the server. Check that the backend is running.'
+        : error.status === 502 || error.status === 503
+          ? 'The SMS service is unavailable. Please contact an administrator.'
+        : 'Could not request a reset code. Please try again.';
+    if (resetTargetPhone) showFieldError('otp-error', message);
+    else showFieldError('err-forgot-phone', message);
+  }
+}
 
-  resetTargetPhone = phone;
-  const maskedPhone = phone.length === 10
-    ? phone.substring(0, 2) + '******' + phone.substring(8, 10)
-    : phone;
+function continuePasswordReset() {
+  const otp = Array.from(document.querySelectorAll('.otp-box')).map(box => box.value.trim()).join('');
+  if (!/^\d{6}$/.test(otp)) {
+    window.alert('Enter the six-digit reset code.');
+    return;
+  }
+  switchForm('form-reset');
+}
 
-  document.getElementById('display-phone').innerText = maskedPhone;
-  switchForm('form-otp');
-  startCountdown(101);
+function resendPasswordResetCode() {
+  goToOTP();
 }
 
 function startCountdown(seconds) {
@@ -302,46 +188,42 @@ function startCountdown(seconds) {
 
 function cancelOTP() {
   clearInterval(countdownInterval);
+  resetTargetPhone = '';
   switchForm('form-phone');
 }
 
-function handlePasswordReset() {
-  const newPwd = document.getElementById('demo-new-pwd').value.trim();
-  if (!newPwd) return;
-
-  if (typeof getEmployees === 'function' && typeof saveEmployees === 'function') {
-    const list = getEmployees();
-    const target = list.find(emp => emp.phone && emp.phone.replace(/\./g, '') === resetTargetPhone) || list[0];
-    if (target) {
-      target.password = newPwd;
-      saveEmployees(list);
-      if (typeof addLog === 'function') {
-        addLog('RESET MẬT KHẨU', target.id, `Cập nhật mật khẩu mới cho tài khoản <strong>${target.id}</strong>.`);
-      }
-    }
+async function handlePasswordReset() {
+  const newPassword = document.getElementById('demo-new-pwd').value;
+  const confirmation = document.getElementById('demo-confirm-new-pwd').value;
+  const otp = Array.from(document.querySelectorAll('.otp-box')).map(box => box.value.trim()).join('');
+  const error = document.getElementById('reset-error');
+  error.style.display = 'none';
+  if (newPassword.length < 8) {
+    error.innerText = 'Password must contain at least 8 characters.';
+    error.style.display = 'block';
+    return;
   }
-
-  document.getElementById('demo-new-pwd').value = '';
-  document.getElementById('demo-cur-pwd').value = '';
-  switchForm('form-login');
-}
-
-function fillDemoLogin() {
-  document.getElementById('demo-login-email').value = 'admin@leaflibrary.vn';
-  document.getElementById('demo-login-pwd').value = '123456';
-}
-
-function fillDemoOTP() {
-  const otpBoxes = document.querySelectorAll('.otp-box');
-  const demoOTP = ['8', '4', '2', '9', '1', '5'];
-  otpBoxes.forEach((box, index) => {
-    box.value = demoOTP[index];
-  });
-}
-
-function fillDemoReset() {
-  document.getElementById('demo-new-pwd').value = 'MatKhauMoi@2026';
-  document.getElementById('demo-cur-pwd').value = 'MatKhauCu@2025';
+  if (newPassword !== confirmation) {
+    error.innerText = 'Passwords do not match.';
+    error.style.display = 'block';
+    return;
+  }
+  try {
+    await DataService.request('POST', '/auth/password-reset', { phone: resetTargetPhone, otp, newPassword });
+    clearInterval(countdownInterval);
+    document.getElementById('demo-new-pwd').value = '';
+    document.getElementById('demo-confirm-new-pwd').value = '';
+    document.querySelectorAll('.otp-box').forEach(box => { box.value = ''; });
+    switchForm('form-login');
+    const loginError = document.getElementById('login-error');
+    loginError.innerText = 'Password updated. Sign in with your new password.';
+    loginError.style.display = 'block';
+  } catch (requestError) {
+    error.innerText = requestError.status === 0
+      ? 'Cannot connect to the server. Check that the backend is running.'
+      : requestError.message || 'The reset code is invalid or expired.';
+    error.style.display = 'block';
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

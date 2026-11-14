@@ -1,0 +1,132 @@
+-- 1. BẢNG KHÔNG CÓ KHÓA NGOẠI (TẠO TRƯỚC)
+CREATE TABLE TAIKHOAN (
+    tenDangNhap VARCHAR(255) PRIMARY KEY,
+    matKhau VARCHAR(255) NOT NULL,
+    vaiTro VARCHAR(50) NOT NULL,
+    trangThai VARCHAR(50)
+);
+
+CREATE TABLE DANHMUC (
+    maDanhMuc VARCHAR(50) PRIMARY KEY,
+    tenDanhMuc VARCHAR(255) NOT NULL
+);
+
+-- 2. BẢNG PHỤ THUỘC TAIKHOAN VÀ KẾ THỪA
+CREATE TABLE NGUOIDUNG (
+    maNguoiDung VARCHAR(50) PRIMARY KEY,
+    tenDangNhap VARCHAR(255) NOT NULL REFERENCES TAIKHOAN(tenDangNhap),
+    hoTen VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    soDienThoai VARCHAR(20),
+    cccd VARCHAR(20),
+    ngaySinh DATE,
+    diaChi TEXT
+);
+
+CREATE TABLE BANDOC (
+    maBanDoc VARCHAR(50) PRIMARY KEY REFERENCES NGUOIDUNG(maNguoiDung),
+    loaiBanDoc VARCHAR(100),
+    tongNoPhat FLOAT DEFAULT 0,
+    ngayCapThe DATE,
+    ngayHetHanThe DATE
+);
+
+CREATE TABLE NHANVIEN (
+    maNhanVien VARCHAR(50) PRIMARY KEY REFERENCES NGUOIDUNG(maNguoiDung),
+    chucVu VARCHAR(100),
+    trangThaiLamViec VARCHAR(50)
+);
+
+-- 3. BẢNG NGHIỆP VỤ SÁCH
+CREATE TABLE DAUSACH (
+    maDauSach VARCHAR(50) PRIMARY KEY,
+    maDanhMuc VARCHAR(50) NOT NULL REFERENCES DANHMUC(maDanhMuc),
+    tenSach VARCHAR(255) NOT NULL,
+    tacGia VARCHAR(255),
+    theLoai VARCHAR(100),
+    chuDe VARCHAR(100),
+    khoa VARCHAR(50),
+    soLuongTong INT DEFAULT 0,
+    soLuongSan INT DEFAULT 0
+);
+
+CREATE TABLE CUONSACH (
+    maCuonSach VARCHAR(50) PRIMARY KEY,
+    maDauSach VARCHAR(50) NOT NULL REFERENCES DAUSACH(maDauSach),
+    maVach VARCHAR(100) UNIQUE,
+    tinhTrangVatLy VARCHAR(255),
+    trangThai VARCHAR(50),
+    viTriLuuTru VARCHAR(100)
+);
+
+-- 4. BẢNG TƯƠNG TÁC GIỮA BẠN ĐỌC VÀ SÁCH (MANY-TO-MANY)
+CREATE TABLE DANHSACHCHO (
+    maBanDoc VARCHAR(50) REFERENCES BANDOC(maBanDoc),
+    maDauSach VARCHAR(50) REFERENCES DAUSACH(maDauSach),
+    ngayDangKy TIMESTAMP NOT NULL,
+    thuTu INT,
+    trangThai VARCHAR(50),
+    PRIMARY KEY (maBanDoc, maDauSach)
+);
+
+CREATE TABLE TUSACHCANHAN (
+    maBanDoc VARCHAR(50) REFERENCES BANDOC(maBanDoc),
+    maDauSach VARCHAR(50) REFERENCES DAUSACH(maDauSach),
+    ngayThem TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (maBanDoc, maDauSach)
+);
+
+-- 5. BẢNG NGHIỆP VỤ THƯ VIỆN CHÍNH
+CREATE TABLE PHIEUMUON (
+    maPhieuMuon VARCHAR(50) PRIMARY KEY,
+    maBanDoc VARCHAR(50) NOT NULL REFERENCES BANDOC(maBanDoc),
+    maNhanVien VARCHAR(50) NOT NULL REFERENCES NHANVIEN(maNhanVien),
+    maCuonSach VARCHAR(50) NOT NULL REFERENCES CUONSACH(maCuonSach),
+    ngayMuon TIMESTAMP NOT NULL,
+    ngayHenTra TIMESTAMP NOT NULL,
+    ngayTraThucTe TIMESTAMP,
+    trangThai VARCHAR(50)
+);
+
+CREATE TABLE YEUCAUGIAHAN (
+    maGiaHan VARCHAR(50) PRIMARY KEY,
+    maPhieuMuon VARCHAR(50) NOT NULL REFERENCES PHIEUMUON(maPhieuMuon),
+    ngayYeuCau TIMESTAMP NOT NULL,
+    soNgayGiaHan INT NOT NULL,
+    trangThaiDuyet VARCHAR(50)
+);
+
+CREATE TABLE PHIEUNHAP (
+    maPhieuNhap VARCHAR(50) PRIMARY KEY,
+    maNhanVien VARCHAR(50) NOT NULL REFERENCES NHANVIEN(maNhanVien),
+    ngayNhap TIMESTAMP NOT NULL,
+    tongSoLuong INT,
+    trangThai VARCHAR(50)
+);
+
+CREATE TABLE CHITIETPHIEUNHAP (
+    maPhieuNhap VARCHAR(50) REFERENCES PHIEUNHAP(maPhieuNhap),
+    maDauSach VARCHAR(50) REFERENCES DAUSACH(maDauSach),
+    soLuongNhap INT NOT NULL,
+    donGia FLOAT NOT NULL,
+    PRIMARY KEY (maPhieuNhap, maDauSach)
+);
+
+CREATE TABLE PHIEUDEXUAT (
+    maDeXuat VARCHAR(50) PRIMARY KEY,
+    maNhanVien VARCHAR(50) NOT NULL REFERENCES NHANVIEN(maNhanVien),
+    thongTinSach VARCHAR(255) NOT NULL,
+    ngayDeXuat TIMESTAMP NOT NULL,
+    trangThaiDuyet VARCHAR(50),
+    lyDoTuChoi VARCHAR(255)
+);
+
+CREATE TABLE PHIEUPHAT (
+    maPhieuPhat VARCHAR(50) PRIMARY KEY,
+    maPhieuMuon VARCHAR(50) NOT NULL REFERENCES PHIEUMUON(maPhieuMuon),
+    maBanDoc VARCHAR(50) NOT NULL REFERENCES BANDOC(maBanDoc),
+    maNhanVien VARCHAR(50) NOT NULL REFERENCES NHANVIEN(maNhanVien),
+    loaiViPham VARCHAR(255),
+    soTien FLOAT NOT NULL,
+    trangThaiThanhToan VARCHAR(50)
+);

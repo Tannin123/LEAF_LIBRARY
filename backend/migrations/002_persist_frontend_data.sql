@@ -1,0 +1,57 @@
+ALTER TABLE nguoidung
+  ADD COLUMN IF NOT EXISTS gioitinh VARCHAR(20),
+  ADD COLUMN IF NOT EXISTS ngaysinh DATE,
+  ADD COLUMN IF NOT EXISTS diachi TEXT,
+  ADD COLUMN IF NOT EXISTS ngaycapthe DATE,
+  ADD COLUMN IF NOT EXISTS ngayhetthe DATE,
+  ADD COLUMN IF NOT EXISTS anhdaidien TEXT,
+  ADD COLUMN IF NOT EXISTS xoaluc TIMESTAMPTZ;
+
+ALTER TABLE dausach
+  ADD COLUMN IF NOT EXISTS phienban VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS gia FLOAT,
+  ADD COLUMN IF NOT EXISTS anhbia TEXT;
+
+ALTER TABLE cuonsach
+  ADD COLUMN IF NOT EXISTS gia FLOAT,
+  ADD COLUMN IF NOT EXISTS anhbia TEXT;
+
+ALTER TABLE phieunhap
+  ADD COLUMN IF NOT EXISTS nhacungcap VARCHAR(255),
+  ADD COLUMN IF NOT EXISTS nguoitao VARCHAR(255);
+
+CREATE TABLE IF NOT EXISTS nhacungcap (
+  manhacungcap VARCHAR(50) PRIMARY KEY,
+  tennhacungcap VARCHAR(255) NOT NULL,
+  nguoilienhe VARCHAR(255),
+  sodienthoai VARCHAR(30),
+  email VARCHAR(255),
+  diachi TEXT,
+  trangthai VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS nhaxuatban (
+  manhaxuatban VARCHAR(50) PRIMARY KEY,
+  tennhaxuatban VARCHAR(255) NOT NULL,
+  sodienthoai VARCHAR(30),
+  email VARCHAR(255),
+  diachi TEXT,
+  ghichu TEXT,
+  trangthai VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS ixs_cauhinh (
+  macauhinh VARCHAR(100) PRIMARY KEY,
+  giatri JSONB NOT NULL,
+  capnhatLuc TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS ixs_nhatky (
+  manhatky BIGSERIAL PRIMARY KEY,
+  thoigian TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  nguoidung VARCHAR(255),
+  manguoidung VARCHAR(50),
+  hanhdong VARCHAR(100),
+  doituong VARCHAR(255),
+  chitiet TEXT
+);
