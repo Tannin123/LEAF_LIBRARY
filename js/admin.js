@@ -1,4 +1,20 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    initAdminData();
+    await DataService.ready;
+  } catch (error) {
+    console.error('Could not load library data from PostgreSQL:', error);
+    alert('Không thể tải dữ liệu thư viện từ PostgreSQL. Hãy kiểm tra Docker/API rồi tải lại trang.');
+    return;
+  }
+  window.addEventListener('ixs:data-error', event => {
+    const message = event.detail?.message || 'Không lưu được dữ liệu vào PostgreSQL.';
+    showToast(`Không lưu được thay đổi: ${message}`, 'error');
+  });
+  window.addEventListener('ixs:unsupported-data', event => {
+    const key = event.detail?.key || 'Dữ liệu này';
+    showToast(`${key}: ERD hiện không có bảng lưu mục này; thay đổi chỉ tồn tại trong bộ nhớ đến khi tải lại trang.`, 'warning');
+  });
   const ICON_EDIT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
   const ICON_LOCK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
   const ICON_DELETE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>`;
@@ -480,18 +496,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const btnConfirmSelfChangePwd = document.getElementById('btnConfirmSelfChangePwd');
     if (btnConfirmSelfChangePwd) {
-      btnConfirmSelfChangePwd.addEventListener('click', () => {
+      btnConfirmSelfChangePwd.addEventListener('click', async () => {
+        const currentPwd = document.getElementById('selfCurrentPwdInput').value;
         const newPwd = document.getElementById('selfNewPwdInput').value.trim();
-        if (!newPwd || newPwd.length < 6) {
+        if (!newPwd || newPwd.length < 8) {
           showToast('Mật khẩu mới phải có ít nhất 6 ký tự!', 'error');
           return;
         }
         const current = getActiveUserSession();
-        const emps = getEmployees();
-        const emp = emps.find(item => item.id === current.id);
-        if (emp) {
-          emp.password = newPwd;
-          saveEmployees(emps);
+        try {
+          await DataService.request('POST', '/auth/password/change', {
+            username: current.username,
+            currentPassword: currentPwd,
+            newPassword: newPwd
+          });
+        } catch (error) {
+          showToast(error.message || 'Không đổi được mật khẩu.', 'error');
+          return;
         }
         addLog('CẬP NHẬT', current.id || '12026001', `Đổi mật khẩu cá nhân cho tài khoản <strong>${current.name || 'Quản trị viên'}</strong>`);
         closeModal('modalChangePasswordGlobal');
@@ -1714,7 +1735,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    document.getElementById('btnSaveBookCopy').addEventListener('click', () => {
+    document.getElementById('btnSaveBookCopy').addEventListener('click', async () => {
       const copies = getBookCopies();
       const books = getBookTitles();
       const idVal = document.getElementById('bcIdInput').value.trim() || selectedBookCopyId;
@@ -1753,6 +1774,11 @@ document.addEventListener('DOMContentLoaded', () => {
         saveBookCopies(copies);
         syncBookCountsWithCopies(parentBookId);
         addLog('TẠO MỚI', idVal, `Thêm bản sao cuốn sách <strong>${idVal}</strong> tại kệ ${locVal}`);
+        const savesSucceeded = await DataService.waitForWrites([
+          DataService.KEYS.BOOK_COPIES,
+          DataService.KEYS.BOOK_TITLES
+        ]);
+        if (!savesSucceeded) return;
         showToast(`Đã thêm cuốn sách ${idVal}!`);
       } else {
         const copy = copies.find(c => c.id === selectedBookCopyId);
@@ -1984,7 +2010,7 @@ document.addEventListener('DOMContentLoaded', () => {
       openModal('modalCreateImport');
     });
 
-    document.getElementById('btnSaveImportReceipt').addEventListener('click', () => {
+    document.getElementById('btnSaveImportReceipt').addEventListener('click', async () => {
       const receipts = getImportReceipts();
       const books = getBookTitles();
       const code = document.getElementById('impNewCodeDisplay').textContent.trim();
@@ -2014,6 +2040,8 @@ document.addEventListener('DOMContentLoaded', () => {
           bookId,
           bookTitle,
           qty,
+          unitPriceValue: price,
+          subtotalValue: subtotal,
           unitPrice: `${price.toLocaleString('vi-VN')} đ`,
           subtotal: `${subtotal.toLocaleString('vi-VN')} đ`
         });
@@ -2031,11 +2059,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
       receipts.unshift({
         id: code,
+        employeeId: getActiveUserSession().id,
         date,
         supplier,
-        totalBooks: `${totalBooks} cuốn`,
-        totalAmount: totalStr,
         creator,
+        totalBooks: `${totalBooks} cuốn`,
+        totalQuantity: totalBooks,
+        totalAmount: totalStr,
+        status: 'HOÀN THÀNH',
         items
       });
 
@@ -2045,6 +2076,12 @@ document.addEventListener('DOMContentLoaded', () => {
       renderImportReceiptsTable();
       renderBookTitlesGrid();
       renderBookCopiesTable();
+      const savesSucceeded = await DataService.waitForWrites([
+        DataService.KEYS.IMPORT_RECEIPTS,
+        DataService.KEYS.BOOK_COPIES,
+        DataService.KEYS.BOOK_TITLES
+      ]);
+      if (!savesSucceeded) return;
       showToast(`Đã tạo phiếu nhập ${code} và sinh ${totalBooks} cuốn sách vào kho!`);
     });
 
@@ -2600,6 +2637,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const issueReaderId = document.getElementById('issueReaderId');
+    const issueReaderUsername = document.getElementById('issueReaderUsername');
+    const issueReaderPassword = document.getElementById('issueReaderPassword');
     const issueReaderName = document.getElementById('issueReaderName');
     const issueReaderGender = document.getElementById('issueReaderGender');
     const issueReaderDob = document.getElementById('issueReaderDob');
@@ -2660,6 +2699,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetIssueCardForm() {
       const nextCode = getNextReaderCode();
       issueReaderId.value = nextCode;
+      issueReaderUsername.value = '';
+      issueReaderPassword.value = '';
       issueReaderName.value = '';
       issueReaderGender.value = '';
       issueReaderDob.value = '';
@@ -2682,6 +2723,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('btnSubmitIssueCard').addEventListener('click', () => {
       const nameVal = issueReaderName.value.trim();
+      const usernameVal = issueReaderUsername.value.trim();
+      const passwordVal = issueReaderPassword.value;
       const cccdVal = issueReaderCccd.value.trim();
       const phoneVal = issueReaderPhone.value.trim();
       const emailVal = issueReaderEmail.value.trim();
@@ -2689,6 +2732,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!nameVal) {
         showToast('Vui lòng nhập Họ và tên độc giả để cấp thẻ!', 'error');
         issueReaderName.focus();
+        return;
+      }
+      if (!usernameVal) {
+        showToast('Vui lòng nhập tên đăng nhập cho bạn đọc!', 'error');
+        issueReaderUsername.focus();
+        return;
+      }
+      if (passwordVal.length < 8) {
+        showToast('Mật khẩu phải có ít nhất 8 ký tự!', 'error');
+        issueReaderPassword.focus();
         return;
       }
       if (!cccdVal) {
@@ -2718,6 +2771,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const newReader = {
         id: newId,
+        username: usernameVal,
+        password: passwordVal,
         name: nameVal,
         gender: issueReaderGender.value || 'Nam',
         dob: issueReaderDob.value.trim() || '15 / 08 / 2004',

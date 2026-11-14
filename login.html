@@ -90,7 +90,7 @@
                 <label>Mật khẩu</label>
                 <div class="input-wrapper">
                     <i class="fa-solid fa-lock left-icon"></i>
-                    <input type="password" id="reg-pwd" placeholder="Tối thiểu 6 ký tự">
+                    <input type="password" id="reg-pwd" placeholder="At least 8 characters">
                     <i class="fa-regular fa-eye right-icon" onclick="togglePassword(this)"></i>
                 </div>
                 <div id="err-reg-pwd" class="field-error"></div>
@@ -170,15 +170,15 @@
                 </div>
             </div>
             
-            <button type="button" class="btn btn-primary" onclick="switchForm('form-reset')">Tiếp tục</button>
+            <button type="button" class="btn btn-primary" onclick="continuePasswordReset()">Tiếp tục</button>
             <button type="button" class="btn btn-secondary" onclick="cancelOTP()">Hủy</button>
             
             <div class="bottom-links">
-                Chưa nhận được mã? <a href="#" onclick="startCountdown(101)" style="color: #6b7280; text-decoration: underline;">Gửi lại</a>
+                Chưa nhận được mã? <a href="#" onclick="resendPasswordResetCode()" style="color: #6b7280; text-decoration: underline;">Gửi lại</a>
             </div>
 
-            <div class="pill-wrapper">
-                <button class="btn-pill" onclick="fillDemoOTP()"><i class="fa-solid fa-rotate-right"></i> Điền mã OTP mẫu (842915)</button>
+            <div id="otp-error" class="error-msg"></div>
+
             </div>
         </div>
 
@@ -190,7 +190,7 @@
             </div>
             
             <div class="input-group">
-                <label>Mật khẩu mới</label>
+                <label>New password</label>
                 <div class="input-wrapper">
                     <i class="fa-solid fa-lock left-icon"></i>
                     <input type="password" id="demo-new-pwd" placeholder="••••••••">
@@ -199,20 +199,17 @@
             </div>
             
             <div class="input-group">
-                <label>Mật khẩu hiện tại</label>
+                <label>Confirm new password</label>
                 <div class="input-wrapper">
                     <i class="fa-solid fa-lock left-icon"></i>
-                    <input type="password" id="demo-cur-pwd" placeholder="••••••••">
+                    <input type="password" id="demo-confirm-new-pwd" placeholder="••••••••">
                     <i class="fa-regular fa-eye right-icon" onclick="togglePassword(this)"></i>
                 </div>
             </div>
             
             <button type="button" class="btn btn-primary" style="margin-top: 10px;" onclick="handlePasswordReset()">Cập nhật</button>
+            <div id="reset-error" class="error-msg"></div>
             <button type="button" class="btn btn-secondary" onclick="switchForm('form-login')">Hủy</button>
-
-            <div class="pill-wrapper" style="margin-top: 10px;">
-                <button class="btn-pill" onclick="fillDemoReset()">Điền nhanh mật khẩu mới mẫu</button>
-            </div>
         </div>
 
     </div>

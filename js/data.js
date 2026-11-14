@@ -1,4 +1,4 @@
-const CURRENT_DATA_VERSION = 'v5_zero_mock_full_interactive';
+const CURRENT_DATA_VERSION = 'v6_postgresql_source_of_truth';
 
 const defaultEmployees = [];
 const defaultLogs = [];
@@ -166,6 +166,7 @@ const defaultLibraryRules = {
  * DataService / Repository Pattern chuẩn bị kết nối RESTful API / Backend
  */
 const DataService = {
+  API_BASE_URL: 'http://localhost:3000/api',
   KEYS: {
     VERSION: 'ixs_data_version',
     EMPLOYEES: 'ixs_library_employees',
@@ -182,82 +183,216 @@ const DataService = {
   },
 
   init() {
-    const savedVersion = localStorage.getItem(this.KEYS.VERSION);
-    if (savedVersion !== CURRENT_DATA_VERSION) {
-      localStorage.setItem(this.KEYS.EMPLOYEES, JSON.stringify(defaultEmployees));
-      localStorage.setItem(this.KEYS.PERMISSIONS, JSON.stringify(defaultPermissions));
-      localStorage.setItem(this.KEYS.LOGS, JSON.stringify(defaultLogs));
-      localStorage.setItem(this.KEYS.BOOK_TITLES, JSON.stringify(defaultBookTitles));
-      localStorage.setItem(this.KEYS.BOOK_COPIES, JSON.stringify(defaultBookCopies));
-      localStorage.setItem(this.KEYS.IMPORT_RECEIPTS, JSON.stringify(defaultImportReceipts));
-      localStorage.setItem(this.KEYS.SUPPLIERS, JSON.stringify(defaultSuppliers));
-      localStorage.setItem(this.KEYS.PUBLISHERS, JSON.stringify(defaultPublishers));
-      localStorage.setItem(this.KEYS.READERS, JSON.stringify(defaultReaders));
-      localStorage.setItem(this.KEYS.READER_HISTORY, JSON.stringify(defaultReaderHistory));
-      localStorage.setItem(this.KEYS.RULES, JSON.stringify(defaultLibraryRules));
-      localStorage.setItem(this.KEYS.VERSION, CURRENT_DATA_VERSION);
-      return;
-    }
+    this._cache = {
+      [this.KEYS.EMPLOYEES]: [], [this.KEYS.PERMISSIONS]: defaultPermissions,
+      [this.KEYS.LOGS]: [], [this.KEYS.BOOK_TITLES]: [], [this.KEYS.BOOK_COPIES]: [],
+      [this.KEYS.IMPORT_RECEIPTS]: [], [this.KEYS.SUPPLIERS]: [], [this.KEYS.PUBLISHERS]: [],
+      [this.KEYS.READERS]: [], [this.KEYS.READER_HISTORY]: [], [this.KEYS.RULES]: defaultLibraryRules
+    };
+    this._snapshots = {};
+    this._writes = {};
+    this._writeErrors = {};
+    const resources = Object.entries(this.KEYS)
+      .map(([name, key]) => ({ key, resource: this.resourceForKey(key), fallback: name === 'PERMISSIONS' ? defaultPermissions : name === 'RULES' ? defaultLibraryRules : [] }))
+      .filter(item => item.resource);
+    this.ready = Promise.all(resources.map(item => this.hydrate(item.key, item.resource, item.fallback)));
+  },
 
-    const defaults = [
-      [this.KEYS.EMPLOYEES, defaultEmployees],
-      [this.KEYS.PERMISSIONS, defaultPermissions],
-      [this.KEYS.LOGS, defaultLogs],
-      [this.KEYS.BOOK_TITLES, defaultBookTitles],
-      [this.KEYS.BOOK_COPIES, defaultBookCopies],
-      [this.KEYS.IMPORT_RECEIPTS, defaultImportReceipts],
-      [this.KEYS.SUPPLIERS, defaultSuppliers],
-      [this.KEYS.PUBLISHERS, defaultPublishers],
-      [this.KEYS.READERS, defaultReaders],
-      [this.KEYS.READER_HISTORY, defaultReaderHistory],
-      [this.KEYS.RULES, defaultLibraryRules]
-    ];
+  resourceForKey(key) {
+    return {
+      [this.KEYS.EMPLOYEES]: 'employees',
+      [this.KEYS.PERMISSIONS]: 'config:permissions',
+      [this.KEYS.LOGS]: 'logs',
+      [this.KEYS.BOOK_TITLES]: 'bookTitles',
+      [this.KEYS.BOOK_COPIES]: 'bookCopies',
+      [this.KEYS.IMPORT_RECEIPTS]: 'importReceipts',
+      [this.KEYS.SUPPLIERS]: 'suppliers',
+      [this.KEYS.PUBLISHERS]: 'publishers',
+      [this.KEYS.READERS]: 'readers',
+      [this.KEYS.READER_HISTORY]: 'readerHistory',
+      [this.KEYS.RULES]: 'config:library_rules'
+    }[key] || null;
+  },
 
-    defaults.forEach(([key, fallback]) => {
-      if (!localStorage.getItem(key)) {
-        localStorage.setItem(key, JSON.stringify(fallback));
+  request(method, path, body) {
+    return fetch(`${this.API_BASE_URL}${path}`, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      ...(body === undefined ? {} : { body: JSON.stringify(body) })
+    }).then(async response => {
+      if (!response.ok) {
+        let payload = {};
+        try { payload = await response.json(); } catch (_) {}
+        const error = new Error(payload.error || `API ${method} ${path} failed (${response.status})`);
+        error.status = response.status;
+        throw error;
       }
+      return response.status === 204 ? null : response.json();
+    }).catch(error => {
+      if (error instanceof TypeError && error.status === undefined) error.status = 0;
+      throw error;
     });
   },
 
   getAll(key, fallback = []) {
-    // TODO: Backend API Integration point (GET /api/{resource})
-    try {
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : fallback;
-    } catch (e) {
-      return fallback;
-    }
+    return this._cache?.[key] ?? fallback;
   },
 
-  saveAll(key, data) {
-    // TODO: Backend API Integration point (PUT /api/{resource})
-    localStorage.setItem(key, JSON.stringify(data));
+  async hydrate(key, resource, fallback = []) {
+    if (resource.startsWith('config:')) {
+      const configKey = resource.slice('config:'.length);
+      const result = await this.request('GET', `/config/${encodeURIComponent(configKey)}`);
+      const value = result?.value ?? fallback;
+      this._cache[key] = value;
+      this._snapshots[key] = this.clone(value);
+      window.dispatchEvent(new CustomEvent('ixs:data-loaded', { detail: { key } }));
+      return value;
+    }
+    let path = `/${resource}`;
+    if (resource === 'readerHistory') {
+      let session = {};
+      try { session = JSON.parse(localStorage.getItem('ixs_library_session') || localStorage.getItem('ixs_library_current_user') || '{}'); } catch (_) {}
+      const readerId = session.id || session.readerId || session.maBanDoc;
+      if (!readerId) {
+        this._cache[key] = [];
+        this._snapshots[key] = [];
+        return [];
+      }
+      path += `?readerId=${encodeURIComponent(readerId)}`;
+    }
+    let data;
+    try {
+      data = await this.request('GET', path);
+    } catch (error) {
+      throw error;
+    }
+    this._cache[key] = data;
+    this._snapshots[key] = this.clone(data);
+    window.dispatchEvent(new CustomEvent('ixs:data-loaded', { detail: { key } }));
     return data;
   },
 
-  getById(key, id, idField = 'id') {
-    // TODO: Backend API Integration point (GET /api/{resource}/:id)
-    const list = this.getAll(key, []);
-    return list.find(item => item && item[idField] === id) || null;
+  saveAll(key, data) {
+    if (!this._cache) this._cache = {};
+    if (!this._writes) this._writes = {};
+    if (!this._writeErrors) this._writeErrors = {};
+    if (!this._snapshots) this._snapshots = {};
+
+    const resource = this.resourceForKey(key);
+    if (!resource) {
+      this._cache[key] = this.clone(data);
+      window.dispatchEvent(new CustomEvent('ixs:unsupported-data', { detail: { key } }));
+      return data;
+    }
+    const safeData = Array.isArray(data) ? data.map(item => {
+      if (!item || typeof item !== 'object') return item;
+      const { password, ...safeItem } = item;
+      return safeItem;
+    }) : data;
+    this._cache[key] = safeData;
+    this._writeErrors[key] = null;
+    const target = this.clone(data);
+    const prior = this._writes[key] || Promise.resolve();
+    this._writes[key] = prior.catch(() => {}).then(() => this.persist(key, resource, target)).then(() => {
+      this._writeErrors[key] = null;
+    }).catch(async error => {
+      this._writeErrors[key] = error;
+      console.error(`PostgreSQL save failed for ${resource}:`, error.message);
+      try { await this.hydrate(key, resource, this._snapshots[key]); } catch (refreshError) { console.error('Could not reload PostgreSQL data:', refreshError.message); }
+      window.dispatchEvent(new CustomEvent('ixs:data-error', { detail: { key, message: error.message } }));
+    });
+    return safeData;
+  },
+
+  async waitForWrites(keys) {
+    await Promise.all(keys.map(key => this._writes[key] || Promise.resolve()));
+    return keys.every(key => !this._writeErrors[key]);
+  },
+
+  async persist(key, resource, data) {
+    if (resource.startsWith('config:')) {
+      const configKey = resource.slice('config:'.length);
+      await this.request('PUT', `/config/${encodeURIComponent(configKey)}`, { value: data });
+      this._cache[key] = this.clone(data);
+      this._snapshots[key] = this.clone(data);
+      return data;
+    }
+    const before = Array.isArray(this._snapshots[key]) ? this._snapshots[key] : [];
+    const next = Array.isArray(data) ? data : [];
+    const unsupportedFields = [...new Set(next.flatMap(item => this.erdUnsupportedFields(resource, item)))];
+    if (unsupportedFields.length) window.dispatchEvent(new CustomEvent('ixs:erd-unsupported', { detail: { resource, fields: unsupportedFields } }));
+    const persistedNext = next.map(item => this.toErdRecord(resource, item));
+    const oldById = new Map(before.filter(item => item?.id != null).map(item => [String(item.id), item]));
+    const newById = new Map(persistedNext.filter(item => item?.id != null).map(item => [String(item.id), item]));
+    for (const item of persistedNext) {
+      if (item?.id == null) continue;
+      const id = String(item.id);
+      const old = oldById.get(id);
+      if (!old) {
+        const created = await this.request('POST', `/${resource}`, item);
+        if (created && typeof created === 'object') {
+          const { password, ...safeCreated } = created;
+          Object.assign(item, safeCreated);
+          const cachedItem = Array.isArray(this._cache[key])
+            ? this._cache[key].find(entry => entry && String(entry.id) === id)
+            : null;
+          if (cachedItem) Object.assign(cachedItem, safeCreated);
+        }
+      } else if (JSON.stringify(old) !== JSON.stringify(item)) {
+        await this.request('PUT', `/${resource}/${encodeURIComponent(id)}`, item);
+      }
+    }
+    for (const old of before) {
+      if (old?.id == null || newById.has(String(old.id))) continue;
+      await this.request('DELETE', `/${resource}/${encodeURIComponent(old.id)}`);
+    }
+    const current = persistedNext.map(item => {
+      if (!item || typeof item !== 'object') return item;
+      const { password, ...safeItem } = item;
+      return safeItem;
+    });
+    this._cache[key] = current;
+    this._snapshots[key] = this.clone(current);
+    return current;
+  },
+
+  toErdRecord(resource, item) {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return item;
+    const record = this.clone(item);
+    this.erdUnsupportedFields(resource, item).forEach(field => delete record[field]);
+    return record;
+  },
+
+  erdUnsupportedFields(resource, item) {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return [];
+    const fieldsByResource = {
+      readers: [],
+      employees: [],
+      bookTitles: [],
+      bookCopies: [],
+      importReceipts: []
+    };
+    return (fieldsByResource[resource] || []).filter(field => item[field] !== undefined && item[field] !== null && item[field] !== '');
+  },
+
+  clone(value) {
+    return value === undefined ? undefined : JSON.parse(JSON.stringify(value));
   },
 
   create(key, item, prepend = false) {
-    // TODO: Backend API Integration point (POST /api/{resource})
-    const list = this.getAll(key, []);
-    if (prepend) {
-      list.unshift(item);
-    } else {
-      list.push(item);
-    }
+    const list = [...this.getAll(key, [])];
+    if (prepend) list.unshift(item); else list.push(item);
     this.saveAll(key, list);
     return item;
   },
 
+  getById(key, id, idField = 'id') {
+    return this.getAll(key, []).find(item => item && String(item[idField]) === String(id)) || null;
+  },
+
   update(key, id, updates, idField = 'id') {
-    // TODO: Backend API Integration point (PATCH /api/{resource}/:id)
-    const list = this.getAll(key, []);
-    const index = list.findIndex(item => item && item[idField] === id);
+    const list = [...this.getAll(key, [])];
+    const index = list.findIndex(item => item && String(item[idField]) === String(id));
     if (index === -1) return null;
     list[index] = { ...list[index], ...updates };
     this.saveAll(key, list);
@@ -265,9 +400,8 @@ const DataService = {
   },
 
   remove(key, id, idField = 'id') {
-    // TODO: Backend API Integration point (DELETE /api/{resource}/:id)
-    const list = this.getAll(key, []);
-    const filtered = list.filter(item => item && item[idField] !== id);
+    const list = [...this.getAll(key, [])];
+    const filtered = list.filter(item => item && String(item[idField]) !== String(id));
     this.saveAll(key, filtered);
     return filtered;
   },
@@ -279,9 +413,7 @@ const DataService = {
       const rawId = item && item[idField] ? String(item[idField]) : '';
       if (rawId.startsWith(prefix)) {
         const numPart = parseInt(rawId.slice(prefix.length), 10);
-        if (!isNaN(numPart) && numPart > maxNum) {
-          maxNum = numPart;
-        }
+        if (!isNaN(numPart) && numPart > maxNum) maxNum = numPart;
       }
     });
     return prefix + String(maxNum + 1).padStart(padLength, '0');
@@ -313,6 +445,7 @@ function getLogs() {
 }
 
 function addLog(action, target, detail) {
+  if (!DataService.resourceForKey(DataService.KEYS.LOGS)) return;
   const logs = getLogs();
   const now = new Date();
   const d = String(now.getDate()).padStart(2, '0');
@@ -334,6 +467,7 @@ function addLog(action, target, detail) {
   } catch (e) {}
 
   logs.unshift({
+    id: `LOG-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     date: `${d} / ${m} / ${y}`,
     time: `${hh}:${mm}:${ss}`,
     user: activeUser,
@@ -416,4 +550,6 @@ function resetLibraryRulesToDefault() {
   return copy;
 }
 
-initAdminData();
+if (typeof DataService !== 'undefined' && !DataService._cache) {
+  DataService.init();
+}
