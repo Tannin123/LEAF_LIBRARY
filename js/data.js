@@ -273,6 +273,11 @@ const DataService = {
   },
 
   saveAll(key, data) {
+    if (!this._cache) this._cache = {};
+    if (!this._writes) this._writes = {};
+    if (!this._writeErrors) this._writeErrors = {};
+    if (!this._snapshots) this._snapshots = {};
+
     const resource = this.resourceForKey(key);
     if (!resource) {
       this._cache[key] = this.clone(data);
@@ -543,4 +548,8 @@ function resetLibraryRulesToDefault() {
   const copy = JSON.parse(JSON.stringify(defaultLibraryRules));
   saveLibraryRules(copy);
   return copy;
+}
+
+if (typeof DataService !== 'undefined' && !DataService._cache) {
+  DataService.init();
 }

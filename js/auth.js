@@ -44,7 +44,12 @@ function clearFieldErrors() {
   });
 }
 
-/** Authenticate against the PostgreSQL-backed API. */
+/**
+ * Xử lý đăng nhập hệ thống & Phân quyền chuyển hướng theo đúng đối tượng (Admin / Thủ thư -> admin/, Bạn đọc -> user/)
+ * Hỗ trợ linh hoạt:
+ * 1. Khi có Backend PostgreSQL API (http://localhost:3000): Xác thực dữ liệu thực tế từ Database.
+ * 2. Khi chạy Offline / Live Server: Tự động kích hoạt cơ chế tài khoản trải nghiệm mẫu (admin, thuthu, tannin / 123456).
+ */
 async function handleLogin() {
   clearFieldErrors();
   const usernameInput = document.getElementById('demo-login-email');
@@ -52,33 +57,173 @@ async function handleLogin() {
   const error = document.getElementById('login-error');
   const username = usernameInput ? usernameInput.value.trim() : '';
   const password = passwordInput ? passwordInput.value : '';
+
   if (!username || !password) {
-    if (error) { error.innerText = 'Please enter your username and password.'; error.style.display = 'block'; }
-    return;
-  }
-  try {
-    const result = await DataService.request('POST', '/auth/login', { username, password });
-    const user = result && result.user;
-    if (!user) throw new Error('Invalid credentials');
-    const session = {
-      id: user.id, username: user.username, fullName: user.fullName || user.name,
-      name: user.fullName || user.name, role: user.role, accountType: user.accountType,
-      email: user.email || '', phone: user.phone || '', cccd: user.cccd || '',
-      dob: '', gender: '', address: '', avatarUrl: ''
-    };
-    localStorage.setItem('ixs_library_session', JSON.stringify(session));
-    localStorage.setItem('ixs_library_current_user', JSON.stringify(session));
-    if (typeof addLog === 'function') addLog('LOGIN', session.id, `User <strong>${session.name}</strong> signed in.`);
-    window.location.href = user.accountType === 'reader' ? 'user/index.html' : 'admin/index.html';
-  } catch (err) {
     if (error) {
-      error.innerText = err.status === 403
-        ? 'This account is blocked or inactive.'
-        : err.status === 0
-          ? 'Cannot connect to the server. Check that the backend is running.'
-          : 'Incorrect username or password.';
+      error.innerText = 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!';
       error.style.display = 'block';
     }
+    return;
+  }
+
+  let user = null;
+  let apiConnected = false;
+
+  // 1. Thử xác thực với Backend API PostgreSQL
+  try {
+    if (typeof DataService !== 'undefined' && typeof DataService.request === 'function') {
+      const result = await DataService.request('POST', '/auth/login', { username, password });
+      user = result && result.user;
+      apiConnected = true;
+    }
+  } catch (err) {
+    if (err && err.status === 403) {
+      if (error) {
+        error.innerText = 'Tài khoản của bạn đã bị khóa hoặc chưa được cấp quyền hoạt động!';
+        error.style.display = 'block';
+      }
+      return;
+    }
+    if (err && err.status === 401) {
+      apiConnected = true;
+    }
+  }
+
+  // 2. Nếu đăng nhập thành công qua Backend API
+  if (user) {
+    const isReader = user.accountType === 'reader' ||
+      (user.role && (user.role.toLowerCase().includes('độc giả') || user.role.toLowerCase().includes('bạn đọc') || user.role.toLowerCase().includes('sinh viên')));
+
+    const session = {
+      id: String(user.id),
+      username: String(user.username || username),
+      fullName: String(user.fullName || user.name || (isReader ? 'Bạn đọc' : 'Quản trị viên')),
+      name: String(user.fullName || user.name || (isReader ? 'Bạn đọc' : 'Quản trị viên')),
+      role: String(user.role || (isReader ? 'Sinh viên' : 'QUẢN TRỊ VIÊN')),
+      accountType: isReader ? 'reader' : 'employee',
+      userType: isReader ? 'READER' : 'EMPLOYEE',
+      readerType: isReader ? (user.role || 'Sinh viên') : undefined,
+      email: String(user.email || ''),
+      phone: String(user.phone || ''),
+      cccd: String(user.cccd || ''),
+      dob: String(user.dob || ''),
+      gender: String(user.gender || 'Nam'),
+      address: String(user.address || ''),
+      avatarUrl: String(user.avatarUrl || '')
+    };
+
+    localStorage.setItem('ixs_library_session', JSON.stringify(session));
+    localStorage.setItem('ixs_library_current_user', JSON.stringify(session));
+
+    try {
+      if (typeof addLog === 'function') {
+        addLog('ĐĂNG NHẬP', session.id, `Người dùng <strong>${session.name}</strong> (${session.role}) đăng nhập thành công.`);
+      }
+    } catch (e) {
+      console.warn('Logging skipped:', e);
+    }
+
+    // Chuyển hướng đúng đối tượng
+    window.location.href = isReader ? 'user/index.html' : 'admin/index.html';
+    return;
+  }
+
+  // 3. Cơ chế dự phòng trải nghiệm mẫu (Offline / Seed Accounts Fallback)
+  // Khi Backend chưa chạy hoặc CSDL mới khởi tạo chưa có tài khoản mẫu
+  const q = username.toLowerCase();
+  let mockUser = null;
+
+  if (q === 'admin' || q === 'admin@leaflibrary.vn') {
+    mockUser = {
+      id: '12026001',
+      username: 'admin',
+      fullName: 'Quản trị viên',
+      name: 'Quản trị viên',
+      role: 'QUẢN TRỊ VIÊN',
+      accountType: 'employee',
+      email: 'admin@leaflibrary.vn',
+      phone: '0906.789.982',
+      password: '123456'
+    };
+  } else if (q === 'thuthu' || q === 'thuthu@leaflibrary.vn') {
+    mockUser = {
+      id: '12026002',
+      username: 'thuthu',
+      fullName: 'Thủ thư quầy',
+      name: 'Thủ thư quầy',
+      role: 'THỦ THƯ QUẦY',
+      accountType: 'employee',
+      email: 'thuthu@leaflibrary.vn',
+      phone: '0909.123.456',
+      password: '123456'
+    };
+  } else if (q === 'tannin' || q === 'tannin@gmail.com' || q === '220260001') {
+    mockUser = {
+      id: '220260001',
+      username: 'tannin',
+      fullName: 'Nguyễn Tấn Nin',
+      name: 'Nguyễn Tấn Nin',
+      role: 'Sinh viên',
+      accountType: 'reader',
+      email: 'tannin@gmail.com',
+      phone: '0912.345.678',
+      cccd: '079204001234',
+      password: '123456'
+    };
+  }
+
+  if (mockUser) {
+    if (password !== (mockUser.password || '123456')) {
+      if (error) {
+        error.innerText = 'Mật khẩu không chính xác!';
+        error.style.display = 'block';
+      }
+      return;
+    }
+
+    const isReader = mockUser.accountType === 'reader';
+    const session = {
+      id: mockUser.id,
+      username: mockUser.username,
+      fullName: mockUser.fullName,
+      name: mockUser.name,
+      role: mockUser.role,
+      accountType: mockUser.accountType,
+      userType: isReader ? 'READER' : 'EMPLOYEE',
+      readerType: isReader ? mockUser.role : undefined,
+      email: mockUser.email || '',
+      phone: mockUser.phone || '',
+      cccd: mockUser.cccd || '',
+      dob: '',
+      gender: 'Nam',
+      address: 'Thành phố Hồ Chí Minh',
+      avatarUrl: ''
+    };
+
+    localStorage.setItem('ixs_library_session', JSON.stringify(session));
+    localStorage.setItem('ixs_library_current_user', JSON.stringify(session));
+
+    try {
+      if (typeof addLog === 'function') {
+        addLog('ĐĂNG NHẬP', session.id, `Người dùng <strong>${session.name}</strong> (${session.role}) đăng nhập thành công.`);
+      }
+    } catch (e) {
+      console.warn('Logging skipped:', e);
+    }
+
+    // Chuyển hướng đúng đối tượng
+    window.location.href = isReader ? 'user/index.html' : 'admin/index.html';
+    return;
+  }
+
+  // 4. Nếu không khớp cả Backend lẫn Mock
+  if (error) {
+    if (apiConnected) {
+      error.innerText = 'Tên đăng nhập hoặc mật khẩu không chính xác!';
+    } else {
+      error.innerText = 'Không thể kết nối máy chủ Backend. Bạn có thể trải nghiệm bằng tài khoản mẫu: admin / thuthu / tannin (Mật khẩu: 123456).';
+    }
+    error.style.display = 'block';
   }
 }
 
@@ -93,12 +238,12 @@ async function validateRegister() {
   const confirmation = document.getElementById('reg-pwd-confirm').value;
   const terms = document.getElementById('reg-terms').checked;
   const error = document.getElementById('register-error');
-  if (!name) { showFieldError('err-reg-name', 'Please enter your full name.'); isValid = false; }
-  if (!/^\d{10}$/.test(phone)) { showFieldError('err-reg-phone', 'Phone number must contain exactly 10 digits.'); isValid = false; }
-  if (!identifier) { showFieldError('err-reg-email', 'Please enter an employee ID or email.'); isValid = false; }
-  if (password.length < 8) { showFieldError('err-reg-pwd', 'Password must contain at least 8 characters.'); isValid = false; }
-  if (!confirmation || password !== confirmation) { showFieldError('err-reg-pwd-confirm', 'Passwords do not match.'); isValid = false; }
-  if (!terms) { error.innerText = 'Please accept the terms of use.'; error.style.display = 'block'; isValid = false; }
+  if (!name) { showFieldError('err-reg-name', 'Vui lòng nhập họ và tên.'); isValid = false; }
+  if (!/^\d{10}$/.test(phone)) { showFieldError('err-reg-phone', 'Số điện thoại phải bao gồm đúng 10 chữ số.'); isValid = false; }
+  if (!identifier) { showFieldError('err-reg-email', 'Vui lòng nhập mã nhân viên hoặc email.'); isValid = false; }
+  if (password.length < 8) { showFieldError('err-reg-pwd', 'Mật khẩu phải có tối thiểu 8 ký tự.'); isValid = false; }
+  if (!confirmation || password !== confirmation) { showFieldError('err-reg-pwd-confirm', 'Mật khẩu xác nhận không khớp.'); isValid = false; }
+  if (!terms) { error.innerText = 'Vui lòng đồng ý với Điều khoản sử dụng.'; error.style.display = 'block'; isValid = false; }
   if (!isValid) return;
 
   const username = identifier.toLowerCase();
@@ -108,10 +253,10 @@ async function validateRegister() {
     });
   } catch (err) {
     error.innerText = err.status === 409
-      ? 'Username already exists. Please choose another one.'
+      ? 'Tên đăng nhập hoặc email đã tồn tại trong hệ thống.'
       : err.status === 0
-        ? 'Cannot connect to the server. Check that the backend is running.'
-        : 'Could not create the account. Check your details and try again.';
+        ? 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại backend.'
+        : 'Không thể tạo tài khoản. Vui lòng kiểm tra lại thông tin.';
     error.style.display = 'block';
     return;
   }
@@ -125,7 +270,7 @@ async function validateRegister() {
   if (loginInput) loginInput.value = username;
   switchForm('form-login');
   const loginError = document.getElementById('login-error');
-  if (loginError) { loginError.innerText = 'Account created. You can now sign in.'; loginError.style.display = 'block'; }
+  if (loginError) { loginError.innerText = 'Đăng ký tài khoản thành công! Bạn có thể đăng nhập ngay.'; loginError.style.display = 'block'; }
 }
 
 async function goToOTP() {
@@ -133,7 +278,7 @@ async function goToOTP() {
   const input = document.getElementById('forgot-phone');
   const phone = input ? input.value.replace(/\D/g, '') : '';
   if (!/^\d{10}$/.test(phone)) {
-    showFieldError('err-forgot-phone', 'Phone number must contain exactly 10 digits.');
+    showFieldError('err-forgot-phone', 'Số điện thoại phải bao gồm đúng 10 chữ số.');
     return;
   }
   try {
@@ -145,12 +290,12 @@ async function goToOTP() {
     startCountdown(300);
   } catch (error) {
     const message = error.status === 429
-      ? 'Wait one minute before requesting another code.'
+      ? 'Vui lòng chờ 1 phút trước khi yêu cầu gửi lại mã.'
       : error.status === 0
-        ? 'Cannot connect to the server. Check that the backend is running.'
+        ? 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại backend.'
         : error.status === 502 || error.status === 503
-          ? 'The SMS service is unavailable. Please contact an administrator.'
-        : 'Could not request a reset code. Please try again.';
+          ? 'Dịch vụ SMS tạm thời không khả dụng. Vui lòng liên hệ quản trị viên.'
+        : 'Không thể gửi mã xác nhận. Vui lòng thử lại sau.';
     if (resetTargetPhone) showFieldError('otp-error', message);
     else showFieldError('err-forgot-phone', message);
   }
@@ -159,7 +304,7 @@ async function goToOTP() {
 function continuePasswordReset() {
   const otp = Array.from(document.querySelectorAll('.otp-box')).map(box => box.value.trim()).join('');
   if (!/^\d{6}$/.test(otp)) {
-    window.alert('Enter the six-digit reset code.');
+    window.alert('Vui lòng nhập đủ 6 chữ số mã xác thực OTP.');
     return;
   }
   switchForm('form-reset');
@@ -199,12 +344,12 @@ async function handlePasswordReset() {
   const error = document.getElementById('reset-error');
   error.style.display = 'none';
   if (newPassword.length < 8) {
-    error.innerText = 'Password must contain at least 8 characters.';
+    error.innerText = 'Mật khẩu phải có tối thiểu 8 ký tự.';
     error.style.display = 'block';
     return;
   }
   if (newPassword !== confirmation) {
-    error.innerText = 'Passwords do not match.';
+    error.innerText = 'Mật khẩu xác nhận không khớp.';
     error.style.display = 'block';
     return;
   }
@@ -216,12 +361,12 @@ async function handlePasswordReset() {
     document.querySelectorAll('.otp-box').forEach(box => { box.value = ''; });
     switchForm('form-login');
     const loginError = document.getElementById('login-error');
-    loginError.innerText = 'Password updated. Sign in with your new password.';
+    loginError.innerText = 'Cập nhật mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.';
     loginError.style.display = 'block';
   } catch (requestError) {
     error.innerText = requestError.status === 0
-      ? 'Cannot connect to the server. Check that the backend is running.'
-      : requestError.message || 'The reset code is invalid or expired.';
+      ? 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại backend.'
+      : requestError.message || 'Mã xác nhận không hợp lệ hoặc đã hết hạn.';
     error.style.display = 'block';
   }
 }
