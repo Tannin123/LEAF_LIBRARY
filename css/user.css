@@ -2741,57 +2741,56 @@
   font-size: 13px;
 }
 
-.workflow-pagination > div,
 .pagination-wrapper {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  margin: 22px auto 8px auto !important;
+  width: 100% !important;
+  text-align: center !important;
 }
 
-.workflow-pagination button,
 .page-box {
-  min-width: 30px;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #94A3B8;
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  outline: none;
+  min-width: 28px !important;
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #94A3B8 !important;
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 6px !important;
+  font: inherit !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  outline: none !important;
 }
 
-.workflow-pagination button:hover:not(:disabled),
 .page-box:hover:not(:disabled) {
-  background-color: #F8FAFC;
-  border-color: #CBD5E1;
-  color: #1E293B;
+  background-color: #F8FAFC !important;
+  border-color: #CBD5E1 !important;
+  color: #1E293B !important;
 }
 
-.workflow-pagination button.active,
 .page-box.active {
-  color: #1D5D86;
-  background: #EBF3F9;
-  border: 1.5px solid #1D5D86;
-  font-weight: 700;
-  cursor: default;
+  color: #1D5D86 !important;
+  background-color: #EFF6FF !important;
+  border: 1.5px solid #1D5D86 !important;
+  font-weight: 700 !important;
+  cursor: default !important;
 }
 
-.workflow-pagination button:disabled,
-.page-box:disabled {
-  opacity: 0.65;
-  color: #CBD5E1;
-  background-color: #FFFFFF;
-  cursor: not-allowed;
+.page-box:disabled,
+.page-box.disabled {
+  opacity: 0.55 !important;
+  color: #CBD5E1 !important;
+  background-color: #FFFFFF !important;
+  cursor: not-allowed !important;
 }
 
 .workflow-empty-cell {
