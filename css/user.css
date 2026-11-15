@@ -2472,6 +2472,13 @@
 
 .workflow-content {
   min-width: 0;
+  padding-top: 14px !important;
+  gap: 14px !important;
+}
+
+.user-interface .workflow-content {
+  padding-top: 14px !important;
+  gap: 14px !important;
 }
 
 .workflow-page-content {
