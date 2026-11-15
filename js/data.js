@@ -4,6 +4,20 @@ const defaultEmployees = [];
 const defaultLogs = [];
 const defaultBookTitles = [
   {
+    id: 'DSIT0001',
+    title: 'MANAGING INFORMATION TECHNOLOGY',
+    authors: 'Francisco Castillo, Korina Monoso',
+    author: 'Francisco Castillo, Korina Monoso',
+    publisher: 'Springer',
+    category: 'Công nghệ thông tin',
+    genre: 'Công nghệ thông tin',
+    subject: 'Quản trị công nghệ thông tin',
+    total: 30,
+    available: 25,
+    isbn: '3031390156, 978-3031390159',
+    coverUrl: ''
+  },
+  {
     id: 'SEED0001',
     title: 'Clean Code: A Handbook of Agile Software Craftsmanship',
     authors: 'Robert C. Martin',
@@ -146,12 +160,61 @@ const defaultBookTitles = [
     coverUrl: '../assets/images/sodo.jpg'
   }
 ];
-const defaultBookCopies = [];
+const defaultBookCopies = defaultBookTitles.flatMap(b => [
+  { id: `${b.id}-01`, bookId: b.id, bookTitleId: b.id, bookTitle: b.title, barcode: `${b.id}-01`, physicalStatus: 'TỐT', circulationStatus: 'SẴN SÀNG', status: 'SẴN SÀNG', location: 'A1 - Ngăn 1', coverUrl: b.coverUrl },
+  { id: `${b.id}-02`, bookId: b.id, bookTitleId: b.id, bookTitle: b.title, barcode: `${b.id}-02`, physicalStatus: 'TỐT', circulationStatus: 'SẴN SÀNG', status: 'SẴN SÀNG', location: 'A1 - Ngăn 2', coverUrl: b.coverUrl },
+  { id: `${b.id}-03`, bookId: b.id, bookTitleId: b.id, bookTitle: b.title, barcode: `${b.id}-03`, physicalStatus: 'TỐT', circulationStatus: 'SẴN SÀNG', status: 'SẴN SÀNG', location: 'B1 - Ngăn 1', coverUrl: b.coverUrl },
+  { id: `${b.id}-04`, bookId: b.id, bookTitleId: b.id, bookTitle: b.title, barcode: `${b.id}-04`, physicalStatus: 'TỐT', circulationStatus: 'SẴN SÀNG', status: 'SẴN SÀNG', location: 'B1 - Ngăn 2', coverUrl: b.coverUrl },
+  { id: `${b.id}-05`, bookId: b.id, bookTitleId: b.id, bookTitle: b.title, barcode: `${b.id}-05`, physicalStatus: 'TỐT', circulationStatus: 'SẴN SÀNG', status: 'SẴN SÀNG', location: 'B2 - Ngăn 1', coverUrl: b.coverUrl }
+]);
 const defaultImportReceipts = [];
 const defaultSuppliers = [];
 const defaultPublishers = [];
-const defaultReaders = [];
-const defaultReaderHistory = [];
+const defaultReaders = [
+  {
+    id: '220260004',
+    name: 'Lưu Tấn Nin',
+    fullName: 'Lưu Tấn Nin',
+    readerType: 'Sinh viên',
+    issueDate: '15 / 11 / 2026',
+    expiryDate: '15 / 11 / 2027',
+    status: 'HỢP LỆ',
+    phone: '0363894957',
+    email: 'luutannin@gmail.com',
+    cccd: '072202001234',
+    address: 'Ô 17, Ấp 4, Mỹ An, Tây Ninh',
+    gender: 'Nam',
+    dob: '10 / 01 / 2006'
+  },
+  {
+    id: '123456',
+    name: 'Lưu Tấn Nin',
+    fullName: 'Lưu Tấn Nin',
+    readerType: 'Sinh viên',
+    issueDate: '15 / 11 / 2026',
+    expiryDate: '15 / 11 / 2027',
+    status: 'HỢP LỆ',
+    phone: '0363894957',
+    email: 'luutannin@gmail.com',
+    cccd: '072202001234',
+    address: 'Ô 17, Ấp 4, Mỹ An, Tây Ninh',
+    gender: 'Nam',
+    dob: '10 / 01 / 2006'
+  }
+];
+const defaultReaderHistory = [
+  {
+    id: 'PM260001',
+    loanId: 'PM260001',
+    readerId: '220260004',
+    readerName: 'Lưu Tấn Nin',
+    copyId: 'DSIT0001-01',
+    bookTitle: 'MANAGING INFORMATION TECHNOLOGY',
+    borrowDate: '10/11/2026',
+    dueDate: '24/11/2026',
+    status: 'Đang mượn'
+  }
+];
 
 const defaultPermissions = {
   'QUẢN TRỊ VIÊN': [
@@ -322,23 +385,53 @@ const DataService = {
     PUBLISHERS: 'ixs_library_publishers',
     READERS: 'ixs_library_readers',
     READER_HISTORY: 'ixs_library_reader_history',
+    FINES: 'ixs_library_fines',
+    SUGGESTIONS: 'ixs_library_suggestions',
     RULES: 'ixs_library_rules'
   },
 
   init() {
-    this._cache = {
-      [this.KEYS.EMPLOYEES]: [], [this.KEYS.PERMISSIONS]: defaultPermissions,
-      [this.KEYS.LOGS]: [], [this.KEYS.BOOK_TITLES]: [], [this.KEYS.BOOK_COPIES]: [],
-      [this.KEYS.IMPORT_RECEIPTS]: [], [this.KEYS.SUPPLIERS]: [], [this.KEYS.PUBLISHERS]: [],
-      [this.KEYS.READERS]: [], [this.KEYS.READER_HISTORY]: [], [this.KEYS.RULES]: defaultLibraryRules
+    this._cache = {};
+    const defaultData = {
+      [this.KEYS.EMPLOYEES]: defaultEmployees,
+      [this.KEYS.PERMISSIONS]: defaultPermissions,
+      [this.KEYS.LOGS]: defaultLogs,
+      [this.KEYS.BOOK_TITLES]: defaultBookTitles,
+      [this.KEYS.BOOK_COPIES]: defaultBookCopies,
+      [this.KEYS.IMPORT_RECEIPTS]: defaultImportReceipts,
+      [this.KEYS.SUPPLIERS]: defaultSuppliers,
+      [this.KEYS.PUBLISHERS]: defaultPublishers,
+      [this.KEYS.READERS]: defaultReaders,
+      [this.KEYS.READER_HISTORY]: defaultReaderHistory,
+      [this.KEYS.FINES]: [],
+      [this.KEYS.SUGGESTIONS]: [],
+      [this.KEYS.RULES]: defaultLibraryRules
     };
+
+    Object.entries(this.KEYS).forEach(([name, key]) => {
+      let stored = null;
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw) stored = JSON.parse(raw);
+      } catch (_) {}
+
+      const fallback = defaultData[key] || [];
+      if (stored && Array.isArray(stored) && stored.length > 0) {
+        this._cache[key] = stored;
+      } else if (stored && typeof stored === 'object' && !Array.isArray(stored)) {
+        this._cache[key] = stored;
+      } else {
+        this._cache[key] = fallback;
+      }
+    });
+
     this._snapshots = {};
     this._writes = {};
     this._writeErrors = {};
     const resources = Object.entries(this.KEYS)
-      .map(([name, key]) => ({ key, resource: this.resourceForKey(key), fallback: name === 'PERMISSIONS' ? defaultPermissions : name === 'RULES' ? defaultLibraryRules : [] }))
+      .map(([name, key]) => ({ key, resource: this.resourceForKey(key), fallback: defaultData[key] || [] }))
       .filter(item => item.resource);
-    this.ready = Promise.all(resources.map(item => this.hydrate(item.key, item.resource, item.fallback)));
+    this.ready = Promise.all(resources.map(item => this.hydrate(item.key, item.resource, item.fallback).catch(() => this._cache[item.key])));
   },
 
   resourceForKey(key) {
@@ -353,6 +446,8 @@ const DataService = {
       [this.KEYS.PUBLISHERS]: 'publishers',
       [this.KEYS.READERS]: 'readers',
       [this.KEYS.READER_HISTORY]: 'readerHistory',
+      [this.KEYS.FINES]: 'fines',
+      [this.KEYS.SUGGESTIONS]: 'suggestions',
       [this.KEYS.RULES]: 'config:library_rules'
     }[key] || null;
   },
@@ -392,16 +487,20 @@ const DataService = {
       return value;
     }
     let path = `/${resource}`;
-    if (resource === 'readerHistory') {
+    if (resource === 'readerHistory' || resource === 'fines' || resource === 'suggestions') {
+      const isAdminPage = typeof window !== 'undefined' && window.location.pathname.includes('/admin/');
       let session = {};
       try { session = JSON.parse(localStorage.getItem('ixs_library_session') || localStorage.getItem('ixs_library_current_user') || '{}'); } catch (_) {}
-      const readerId = session.id || session.readerId || session.maBanDoc;
-      if (!readerId) {
-        this._cache[key] = [];
-        this._snapshots[key] = [];
-        return [];
+      const isEmployee = session.accountType === 'employee';
+      if (!isAdminPage && !isEmployee) {
+        const readerId = session.id || session.readerId || session.maBanDoc;
+        if (!readerId) {
+          this._cache[key] = [];
+          this._snapshots[key] = [];
+          return [];
+        }
+        path += `?readerId=${encodeURIComponent(readerId)}`;
       }
-      path += `?readerId=${encodeURIComponent(readerId)}`;
     }
     let data;
     try {
@@ -679,6 +778,22 @@ function saveReaderHistory(list) {
   return DataService.saveAll(DataService.KEYS.READER_HISTORY, list);
 }
 
+function getFines() {
+  return DataService.getAll(DataService.KEYS.FINES, []);
+}
+
+function saveFines(list) {
+  return DataService.saveAll(DataService.KEYS.FINES, list);
+}
+
+function getBookSuggestions() {
+  return DataService.getAll(DataService.KEYS.SUGGESTIONS, []);
+}
+
+function saveBookSuggestions(list) {
+  return DataService.saveAll(DataService.KEYS.SUGGESTIONS, list);
+}
+
 function getLibraryRules() {
   return DataService.getAll(DataService.KEYS.RULES, defaultLibraryRules);
 }
@@ -695,4 +810,18 @@ function resetLibraryRulesToDefault() {
 
 if (typeof DataService !== 'undefined' && !DataService._cache) {
   DataService.init();
+}
+
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  window.addEventListener('storage', (e) => {
+    if (e.key && Object.values(DataService.KEYS).includes(e.key)) {
+      try {
+        const parsed = JSON.parse(e.newValue);
+        if (parsed) {
+          DataService._cache[e.key] = parsed;
+          window.dispatchEvent(new CustomEvent('ixs:data-loaded', { detail: { key: e.key } }));
+        }
+      } catch (_) {}
+    }
+  });
 }

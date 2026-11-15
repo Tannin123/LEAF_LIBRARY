@@ -114,6 +114,8 @@ async function handleLogin() {
 
     localStorage.setItem('ixs_library_session', JSON.stringify(session));
     localStorage.setItem('ixs_library_current_user', JSON.stringify(session));
+    sessionStorage.setItem('ixs_library_session', JSON.stringify(session));
+    sessionStorage.setItem('ixs_library_current_user', JSON.stringify(session));
 
     try {
       if (typeof addLog === 'function') {
@@ -143,7 +145,7 @@ async function handleLogin() {
       accountType: 'employee',
       email: 'admin@leaflibrary.vn',
       phone: '0906.789.982',
-      password: '123456'
+      password: 'admin123'
     };
   } else if (q === 'thuthu' || q === 'thuthu@leaflibrary.vn') {
     mockUser = {
@@ -157,18 +159,19 @@ async function handleLogin() {
       phone: '0909.123.456',
       password: '123456'
     };
-  } else if (q === 'tannin' || q === 'tannin@gmail.com' || q === '220260001') {
+  } else if (q === 'tannin' || q === 'tanin' || q === 'luutannin@gmail.com' || q === 'tannin@gmail.com' || q === '220260004' || q === '220260003' || q === '220260001') {
     mockUser = {
-      id: '220260001',
-      username: 'tannin',
-      fullName: 'Nguyễn Tấn Nin',
-      name: 'Nguyễn Tấn Nin',
+      id: '220260004',
+      readerId: '220260004',
+      username: 'tanin',
+      fullName: 'Lưu Tấn Nin',
+      name: 'Lưu Tấn Nin',
       role: 'Sinh viên',
       accountType: 'reader',
-      email: 'tannin@gmail.com',
-      phone: '0912.345.678',
-      cccd: '079204001234',
-      password: '123456'
+      email: 'luutannin@gmail.com',
+      phone: '0363894957',
+      cccd: '080206008896',
+      password: 'Nin10112006'
     };
   }
 
@@ -202,6 +205,8 @@ async function handleLogin() {
 
     localStorage.setItem('ixs_library_session', JSON.stringify(session));
     localStorage.setItem('ixs_library_current_user', JSON.stringify(session));
+    sessionStorage.setItem('ixs_library_session', JSON.stringify(session));
+    sessionStorage.setItem('ixs_library_current_user', JSON.stringify(session));
 
     try {
       if (typeof addLog === 'function') {

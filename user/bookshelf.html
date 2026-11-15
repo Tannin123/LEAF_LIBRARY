@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 	<meta charset="UTF-8">
@@ -81,7 +81,8 @@
 					</button>
 				</div>
 			</header>
-			<div class="bookshelf-book-list" id="bookshelfBookList" aria-live="polite"></div>
+			<div class="bookshelf-book-list book-cards-grid" id="bookshelfBookList" aria-live="polite"></div>
+			<div class="pagination-wrapper" id="bookshelfPagination" style="margin-top: 24px;"></div>
 		</section>
 			</main>
 		</div>
@@ -144,6 +145,336 @@
 					<button type="submit" class="bookshelf-add-button">Lưu thay đổi</button>
 				</div>
 			</form>
+		</div>
+	</div>
+
+  <!-- ===== MODAL THÃ”NG TIN CÃ NHÃ‚N  ===== -->
+  <div class="modal-overlay" id="modalUserProfile">
+    <div class="modal-box user-profile-modal-box">
+      <div class="user-modal-header">
+        <div class="user-modal-title">THÃ”NG TIN CÃ NHÃ‚N</div>
+        <button type="button" class="user-modal-close-btn" id="btnCloseUserProfileModal" title="ÄÃ³ng">âœ•</button>
+      </div>
+      <div class="user-modal-body">
+
+        <!-- Cá»™t trÃ¡i: Form thÃ´ng tin cÃ¡ nhÃ¢n & liÃªn há»‡ -->
+        <div class="user-modal-left">
+
+          <div class="profile-section-heading">Pháº§n thÃ´ng tin cÃ¡ nhÃ¢n</div>
+
+          <div class="profile-form-group">
+            <label class="profile-form-label">Há» vÃ  tÃªn</label>
+            <input type="text" class="profile-form-input" id="profFullName" value="Luu Tan Nin" readonly>
+          </div>
+
+          <div class="profile-form-row">
+            <div class="profile-form-group col-half">
+              <label class="profile-form-label">Giá»›i tÃ­nh</label>
+              <div class="profile-select-wrap">
+                <select class="profile-form-select" id="profGender" disabled>
+                  <option value="Nam" selected>Nam</option>
+                  <option value="Ná»¯">Ná»¯</option>
+                </select>
+                <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </div>
+            </div>
+            <div class="profile-form-group col-half">
+              <label class="profile-form-label">NgÃ y sinh</label>
+              <div class="profile-input-with-icon">
+                <input type="text" class="profile-form-input" id="profDob" value="10 / 1 / 2006" readonly>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-form-group">
+            <label class="profile-form-label">CCCD</label>
+            <div class="profile-select-wrap">
+              <input type="text" class="profile-form-input" id="profCccd" value="abc" readonly>
+              <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </div>
+          </div>
+
+          <div class="profile-section-heading" style="margin-top: 14px;">Pháº§n thÃ´ng tin liÃªn há»‡ &amp; nhÃ³m quyá»n</div>
+
+          <div class="profile-form-group">
+            <label class="profile-form-label">Äá»‹a chá»‰</label>
+            <input type="text" class="profile-form-input" id="profAddress" value="Ã” 17, áº¤p 4, Má»¹ An, TÃ¢y Ninh" readonly>
+          </div>
+
+          <div class="profile-form-row">
+            <div class="profile-form-group col-half">
+              <label class="profile-form-label">SÄT</label>
+              <input type="text" class="profile-form-input" id="profPhone" value="0363894957" readonly>
+            </div>
+            <div class="profile-form-group col-half">
+              <label class="profile-form-label">Email</label>
+              <input type="text" class="profile-form-input" id="profEmail" value="luutannin@gmail.com" readonly>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Cá»™t pháº£i: áº¢NH CÃ NHÃ‚N & MÃ£ tÃ i khoáº£n & CÃ¡c nÃºt báº¥m -->
+        <div class="user-modal-right">
+          <div class="profile-avatar-frame" id="profAvatarFrame">
+            <img id="profAvatarImg" src="" alt="áº¢nh cÃ¡ nhÃ¢n" style="display:none;">
+            <div class="profile-avatar-placeholder" id="profAvatarPlaceholder">
+              <span>áº¢NH CÃ NHÃ‚N</span>
+            </div>
+          </div>
+
+          <div class="profile-code-group">
+            <div class="profile-code-label">MÃ£ nhÃ¢n viÃªn (mÃ£ tÃ i khoáº£n)</div>
+            <div class="profile-code-value" id="profCodeValue">123456</div>
+          </div>
+
+          <div class="profile-actions-stack">
+            <button type="button" class="btn-profile-primary" id="btnViewReaderCard">XEM THáºº Äá»˜C GIáº¢</button>
+            <button type="button" class="btn-profile-primary" id="btnEditProfile">CHá»ˆNH Sá»¬A THÃ”NG TIN</button>
+            <button type="button" class="btn-profile-gray" id="btnExitProfile">THOÃT</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL THAY Äá»”I THÃ”NG TIN CÃ NHÃ‚N (CHUáº¨N áº¢NH 2) ===== -->
+  <div class="modal-overlay" id="modalEditUserProfile">
+    <div class="modal-box user-profile-modal-box">
+      <div class="user-modal-header">
+        <div class="user-modal-title">THAY Äá»”I THÃ”NG TIN CÃ NHÃ‚N</div>
+        <button type="button" class="user-modal-close-btn" id="btnCloseEditUserProfileModal" title="ÄÃ³ng">âœ•</button>
+      </div>
+      <div class="user-modal-body">
+
+        <!-- Cá»™t trÃ¡i: Form thÃ´ng tin cÃ¡ nhÃ¢n & liÃªn há»‡ (Ä‘Æ°á»£c phÃ©p sá»­a) -->
+        <div class="user-modal-left">
+
+          <div class="profile-section-heading">Pháº§n thÃ´ng tin cÃ¡ nhÃ¢n</div>
+
+          <div class="profile-form-group">
+            <label class="profile-form-label">Há» vÃ  tÃªn</label>
+            <input type="text" class="profile-form-input" id="editProfFullName" value="LÆ°u Táº¥n Nin">
+          </div>
+
+          <div class="profile-form-row">
+            <div class="profile-form-group col-half">
+              <label class="profile-form-label">Giá»›i tÃ­nh</label>
+              <div class="profile-select-wrap">
+                <select class="profile-form-select" id="editProfGender">
+                  <option value="Nam" selected>Nam</option>
+                  <option value="Ná»¯">Ná»¯</option>
+                </select>
+                <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </div>
+            </div>
+            <div class="profile-form-group col-half">
+              <label class="profile-form-label">NgÃ y sinh</label>
+              <div class="profile-input-with-icon">
+                <input type="text" class="profile-form-input" id="editProfDob" value="10 / 11 / 2006">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-form-group">
+            <label class="profile-form-label">CCCD</label>
+            <div class="profile-select-wrap">
+              <input type="text" class="profile-form-input" id="editProfCccd" value="abc">
+              <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </div>
+          </div>
+
+          <div class="profile-section-heading" style="margin-top: 14px;">Pháº§n thÃ´ng tin liÃªn há»‡ &amp; nhÃ³m quyá»n</div>
+
+          <div class="profile-form-group">
+            <label class="profile-form-label">Äá»‹a chá»‰</label>
+            <input type="text" class="profile-form-input" id="editProfAddress" value="O17, Ap 4, My An, Tay Ninh">
+          </div>
+
+          <div class="profile-form-row">
+            <div class="profile-form-group col-half">
+              <label class="profile-form-label">SÄT</label>
+              <input type="text" class="profile-form-input" id="editProfPhone" value="0363894957">
+            </div>
+            <div class="profile-form-group col-half">
+              <label class="profile-form-label">Email</label>
+              <input type="text" class="profile-form-input" id="editProfEmail" value="luutannin@gmail.com">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Cá»™t pháº£i: áº¢NH CÃ NHÃ‚N & MÃ£ tÃ i khoáº£n & 2 nÃºt LÆ¯U, THOÃT -->
+        <div class="user-modal-right">
+          <div class="profile-avatar-frame" id="editProfAvatarFrame">
+            <img id="editProfAvatarImg" src="" alt="áº¢nh cÃ¡ nhÃ¢n" style="display:none;">
+            <div class="profile-avatar-placeholder" id="editProfAvatarPlaceholder">
+              <span>áº¢NH CÃ NHÃ‚N</span>
+            </div>
+          </div>
+
+          <div class="profile-code-group">
+            <div class="profile-code-label">MÃ£ nhÃ¢n viÃªn (mÃ£ tÃ i khoáº£n)</div>
+            <div class="profile-code-value" id="editProfCodeValue">123456</div>
+          </div>
+
+          <div class="profile-actions-stack">
+            <button type="button" class="btn-profile-primary" id="btnSaveEditProfile">LÆ¯U</button>
+            <button type="button" class="btn-profile-gray" id="btnCancelEditProfile">THOÃT</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL THáºº THÆ¯ VIá»†N (CHUáº¨N áº¢NH 1) ===== -->
+  <div class="modal-overlay" id="modalLibraryCard">
+    <div class="library-card-modal-container">
+      <div class="library-card-modal-header">
+        <div class="library-card-modal-title">THáºº THÆ¯ VIá»†N</div>
+        <button type="button" class="library-card-modal-close" id="btnCloseLibraryCardModal" title="ÄÃ³ng">âœ•</button>
+      </div>
+      <div class="library-card-white-panel">
+        <div class="card-watermark" aria-hidden="true">
+          <svg viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="36" fill="#F1F5F9" opacity="0.8"/>
+            <path d="M50 24 C40 24 32 32 32 42 C32 54 50 68 50 68 C50 68 68 54 68 42 C68 32 60 24 50 24 Z" fill="#E2E8F0" opacity="0.5"/>
+          </svg>
+        </div>
+        <div class="lib-card-field-group">
+          <div class="lib-card-label">MÃƒ THáºº</div>
+          <div class="lib-card-code" id="libCardCode">220260003</div>
+        </div>
+        <div class="lib-card-field-group">
+          <div class="lib-card-label">Há»Œ &amp; TÃŠN</div>
+          <div class="lib-card-name" id="libCardName">LUU TAN NIN</div>
+        </div>
+        <div class="lib-card-row">
+          <div class="lib-card-field-group">
+            <div class="lib-card-label">Äá»I TÆ¯á»¢NG</div>
+            <div class="lib-card-val" id="libCardRole">Sinh viÃªn</div>
+          </div>
+          <div class="lib-card-field-group text-right">
+            <div class="lib-card-label">Háº N Sá»¬ Dá»¤NG</div>
+            <div class="lib-card-val" id="libCardExpire">28 / 02 / 2027</div>
+          </div>
+        </div>
+        <div class="lib-card-barcode-wrap">
+          <svg class="lib-barcode-svg" viewBox="0 0 280 50" preserveAspectRatio="none">
+            <rect x="10" y="0" width="3" height="50" fill="#1E293B"/>
+            <rect x="16" y="0" width="1" height="50" fill="#1E293B"/>
+            <rect x="19" y="0" width="4" height="50" fill="#1E293B"/>
+            <rect x="26" y="0" width="2" height="50" fill="#1E293B"/>
+            <rect x="31" y="0" width="1" height="50" fill="#1E293B"/>
+            <rect x="34" y="0" width="3" height="50" fill="#1E293B"/>
+            <rect x="40" y="0" width="2" height="50" fill="#1E293B"/>
+            <rect x="45" y="0" width="4" height="50" fill="#1E293B"/>
+            <rect x="52" y="0" width="1" height="50" fill="#1E293B"/>
+            <rect x="55" y="0" width="2" height="50" fill="#1E293B"/>
+            <rect x="60" y="0" width="3" height="50" fill="#1E293B"/>
+            <rect x="66" y="0" width="1" height="50" fill="#1E293B"/>
+            <rect x="70" y="0" width="4" height="50" fill="#1E293B"/>
+            <rect x="77" y="0" width="2" height="50" fill="#1E293B"/>
+            <rect x="82" y="0" width="1" height="50" fill="#1E293B"/>
+            <rect x="86" y="0" width="3" height="50" fill="#1E293B"/>
+            <rect x="92" y="0" width="2" height="50" fill="#1E293B"/>
+            <rect x="97" y="0" width="4" height="50" fill="#1E293B"/>
+            <rect x="104" y="0" width="1" height="50" fill="#1E293B"/>
+            <rect x="108" y="0" width="3" height="50" fill="#1E293B"/>
+            <rect x="114" y="0" width="2" height="50" fill="#1E293B"/>
+            <rect x="119" y="0" width="1" height="50" fill="#1E293B"/>
+            <rect x="123" y="0" width="4" height="50" fill="#1E293B"/>
+            <rect x="130" y="0" width="2" height="50" fill="#1E293B"/>
+            <rect x="135" y="0" width="1" height="50" fill="#1E293B"/>
+            <rect x="139" y="0" width="3" height="50" fill="#1E293B"/>
+            <rect x="145" y="0" width="2" height="50" fill="#1E293B"/>
+            <rect x="150" y="0" width="4" height="50" fill="#1E293B"/>
+            <rect x="157" y="0" width="1" height="50" fill="#1E293B"/>
+            <rect x="161" y="0" width="3" height="50" fill="#1E293B"/>
+            <rect x="167" y="0" width="2" height="50" fill="#1E293B"/>
+            <rect x="172" y="0" width="1" height="50" fill="#1E293B"/>
+            <rect x="176" y="0" width="4" height="50" fill="#1E293B"/>
+            <rect x="183" y="0" width="2" height="50" fill="#1E293B"/>
+            <rect x="188" y="0" width="1" height="50" fill="#1E293B"/>
+            <rect x="192" y="0" width="3" height="50" fill="#1E293B"/>
+            <rect x="198" y="0" width="2" height="50" fill="#1E293B"/>
+            <rect x="203" y="0" width="4" height="50" fill="#1E293B"/>
+            <rect x="210" y="0" width="1" height="50" fill="#1E293B"/>
+            <rect x="214" y="0" width="3" height="50" fill="#1E293B"/>
+            <rect x="220" y="0" width="2" height="50" fill="#1E293B"/>
+            <rect x="225" y="0" width="1" height="50" fill="#1E293B"/>
+            <rect x="229" y="0" width="4" height="50" fill="#1E293B"/>
+            <rect x="236" y="0" width="2" height="50" fill="#1E293B"/>
+            <rect x="241" y="0" width="1" height="50" fill="#1E293B"/>
+            <rect x="245" y="0" width="3" height="50" fill="#1E293B"/>
+            <rect x="251" y="0" width="2" height="50" fill="#1E293B"/>
+            <rect x="256" y="0" width="4" height="50" fill="#1E293B"/>
+            <rect x="263" y="0" width="3" height="50" fill="#1E293B"/>
+          </svg>
+        </div>
+      </div>
+      <div class="library-card-actions">
+        <button type="button" class="btn-lib-card-print" id="btnPrintLibraryCard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+            <polyline points="6 9 6 2 18 2 18 9"/>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+            <rect x="6" y="14" width="12" height="8"/>
+          </svg>
+          <span>In tháº»</span>
+        </button>
+        <button type="button" class="btn-lib-card-close" id="btnExitLibraryCard">âœ• ÄÃ³ng</button>
+      </div>
+    </div>
+  </div>
+
+
+	<!-- ===== MODAL XEM BẢN SAO SÁCH ===== -->
+	<div class="modal-overlay" id="modalBookCopies">
+		<div class="modal-box user-profile-modal-box" style="width: 580px;">
+			<div class="user-modal-header">
+				<div class="user-modal-title" id="copiesModalTitle">DANH SÁCH BẢN SAO - DSIT0001</div>
+				<button type="button" class="user-modal-close-btn" id="btnCloseCopiesModal" title="Đóng">✕</button>
+			</div>
+			<div class="user-modal-body" style="flex-direction: column; gap: 14px; padding: 20px;">
+				<p style="font-size: 13.5px; color: #475569;">Dưới đây là tình trạng các cuốn sách bản sao tại thư viện:</p>
+				<div style="width: 100%; border: 1px solid #E2E8F0; border-radius: 10px; overflow: hidden;">
+					<table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+						<thead>
+							<tr style="background: #F8FAFC; text-align: left; border-bottom: 1px solid #E2E8F0;">
+								<th style="padding: 10px 14px; font-weight: 600; color: #475569;">Mã cá biệt</th>
+								<th style="padding: 10px 14px; font-weight: 600; color: #475569;">Vị trí kệ</th>
+								<th style="padding: 10px 14px; font-weight: 600; color: #475569;">Tình trạng</th>
+							</tr>
+						</thead>
+						<tbody id="copiesModalTableBody"></tbody>
+					</table>
+				</div>
+				<div style="display: flex; justify-content: flex-end; width: 100%; margin-top: 6px;">
+					<button type="button" class="btn-profile-primary" id="btnExitCopiesModal" style="width: 100px; height: 36px;">Đóng</button>
+				</div>
+			</div>
 		</div>
 	</div>
 

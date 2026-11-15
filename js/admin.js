@@ -1,3 +1,13 @@
+// Global UI icons
+var ICON_EDIT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+var ICON_LOCK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+var ICON_DELETE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>`;
+var ICON_PRINT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>`;
+var ICON_EYE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+var ICON_REFRESH = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>`;
+var ICON_PHONE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`;
+var ICON_MAIL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`;
+
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     initAdminData();
@@ -45,6 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       setTimeout(() => item.remove(), 260);
     }, 2800);
   }
+  window.showToast = showToast;
 
   /**
    * Render khung Empty State khi bảng hoặc lưới chưa có dữ liệu
@@ -1347,8 +1358,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="book-meta-value">${b.id}</div>
                   </div>
                   <div style="text-align: right;">
-                    <div class="book-meta-label">Mã ISBN-10, ISBN-13</div>
-                    <div class="book-meta-value">${b.isbn}</div>
+                    <div class="book-meta-label">Năm xuất bản</div>
+                    <div class="book-meta-value">${b.publishYear || b.namXuatBan || '2021'}</div>
                   </div>
                 </div>
 
@@ -1393,6 +1404,116 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     }
 
+    const adminSuggestionsTableContent = document.getElementById('adminSuggestionsTableContent');
+    const searchSuggestionAdminInput = document.getElementById('searchSuggestionAdminInput');
+    const filterSuggestionAdminStatus = document.getElementById('filterSuggestionAdminStatus');
+
+    function renderAdminSuggestionsTable() {
+      if (!adminSuggestionsTableContent) return;
+      const suggestions = typeof getBookSuggestions === 'function' ? getBookSuggestions() : [];
+      const q = (searchSuggestionAdminInput?.value || '').trim().toLowerCase();
+      const st = filterSuggestionAdminStatus?.value || 'all';
+
+      const filtered = suggestions.filter(s => {
+        const matchSt = st === 'all' || (s.status || '').toLowerCase() === st.toLowerCase();
+        const matchQ = !q ||
+          (s.id && s.id.toLowerCase().includes(q)) ||
+          (s.title && s.title.toLowerCase().includes(q)) ||
+          (s.author && s.author.toLowerCase().includes(q)) ||
+          (s.readerId && s.readerId.toLowerCase().includes(q));
+        return matchSt && matchQ;
+      });
+
+      if (!filtered.length) {
+        adminSuggestionsTableContent.innerHTML = `
+          <div style="padding: 32px 16px; text-align: center; color: var(--text-muted); font-size: 14px;">
+            Không có đề xuất sách nào từ độc giả.
+          </div>
+        `;
+        return;
+      }
+
+      adminSuggestionsTableContent.innerHTML = filtered.map(s => {
+        const isPending = (s.status || '').includes('Chờ') || (s.status || '').toUpperCase().includes('CHO');
+        const isApproved = (s.status || '').includes('duyệt') || (s.status || '').includes('Duyệt') || (s.status || '').toUpperCase().includes('DA DUYET');
+        const badge = isPending
+          ? `<span class="badge status-badge" style="background: #FEF3C7; color: #D97706; border-color: #FCD34D;">Chờ duyệt</span>`
+          : (isApproved
+            ? `<span class="badge status-badge badge-reader-valid">Đã duyệt</span>`
+            : `<span class="badge status-badge badge-reader-locked">Từ chối</span>`);
+
+        const actions = isPending ? `
+          <div style="display: flex; justify-content: center; gap: 6px;">
+            <button type="button" class="btn-action-blue btn-approve-sug" data-id="${s.id}" style="padding: 4px 8px; font-size: 11px; height: auto; background: #16A34A; border: none; border-radius: 4px; color: #fff; cursor: pointer;">Duyệt</button>
+            <button type="button" class="btn-action-gray btn-reject-sug" data-id="${s.id}" style="padding: 4px 8px; font-size: 11px; height: auto; background: #EF4444; border: none; border-radius: 4px; color: #fff; cursor: pointer;">Từ chối</button>
+          </div>
+        ` : `<span style="font-size: 12px; color: #94A3B8;">${s.status}</span>`;
+
+        return `
+          <div class="supplier-table-row" style="grid-template-columns: 110px 1.5fr 1.2fr 100px 100px 120px 120px; display: grid; align-items: center; min-height: 52px; border-bottom: 1px solid var(--border-color); padding: 8px 12px; font-size: 13.5px;">
+            <div style="font-weight: 600; color: var(--primary-navy);">${s.id}</div>
+            <div>
+              <div style="font-weight: 600;">${s.title}</div>
+              ${s.reason ? `<div style="font-size: 11.5px; color: var(--text-muted);">Lý do: ${s.reason}</div>` : ''}
+            </div>
+            <div>${s.author || '—'} / ${s.publisher || '—'}</div>
+            <div style="color: #0284C7; font-weight: 500;">${s.readerId || 'Độc giả'}</div>
+            <div>${s.quantity || '1 bản'}</div>
+            <div>${badge}</div>
+            <div style="text-align: center;">${actions}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    if (searchSuggestionAdminInput) {
+      searchSuggestionAdminInput.addEventListener('input', renderAdminSuggestionsTable);
+    }
+    if (filterSuggestionAdminStatus) {
+      filterSuggestionAdminStatus.addEventListener('change', renderAdminSuggestionsTable);
+    }
+    if (adminSuggestionsTableContent) {
+      adminSuggestionsTableContent.addEventListener('click', (e) => {
+        const btnApp = e.target.closest('.btn-approve-sug');
+        if (btnApp) {
+          const id = btnApp.getAttribute('data-id');
+          const suggestions = getBookSuggestions();
+          const target = suggestions.find(s => s.id === id);
+          if (target) {
+            target.status = 'Đã duyệt';
+            saveBookSuggestions(suggestions);
+            addLog('DUYỆT ĐỀ XUẤT', id, `Phê duyệt đề xuất sách <strong>${target.title}</strong> của độc giả ${target.readerId}`);
+            showToast(`Đã duyệt đề xuất sách "${target.title}"!`, 'success');
+            renderAdminSuggestionsTable();
+          }
+          return;
+        }
+
+        const btnRej = e.target.closest('.btn-reject-sug');
+        if (btnRej) {
+          const id = btnRej.getAttribute('data-id');
+          const suggestions = getBookSuggestions();
+          const target = suggestions.find(s => s.id === id);
+          if (target) {
+            target.status = 'Từ chối';
+            saveBookSuggestions(suggestions);
+            addLog('TỪ CHỐI ĐỀ XUẤT', id, `Từ chối đề xuất sách <strong>${target.title}</strong>`);
+            showToast(`Đã từ chối đề xuất sách "${target.title}".`, 'info');
+            renderAdminSuggestionsTable();
+          }
+          return;
+        }
+      });
+    }
+
+    window.addEventListener('ixs:data-loaded', renderAdminSuggestionsTable);
+    window.addEventListener('ixs:data-changed', renderAdminSuggestionsTable);
+    const tabSugBtn = document.querySelector('.subtab-item[data-tab="tabSuggestions"]');
+    if (tabSugBtn) {
+      tabSugBtn.addEventListener('click', renderAdminSuggestionsTable);
+    }
+    renderAdminSuggestionsTable();
+
     searchBookTitleInput.addEventListener('input', () => {
       btPage = 1;
       renderBookTitlesGrid();
@@ -1405,28 +1526,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     function openBookTitleModal(book, createMode = false) {
       isCreatingBookTitle = createMode;
       selectedBookTitleId = book.id;
-      document.getElementById('modalBookTitleHeader').textContent = createMode
-        ? 'LEAF LIBRARY - THÊM ĐẦU SÁCH MỚI'
-        : 'LEAF LIBRARY - THÔNG TIN ĐẦU SÁCH';
-      document.getElementById('btCodeDisplay').textContent = book.id;
-      document.getElementById('btIsbnDisplay').textContent = book.isbn13 || '978-3031390159';
-      document.getElementById('btTitle').value = book.title || '';
-      document.getElementById('btCategory').value = book.category || 'Công nghệ thông tin';
-      document.getElementById('btEdition').value = book.edition || '1';
-      document.getElementById('btPrice').value = book.price || '120.000';
-      document.getElementById('btQuantity').value = book.total !== undefined ? book.total : 5;
-      document.getElementById('btPubName').value = book.publisher || '';
-      document.getElementById('btPubCode').value = book.publisherCode || 'NXB260001';
-      document.getElementById('btPubPhone').value = book.pubPhone || '';
-      document.getElementById('btPubEmail').value = book.pubEmail || '';
-      document.getElementById('btPubAddress').value = book.pubAddress || '';
-      document.getElementById('btAuthorName').value = book.authors || '';
-      document.getElementById('btAuthorCode').value = book.authorCode || 'TG2026001';
-      document.getElementById('btAuthorBirth').value = book.publishYear || '2026';
-      document.getElementById('btAuthorDeath').value = book.authorDeath || '';
-      document.getElementById('btAuthorNationality').value = book.nationality || 'Việt Nam';
-      document.getElementById('btAuthorPenName').value = book.penName || '';
-      document.getElementById('btAuthorBio').value = book.bio || '';
+      const headerEl = document.getElementById('modalBookTitleHeader');
+      if (headerEl) {
+        headerEl.textContent = createMode
+          ? 'LEAF LIBRARY - THÊM ĐẦU SÁCH MỚI'
+          : 'LEAF LIBRARY - THÔNG TIN ĐẦU SÁCH';
+      }
+      const codeEl = document.getElementById('btCodeDisplay');
+      if (codeEl) codeEl.textContent = book.id;
+      const yearDisp = document.getElementById('btPublishYearDisplay');
+      if (yearDisp) yearDisp.textContent = book.publishYear || book.namXuatBan || '2021';
+      
+      const titleEl = document.getElementById('btTitle');
+      if (titleEl) titleEl.value = book.title || '';
+      const catEl = document.getElementById('btCategory');
+      if (catEl) catEl.value = book.category || 'Công nghệ thông tin';
+      const topicEl = document.getElementById('btTopic');
+      if (topicEl) topicEl.value = book.topic || book.subject || book.chuDe || '';
+      const deptEl = document.getElementById('btDepartment');
+      if (deptEl) deptEl.value = book.department || book.khoa || '';
+      const qtyEl = document.getElementById('btQuantity');
+      if (qtyEl) qtyEl.value = book.total !== undefined ? book.total : 5;
+      const pubEl = document.getElementById('btPubName');
+      if (pubEl) pubEl.value = book.publisher || book.nhaXuatBan || '';
+      const pubYearEl = document.getElementById('btPublishYear');
+      if (pubYearEl) pubYearEl.value = book.publishYear || book.namXuatBan || '2021';
+      const authorEl = document.getElementById('btAuthorName');
+      if (authorEl) authorEl.value = book.authors || book.author || book.tacGia || '';
+
       btUploadWidget.setState(book.coverUrl || '', !createMode);
       openModal('modalBookTitle');
     }
@@ -3019,4 +3146,245 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+});
+
+
+// === 4. PHÂN HỆ QUẢN LÝ LƯU THÔNG (admin/circulation.html) ===
+document.addEventListener('DOMContentLoaded', function() {
+  const loanTableBody = document.getElementById('loanTableBody');
+  const violationTableBody = document.getElementById('violationTableBody');
+  const renewalsTableBody = document.getElementById('renewalsTableBody');
+  const waitingTableBody = document.getElementById('waitingTableBody');
+
+  if (!loanTableBody && !violationTableBody && !renewalsTableBody && !waitingTableBody) return;
+
+  function getStatusBadgeHtml(status) {
+    const s = String(status || '').toUpperCase();
+    if (s.includes('ĐÃ TRẢ') || s.includes('HOÀN')) {
+      return `<span class="badge status-badge badge-circ-ready" style="background:#DCFCE7; color:#166534; border-color:#86EFAC;">ĐÃ TRẢ</span>`;
+    }
+    if (s.includes('QUÁ HẠN') || s.includes('HẾT HẠN')) {
+      return `<span class="badge status-badge badge-circ-locked" style="background:#FEE2E2; color:#991B1B; border-color:#FCA5A5;">QUÁ HẠN</span>`;
+    }
+    return `<span class="badge status-badge badge-circ-borrowed" style="background:#EBF3F9; color:#1D5D86; border-color:#BAE6FD;">ĐANG MƯỢN</span>`;
+  }
+
+  function renderLoansTable() {
+    if (!loanTableBody) return;
+    const loans = typeof getReaderHistory === 'function' ? getReaderHistory() : [];
+    if (!loans.length) {
+      loanTableBody.innerHTML = `
+        <tr>
+          <td colspan="8" style="padding: 0;">
+            <div class="empty-state-container">Chưa có dữ liệu phiếu mượn. Nhấn nút [Thêm phiếu +] để tạo mới.</div>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    loanTableBody.innerHTML = loans.map(l => {
+      const isReturned = (l.status || '').includes('Đã trả');
+      const actionReturn = !isReturned
+        ? `<button type="button" class="btn-action-blue btn-return-loan" data-id="${l.id || l.loanId}" style="padding: 4px 8px; font-size: 11px; height: auto;">Trả sách</button>`
+        : `<span style="color:#64748B; font-size:12px;">Đã hoàn</span>`;
+      return `
+        <tr style="border-bottom: 1px solid var(--border-color); height: 48px;">
+          <td style="font-weight: 600; color: var(--primary-navy);">${l.id || l.loanId}</td>
+          <td style="font-weight: 500;">${l.readerName || l.readerId || 'Độc giả'}</td>
+          <td style="font-weight: 600; color: #0284C7;">${l.copyId || l.bookCopyId || l.bookId || '—'}</td>
+          <td style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${l.bookTitle || l.title || 'Sách mượn'}</td>
+          <td>${l.borrowDate || '—'}</td>
+          <td>${l.dueDate || '—'}</td>
+          <td style="text-align: center;">${getStatusBadgeHtml(l.status)}</td>
+          <td style="text-align: center;">
+            <div style="display:flex; justify-content:center; gap:6px; align-items:center;">
+              ${actionReturn}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function renderViolationsTable() {
+    if (!violationTableBody) return;
+    const fines = typeof getFines === 'function' ? getFines() : [];
+    if (!fines.length) {
+      violationTableBody.innerHTML = `
+        <tr>
+          <td colspan="8" style="padding: 0;">
+            <div class="empty-state-container">Chưa có dữ liệu vi phạm.</div>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+    violationTableBody.innerHTML = fines.map(f => {
+      const isPaid = (f.paymentStatus || f.status || '').includes('Đã thanh toán') || (f.paymentStatus || f.status || '').includes('DA THANH TOAN');
+      const badge = isPaid
+        ? `<span class="badge status-badge badge-reader-valid">Đã thanh toán</span>`
+        : `<span class="badge status-badge badge-reader-locked">Chưa thanh toán</span>`;
+      const action = !isPaid
+        ? `<button type="button" class="btn-action-blue btn-pay-fine" data-id="${f.id}" style="padding: 4px 8px; font-size: 11px; height: auto;">Thu tiền</button>`
+        : `<span style="color:#64748B; font-size:12px;">Đã thu</span>`;
+      return `
+        <tr style="border-bottom: 1px solid var(--border-color); height: 48px;">
+          <td style="font-weight: 600; color: var(--primary-navy);">${f.id}</td>
+          <td>${f.loanId || '—'}</td>
+          <td>${f.readerId || '—'}</td>
+          <td>${f.ngayLap || f.date || '15/11/2026'}</td>
+          <td>${f.violation || f.lyDoPhat || 'Trễ hạn trả sách'}</td>
+          <td style="font-weight: 600; color: #DC2626;">${(f.amount || f.soTien || 0).toLocaleString('vi-VN')} đ</td>
+          <td style="text-align: center;">${badge}</td>
+          <td style="text-align: center;">${action}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function renderRenewalsTable() {
+    if (!renewalsTableBody) return;
+    let list = [];
+    try {
+      const raw = localStorage.getItem('ixs_library_renewals');
+      if (raw) list = JSON.parse(raw);
+    } catch (_) {}
+    if (!list.length) {
+      renewalsTableBody.innerHTML = `
+        <tr>
+          <td colspan="6" style="padding: 0;">
+            <div class="empty-state-container">Không có yêu cầu gia hạn nào đang chờ xử lý.</div>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+    renewalsTableBody.innerHTML = list.map(r => {
+      const isPending = (r.status || '').includes('CHO') || (r.status || '').includes('Chờ');
+      const badge = isPending
+        ? `<span class="badge status-badge" style="background: #FEF3C7; color: #D97706; border-color: #FCD34D;">Chờ duyệt</span>`
+        : ((r.status || '').includes('DA DUYET') || (r.status || '').includes('Đã duyệt')
+          ? `<span class="badge status-badge badge-reader-valid">Đã duyệt</span>`
+          : `<span class="badge status-badge badge-reader-locked">Từ chối</span>`);
+      const actions = isPending ? `
+        <div style="display: flex; justify-content: center; gap: 6px;">
+          <button type="button" class="btn-action-blue btn-app-ren" data-id="${r.id}" style="padding: 4px 8px; font-size: 11px; height: auto; background: #16A34A; border: none; border-radius: 4px; color: #fff; cursor: pointer;">Duyệt</button>
+          <button type="button" class="btn-action-gray btn-rej-ren" data-id="${r.id}" style="padding: 4px 8px; font-size: 11px; height: auto; background: #EF4444; border: none; border-radius: 4px; color: #fff; cursor: pointer;">Từ chối</button>
+        </div>
+      ` : `<span style="color:#64748B; font-size:12px;">${r.status}</span>`;
+      return `
+        <tr style="border-bottom: 1px solid var(--border-color); height: 48px;">
+          <td style="font-weight: 600; color: var(--primary-navy);">${r.id}</td>
+          <td>${r.loanId}</td>
+          <td>${r.requestDate || '15/11/2026'}</td>
+          <td>${r.days || 7} ngày</td>
+          <td style="text-align: center;">${badge}</td>
+          <td style="text-align: center;">${actions}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  document.addEventListener('click', (e) => {
+    const btnRet = e.target.closest('.btn-return-loan');
+    if (btnRet) {
+      const id = btnRet.getAttribute('data-id');
+      const loans = getReaderHistory();
+      const loan = loans.find(l => (l.id || l.loanId) === id);
+      if (loan) {
+        loan.status = 'Đã trả';
+        loan.actualReturnDate = new Date().toLocaleDateString('vi-VN');
+        saveReaderHistory(loans);
+        if (loan.copyId) {
+          const copies = getBookCopies();
+          const copy = copies.find(c => c.id === loan.copyId);
+          if (copy) {
+            copy.circulationStatus = 'SẴN SÀNG';
+            copy.status = 'SẴN SÀNG';
+            saveBookCopies(copies);
+          }
+        }
+        if (loan.bookId) {
+          const titles = getBookTitles();
+          const title = titles.find(t => t.id === loan.bookId);
+          if (title) {
+            title.available = Math.min(title.total || 30, (title.available || 0) + 1);
+            saveBookTitles(titles);
+          }
+        }
+        if (window.showToast) window.showToast(`Đã xác nhận trả sách cho phiếu ${id}!`, 'success');
+        renderLoansTable();
+      }
+      return;
+    }
+
+    // Duyệt gia hạn
+    const btnAppRen = e.target.closest('.btn-app-ren');
+    if (btnAppRen) {
+      const rid = btnAppRen.getAttribute('data-id');
+      let list = [];
+      try {
+        const raw = localStorage.getItem('ixs_library_renewals');
+        if (raw) list = JSON.parse(raw);
+      } catch (_) {}
+      const item = list.find(r => r.id === rid);
+      if (item) {
+        item.status = 'Đã duyệt';
+        localStorage.setItem('ixs_library_renewals', JSON.stringify(list));
+
+        // Cập nhật hạn trả trong phiếu mượn
+        const loans = getReaderHistory();
+        const loan = loans.find(l => (l.id || l.loanId) === item.loanId);
+        if (loan) {
+          loan.renewed = true;
+          const dParts = (loan.dueDate || '').split('/');
+          if (dParts.length === 3) {
+            const d = new Date(Number(dParts[2]), Number(dParts[1]) - 1, Number(dParts[0]));
+            d.setDate(d.getDate() + (item.days || 7));
+            loan.dueDate = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+          }
+          saveReaderHistory(loans);
+        }
+        if (window.showToast) window.showToast(`Đã duyệt gia hạn phiếu ${item.loanId}!`, 'success');
+        renderRenewalsTable();
+        renderLoansTable();
+      }
+      return;
+    }
+
+    // Từ chối gia hạn
+    const btnRejRen = e.target.closest('.btn-rej-ren');
+    if (btnRejRen) {
+      const rid = btnRejRen.getAttribute('data-id');
+      let list = [];
+      try {
+        const raw = localStorage.getItem('ixs_library_renewals');
+        if (raw) list = JSON.parse(raw);
+      } catch (_) {}
+      const item = list.find(r => r.id === rid);
+      if (item) {
+        item.status = 'Từ chối';
+        localStorage.setItem('ixs_library_renewals', JSON.stringify(list));
+        if (window.showToast) window.showToast(`Đã từ chối yêu cầu gia hạn ${rid}.`, 'info');
+        renderRenewalsTable();
+      }
+      return;
+    }
+  });
+
+  window.addEventListener('ixs:data-loaded', () => {
+    renderLoansTable();
+    renderViolationsTable();
+    renderRenewalsTable();
+  });
+  window.addEventListener('ixs:data-changed', () => {
+    renderLoansTable();
+    renderViolationsTable();
+    renderRenewalsTable();
+  });
+
+  renderLoansTable();
+  renderViolationsTable();
+  renderRenewalsTable();
 });

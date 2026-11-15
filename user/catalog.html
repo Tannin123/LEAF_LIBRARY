@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -24,7 +24,7 @@
 
       <div class="header-greeting">
         <span class="greeting-hello">hello,</span>
-        <span class="greeting-name" id="headerGreetingName">Nguyễn Văn A</span>
+        <span class="greeting-name" id="headerGreetingName">Bạn đọc</span>
       </div>
 
       <div class="header-user" id="headerUserContainer">
@@ -37,7 +37,7 @@
         </div>
         <div class="user-dropdown-menu" id="userDropdownMenu">
           <div class="user-dropdown-header">
-            <div class="user-dropdown-name" id="dropdownUserName">Nguyễn Văn A</div>
+            <div class="user-dropdown-name" id="dropdownUserName">Bạn đọc</div>
             <div class="user-dropdown-meta">
               <span id="dropdownUserCode">Mã ĐG: 123456</span>
               <span class="badge status-badge badge-reader-valid" id="dropdownUserRole">Độc giả</span>
@@ -132,7 +132,7 @@
           </div>
         </div>
 
-        <!-- BỘ LỌC & SẮP XẾP (THEO ẢNH MẪU) -->
+        <!-- BỘ LỌC THỂ LOẠI -->
         <div class="catalog-filters-row">
           <div class="catalog-filters-left">
             <div class="catalog-filter-select-wrap">
@@ -150,36 +150,6 @@
                 <polyline points="6 9 12 15 18 9"/>
               </svg>
             </div>
-
-            <div class="catalog-filter-select-wrap">
-              <select class="catalog-filter-select" id="filterAuthor">
-                <option value="" selected>Tất cả tác giả</option>
-                <option value="martin">Robert C. Martin</option>
-                <option value="castillo">Francisco Castillo</option>
-                <option value="long">Trần Đức Long</option>
-                <option value="craig">Edward Craig</option>
-                <option value="vasconcelos">José Mauro de Vasconcelos</option>
-                <option value="ohenry">O. Henry</option>
-                <option value="tohoai">Tô Hoài</option>
-                <option value="vutrongphung">Vũ Trọng Phụng</option>
-                <option value="watanabe">Watanabe Yasuhiro</option>
-              </select>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9"/>
-              </svg>
-            </div>
-
-            <div class="catalog-filter-select-wrap">
-              <select class="catalog-filter-select" id="filterSort">
-                <option value="relevant" selected>Sắp xếp: Phù hợp nhất</option>
-                <option value="newest">Sắp xếp: Mới nhất</option>
-                <option value="popular">Sắp xếp: Mượn nhiều nhất</option>
-                <option value="az">Sắp xếp: Tên A - Z</option>
-              </select>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9"/>
-              </svg>
-            </div>
           </div>
 
           <div class="catalog-result-count" id="catalogResultCountWrapper" style="display: none;">
@@ -187,20 +157,77 @@
           </div>
         </div>
 
-        <!-- KHUNG SÁCH KHI CHƯA TÌM KIẾM (CHỈ HIỆN LOGO) -->
-        <div class="catalog-empty-frame" id="catalogEmptyFrame">
-          <div class="book-placeholder-card">
-            <div class="placeholder-logo-box">
-              <img src="../assets/images/logo-leaf.png" alt="Leaf Library Logo" class="placeholder-logo-img">
-            </div>
-            <h3 class="placeholder-title">Tra cứu tài liệu &amp; sách</h3>
-            <p class="placeholder-desc">Nhập tên sách, tác giả hoặc thể loại vào thanh tìm kiếm phía trên để hiển thị sách.</p>
-            <div class="placeholder-quick-tags">
-              <span class="quick-tag-label">Gợi ý tìm kiếm:</span>
-              <button type="button" class="quick-tag-btn" onclick="applyCatalogSearch('Clean Code')">Clean Code</button>
-              <button type="button" class="quick-tag-btn" onclick="applyCatalogSearch('Giáo trình Giải tích')">Giáo trình Giải tích</button>
-              <button type="button" class="quick-tag-btn" onclick="applyCatalogSearch('Triết học')">Triết học</button>
-            </div>
+        <!-- SÁCH NỔI BẬT KHI CHƯA TÌM KIẾM (ĐỒNG BỘ TRANG CHỦ) -->
+        <div class="featured-section" id="catalogEmptyFrame">
+          <h2 class="featured-heading">Sách nổi bật</h2>
+          <div class="featured-books-grid" id="catalogFeaturedBooksGrid">
+            <a href="javascript:void(0)" onclick="applyCatalogSearch('Clean Code')" class="featured-book-item" aria-label="Clean Code, xem chi tiết">
+              <div class="fbook-cover-frame">
+                <img src="../assets/images/cleancode.webp" alt="Clean Code">
+              </div>
+              <div class="featured-book-detail">
+                <strong>Clean Code</strong>
+                <span>Robert C. Martin</span>
+                <span>Lập trình · Prentice Hall</span>
+                <small>Cẩm nang về kỹ thuật viết mã dễ đọc, dễ bảo trì.</small>
+                <b>Xem chi tiết sách <span aria-hidden="true">→</span></b>
+              </div>
+              <div class="fbook-meta">
+                <div class="fbook-title">Clean Code</div>
+                <div class="fbook-sub">Robert C. Martin - Prentice Hall</div>
+              </div>
+            </a>
+
+            <a href="javascript:void(0)" onclick="applyCatalogSearch('Giáo trình Giải tích')" class="featured-book-item" aria-label="Giáo trình Giải tích Tập 2, xem chi tiết">
+              <div class="fbook-cover-frame">
+                <img src="../assets/images/giatich.webp" alt="Giáo trình Giải tích Tập 2">
+              </div>
+              <div class="featured-book-detail">
+                <strong>Giáo trình Giải tích Tập 2</strong>
+                <span>Trần Đức Long và các tác giả</span>
+                <span>Toán học · NXB Đại học Quốc gia Hà Nội</span>
+                <small>Giáo trình về phép tính tích phân và chuỗi hàm.</small>
+                <b>Xem chi tiết sách <span aria-hidden="true">→</span></b>
+              </div>
+              <div class="fbook-meta">
+                <div class="fbook-title">Giáo trình Giải tích Tập 2</div>
+                <div class="fbook-sub">Trần Đức Long - ĐHQG HN</div>
+              </div>
+            </a>
+
+            <a href="javascript:void(0)" onclick="applyCatalogSearch('Triết học')" class="featured-book-item" aria-label="Triết học, xem chi tiết">
+              <div class="fbook-cover-frame">
+                <img src="../assets/images/triethoc.jpg" alt="Triết học">
+              </div>
+              <div class="featured-book-detail">
+                <strong>Triết học</strong>
+                <span>Edward Craig</span>
+                <span>Triết học · NXB Tri Thức</span>
+                <small>Khái quát các câu hỏi và khái niệm nền tảng của triết học.</small>
+                <b>Xem chi tiết sách <span aria-hidden="true">→</span></b>
+              </div>
+              <div class="fbook-meta">
+                <div class="fbook-title">Triết học</div>
+                <div class="fbook-sub">Edward Craig - NXB Tri Thức</div>
+              </div>
+            </a>
+
+            <a href="javascript:void(0)" onclick="applyCatalogSearch('Lịch sử Văn minh')" class="featured-book-item" aria-label="Lịch sử Văn minh Thế giới, xem chi tiết">
+              <div class="fbook-cover-frame">
+                <img src="../assets/images/lichsuvanminhthegioi.jpg" alt="Lịch sử Văn minh Thế giới">
+              </div>
+              <div class="featured-book-detail">
+                <strong>Lịch sử Văn minh Thế giới</strong>
+                <span>Đào Tuấn Thành (Chủ biên)</span>
+                <span>Lịch sử · NXB Đại học Sư phạm</span>
+                <small>Khảo lược lịch sử các nền văn minh qua nhiều thời kỳ.</small>
+                <b>Xem chi tiết sách <span aria-hidden="true">→</span></b>
+              </div>
+              <div class="fbook-meta">
+                <div class="fbook-title">Lịch sử Văn minh Thế giới</div>
+                <div class="fbook-sub">Đào Tuấn Thành - ĐH Sư Phạm</div>
+              </div>
+            </a>
           </div>
         </div>
 
@@ -215,12 +242,12 @@
             <div class="catalog-book-info">
               <div class="catalog-book-header-row">
                 <div>
-                  <div class="catalog-field-title-small">Mã sách</div>
+                  <div class="catalog-field-title-small">Mã đầu sách</div>
                   <div class="catalog-code-badge">DSIT0001</div>
                 </div>
                 <div class="text-right">
-                  <div class="catalog-field-title-small">Mã ISBN-10, ISBN-13</div>
-                  <div class="catalog-isbn-val">31390156, 978-3031390159</div>
+                  <div class="catalog-field-title-small">Năm xuất bản</div>
+                  <div class="catalog-isbn-val">2021</div>
                 </div>
               </div>
 
@@ -267,12 +294,12 @@
             <div class="catalog-book-info">
               <div class="catalog-book-header-row">
                 <div>
-                  <div class="catalog-field-title-small">Mã sách</div>
+                  <div class="catalog-field-title-small">Mã đầu sách</div>
                   <div class="catalog-code-badge">DSIT0002</div>
                 </div>
                 <div class="text-right">
-                  <div class="catalog-field-title-small">Mã ISBN-10, ISBN-13</div>
-                  <div class="catalog-isbn-val">31390156, 978-3031390159</div>
+                  <div class="catalog-field-title-small">Năm xuất bản</div>
+                  <div class="catalog-isbn-val">2021</div>
                 </div>
               </div>
 
@@ -319,12 +346,12 @@
             <div class="catalog-book-info">
               <div class="catalog-book-header-row">
                 <div>
-                  <div class="catalog-field-title-small">Mã sách</div>
+                  <div class="catalog-field-title-small">Mã đầu sách</div>
                   <div class="catalog-code-badge">DSIT0003</div>
                 </div>
                 <div class="text-right">
-                  <div class="catalog-field-title-small">Mã ISBN-10, ISBN-13</div>
-                  <div class="catalog-isbn-val">31390156, 978-3031390159</div>
+                  <div class="catalog-field-title-small">Năm xuất bản</div>
+                  <div class="catalog-isbn-val">2021</div>
                 </div>
               </div>
 
@@ -371,12 +398,12 @@
             <div class="catalog-book-info">
               <div class="catalog-book-header-row">
                 <div>
-                  <div class="catalog-field-title-small">Mã sách</div>
+                  <div class="catalog-field-title-small">Mã đầu sách</div>
                   <div class="catalog-code-badge">DSIT0004</div>
                 </div>
                 <div class="text-right">
-                  <div class="catalog-field-title-small">Mã ISBN-10, ISBN-13</div>
-                  <div class="catalog-isbn-val">31390156, 978-3031390159</div>
+                  <div class="catalog-field-title-small">Năm xuất bản</div>
+                  <div class="catalog-isbn-val">2021</div>
                 </div>
               </div>
 
@@ -681,13 +708,13 @@
 
   <!-- ===== MODAL XEM BẢN SAO SÁCH ===== -->
   <div class="modal-overlay" id="modalBookCopies">
-    <div class="modal-box user-profile-modal-box" style="width: 580px;">
+    <div class="modal-box user-profile-modal-box" style="width: 650px;">
       <div class="user-modal-header">
         <div class="user-modal-title" id="copiesModalTitle">DANH SÁCH BẢN SAO - DSIT0001</div>
         <button type="button" class="user-modal-close-btn" id="btnCloseCopiesModal" title="Đóng">✕</button>
       </div>
       <div class="user-modal-body" style="flex-direction: column; gap: 14px; padding: 20px;">
-        <p style="font-size: 13.5px; color: #475569;">Dưới đây là tình trạng các cuốn sách bản sao tại thư viện:</p>
+        <p style="font-size: 13.5px; color: #475569;">Đầu sách chỉ để trưng bày danh mục. Hãy chọn <strong>cuốn sách bản sao cá biệt</strong> bên dưới để mượn:</p>
         <div style="width: 100%; border: 1px solid #E2E8F0; border-radius: 10px; overflow: hidden;">
           <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
             <thead>
@@ -695,29 +722,10 @@
                 <th style="padding: 10px 14px; font-weight: 600; color: #475569;">Mã cá biệt</th>
                 <th style="padding: 10px 14px; font-weight: 600; color: #475569;">Vị trí kệ</th>
                 <th style="padding: 10px 14px; font-weight: 600; color: #475569;">Tình trạng</th>
+                <th style="padding: 10px 14px; text-align: center; font-weight: 600; color: #475569;">Thao tác</th>
               </tr>
             </thead>
-            <tbody>
-              <tr style="border-bottom: 1px solid #F1F5F9;">
-                <td style="padding: 10px 14px; font-weight: 600; color: #1D5D86;">DSIT0001-01</td>
-                <td style="padding: 10px 14px;">Kệ A1 - Ngăn 1</td>
-                <td style="padding: 10px 14px;"><span class="loan-badge loan-badge-active">Sẵn sàng</span></td>
-              </tr>
-              <tr style="border-bottom: 1px solid #F1F5F9;">
-                <td style="padding: 10px 14px; font-weight: 600; color: #1D5D86;">DSIT0001-02</td>
-                <td style="padding: 10px 14px;">Kệ A1 - Ngăn 1</td>
-                <td style="padding: 10px 14px;"><span class="loan-badge loan-badge-active">Sẵn sàng</span></td>
-              </tr>
-              <tr style="border-bottom: 1px solid #F1F5F9;">
-                <td style="padding: 10px 14px; font-weight: 600; color: #1D5D86;">DSIT0001-03</td>
-                <td style="padding: 10px 14px;">Kệ A1 - Ngăn 2</td>
-                <td style="padding: 10px 14px;"><span class="loan-badge loan-badge-overdue">Đang mượn</span></td>
-              </tr>
-              <tr>
-                <td style="padding: 10px 14px; font-weight: 600; color: #1D5D86;">DSIT0001-04</td>
-                <td style="padding: 10px 14px;">Kệ A1 - Ngăn 2</td>
-                <td style="padding: 10px 14px;"><span class="loan-badge loan-badge-active">Sẵn sàng</span></td>
-              </tr>
+            <tbody id="copiesModalTableBody">
             </tbody>
           </table>
         </div>
@@ -758,6 +766,10 @@
             <span>Đăng ký mượn sách:</span>
             <strong id="borrowRequestBookTitle"></strong>
             <small id="borrowRequestBookMeta"></small>
+            <div style="margin-top: 10px; border-top: 1px dashed #CBD5E1; padding-top: 8px;">
+              <label for="borrowSelectCopy" style="font-size: 12px; font-weight: 600; color: #475569; display: block; margin-bottom: 4px;">Cuốn sách đăng ký mượn (Mã cá biệt):</label>
+              <select id="borrowSelectCopy" class="form-input-text" style="width: 100%; height: 36px; font-size: 13px; font-weight: 600; color: #1D5D86; border: 1px solid #CBD5E1; border-radius: 6px; padding: 0 8px;"></select>
+            </div>
           </div>
           <button type="button" class="btn-borrow-now borrow-confirm-button" id="btnConfirmBorrow">Xác nhận đăng ký mượn</button>
           <button type="button" class="borrow-exit-button" id="btnCancelBorrow">Thoát</button>
@@ -806,8 +818,57 @@
     function openCopiesModal(bookId) {
       const modal = document.getElementById('modalBookCopies');
       const title = document.getElementById('copiesModalTitle');
+      const tbody = document.getElementById('copiesModalTableBody');
+      if (!modal || !tbody) return;
+
       if (title) title.textContent = `DANH SÁCH BẢN SAO - ${bookId}`;
-      if (modal) modal.classList.add('active');
+
+      let copies = [];
+      try {
+        copies = DataService.getAll(DataService.KEYS.BOOK_COPIES, []).filter(c => String(c.bookId || c.bookTitleId) === String(bookId));
+      } catch (_) {}
+
+      if (!copies.length) {
+        tbody.innerHTML = `
+          <tr style="border-bottom: 1px solid #F1F5F9;">
+            <td style="padding: 10px 14px; font-weight: 600; color: #1D5D86;">${bookId}-01</td>
+            <td style="padding: 10px 14px;">Kệ A1 - Ngăn 1</td>
+            <td style="padding: 10px 14px;"><span class="loan-badge loan-badge-active">SẴN SÀNG</span></td>
+            <td style="padding: 10px 14px; text-align: center;">
+              <button type="button" class="btn-borrow-now btn-borrow-copy" data-book-id="${bookId}" data-copy-id="${bookId}-01" style="padding: 4px 10px; font-size: 11px; height: auto;">Mượn cuốn này</button>
+            </td>
+          </tr>
+          <tr style="border-bottom: 1px solid #F1F5F9;">
+            <td style="padding: 10px 14px; font-weight: 600; color: #1D5D86;">${bookId}-02</td>
+            <td style="padding: 10px 14px;">Kệ A1 - Ngăn 1</td>
+            <td style="padding: 10px 14px;"><span class="loan-badge loan-badge-active">SẴN SÀNG</span></td>
+            <td style="padding: 10px 14px; text-align: center;">
+              <button type="button" class="btn-borrow-now btn-borrow-copy" data-book-id="${bookId}" data-copy-id="${bookId}-02" style="padding: 4px 10px; font-size: 11px; height: auto;">Mượn cuốn này</button>
+            </td>
+          </tr>
+        `;
+      } else {
+        tbody.innerHTML = copies.map(c => {
+          const isReady = (c.circulationStatus || c.status || '').toUpperCase().includes('SẴN SÀNG') || (c.circulationStatus || c.status || '').toUpperCase().includes('SAN SANG');
+          const isLocked = (c.circulationStatus || c.status || '').toUpperCase().includes('KHÓA') || (c.circulationStatus || c.status || '').toUpperCase().includes('KHOA');
+          const badgeClass = isReady ? 'loan-badge-active' : (isLocked ? 'loan-badge-overdue' : 'loan-badge-warning');
+          const statusText = c.circulationStatus || c.status || 'Sẵn sàng';
+          const actionBtn = isReady
+            ? `<button type="button" class="btn-borrow-now btn-borrow-copy" data-book-id="${bookId}" data-copy-id="${c.id}" style="padding: 4px 10px; font-size: 11px; height: auto;">Mượn cuốn này</button>`
+            : `<span style="font-size: 12px; color: #94A3B8;">Đang được mượn</span>`;
+
+          return `
+            <tr style="border-bottom: 1px solid #F1F5F9;">
+              <td style="padding: 10px 14px; font-weight: 600; color: #1D5D86;">${c.id}</td>
+              <td style="padding: 10px 14px;">${c.location || c.shelfLocation || 'Kệ A1 - Ngăn 1'}</td>
+              <td style="padding: 10px 14px;"><span class="loan-badge ${badgeClass}">${statusText}</span></td>
+              <td style="padding: 10px 14px; text-align: center;">${actionBtn}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      modal.classList.add('active');
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -819,6 +880,19 @@
       if (btnExit) btnExit.addEventListener('click', close);
       modalCopies?.addEventListener('click', (e) => {
         if (e.target === modalCopies) close();
+      });
+
+      // Mượn cuốn sách cụ thể từ danh sách bản sao
+      document.getElementById('copiesModalTableBody')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-borrow-copy');
+        if (btn) {
+          const bookId = btn.getAttribute('data-book-id');
+          const copyId = btn.getAttribute('data-copy-id');
+          close();
+          if (typeof openBorrowRegistration === 'function') {
+            openBorrowRegistration(bookId, copyId);
+          }
+        }
       });
     });
   </script>

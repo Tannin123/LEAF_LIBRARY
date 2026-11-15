@@ -1,0 +1,15 @@
+-- Sync CSDL based on ERD:
+-- 1. ThÃªm nhaXuatBan (VARCHAR), namXuatBan (INT) vÃ o DAUSACH
+ALTER TABLE dausach ADD COLUMN IF NOT EXISTS nhaxuatban VARCHAR(255);
+ALTER TABLE dausach ADD COLUMN IF NOT EXISTS namxuatban INT;
+
+-- 2. ThÃªm ngayLap (DATETIME/TIMESTAMP) vÃ o PHIEUPHAT
+ALTER TABLE phieuphat ADD COLUMN IF NOT EXISTS ngaylap TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+-- 3. Quan há»‡ PHIEUMUON - PHIEUPHAT lÃ  0..* (cho phÃ©p NULL hoáº·c 0..*)
+DO $$
+BEGIN
+    ALTER TABLE phieuphat ALTER COLUMN maphieumuon DROP NOT NULL;
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END $$;
