@@ -1389,18 +1389,22 @@ function initReaderHistoryPage() {
       const renewBtn = canRenew
         ? `<button type="button" class="btn-renew-pill" data-renew-loan-id="${escapeCatalogHtml(item.id)}" title="Gia hạn sách thêm 7 ngày">Gia hạn</button>`
         : (item.renewed ? `<span style="font-size: 12px; color: #1D5D86; font-weight: 500; margin-left: 6px;">(Đã gửi)</span>` : '');
+      const bDate = String(item.borrowDate || '—').replace(/\s*\/\s*/g, '/');
+      const dDate = String(item.dueDate || '—').replace(/\s*\/\s*/g, '/');
       return `<tr>
-        <td>${escapeCatalogHtml(item.borrowDate)}</td>
-        <td class="history-book-name">${escapeCatalogHtml(item.title)}</td>
-        <td>${escapeCatalogHtml(item.dueDate)}</td>
+        <td style="font-weight: 600; color: #1D5D86; font-size: 13px; white-space: nowrap;">${escapeCatalogHtml(item.id)}</td>
+        <td style="font-weight: 500; color: #0284C7; font-size: 13px; white-space: nowrap;">${escapeCatalogHtml(item.copyId)}</td>
+        <td class="history-book-name" style="font-size: 13px;">${escapeCatalogHtml(item.title)}</td>
+        <td style="white-space: nowrap; font-size: 13px;">${escapeCatalogHtml(bDate)}</td>
+        <td style="white-space: nowrap; font-size: 13px;">${escapeCatalogHtml(dDate)}</td>
         <td class="history-status-text">
-          <div style="display: inline-flex; align-items: center; justify-content: flex-start; gap: 8px;">
+          <div style="display: inline-flex; align-items: center; justify-content: flex-start; gap: 6px;">
             <span>${escapeCatalogHtml(item.status)}</span>
             ${renewBtn}
           </div>
         </td>
       </tr>`;
-    }).join('') : '<tr><td class="workflow-empty-cell" colspan="4">Không có lượt mượn nào trong trạng thái này.</td></tr>';
+    }).join('') : '<tr><td class="workflow-empty-cell" colspan="6">Không có lượt mượn nào trong trạng thái này.</td></tr>';
     if (summary) summary.textContent = filtered.length ? `Hiển thị 1 - ${filtered.length} trên tổng số ${filtered.length} phiếu` : 'Không có phiếu mượn';
   };
 

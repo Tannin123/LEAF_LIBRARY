@@ -2607,47 +2607,59 @@
 
 .history-table {
   width: 100% !important;
-  min-width: 0 !important;
+  min-width: 680px !important;
   border-collapse: collapse;
   table-layout: fixed;
 }
 
 .history-table th:nth-child(1) {
-  width: 20%;
+  width: 17%;
   text-align: left;
   white-space: nowrap;
 }
 
 .history-table th:nth-child(2) {
-  width: 40%;
-  text-align: left;
-}
-
-.history-table th:nth-child(3) {
-  width: 20%;
+  width: 16%;
   text-align: left;
   white-space: nowrap;
 }
 
+.history-table th:nth-child(3) {
+  width: 24%;
+  text-align: left;
+}
+
 .history-table th:nth-child(4) {
-  width: 20%;
+  width: 14%;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.history-table th:nth-child(5) {
+  width: 14%;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.history-table th:nth-child(6) {
+  width: 15%;
   text-align: left;
   white-space: nowrap;
 }
 
 .history-table th {
-  padding: 16px 14px;
-  font-size: 15px;
-  font-weight: 400;
+  padding: 14px 8px;
+  font-size: 13px;
+  font-weight: 500;
   color: #8C9BA5;
   border-bottom: 1px solid #EDF2F7;
   letter-spacing: 0.1px;
 }
 
 .history-table td {
-  padding: 22px 14px;
+  padding: 16px 8px;
   border-bottom: none;
-  font-size: 15px;
+  font-size: 13px;
   color: #334155;
   vertical-align: middle;
 }
@@ -2726,35 +2738,60 @@
   gap: 12px;
   padding-top: 16px;
   color: #64748B;
-  font-size: 10px;
+  font-size: 13px;
 }
 
-.workflow-pagination > div {
-  display: flex;
+.workflow-pagination > div,
+.pagination-wrapper {
+  display: inline-flex;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
+  gap: 6px;
 }
 
-.workflow-pagination button {
-  min-width: 28px;
-  height: 28px;
-  padding: 0 7px;
-  color: #64748B;
+.workflow-pagination button,
+.page-box {
+  min-width: 30px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #94A3B8;
   background: #FFFFFF;
   border: 1px solid #E2E8F0;
-  border-radius: 6px;
+  border-radius: 8px;
   font: inherit;
-  font-size: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
 }
 
-.workflow-pagination button.active {
+.workflow-pagination button:hover:not(:disabled),
+.page-box:hover:not(:disabled) {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+  color: #1E293B;
+}
+
+.workflow-pagination button.active,
+.page-box.active {
   color: #1D5D86;
   background: #EBF3F9;
-  border-color: #BFDBFE;
+  border: 1.5px solid #1D5D86;
+  font-weight: 700;
+  cursor: default;
 }
 
-.workflow-pagination button:disabled {
-  opacity: 0.55;
+.workflow-pagination button:disabled,
+.page-box:disabled {
+  opacity: 0.65;
+  color: #CBD5E1;
+  background-color: #FFFFFF;
+  cursor: not-allowed;
 }
 
 .workflow-empty-cell {
@@ -3617,26 +3654,26 @@ body.user-interface {
 
 .user-interface .history-table {
   width: 100% !important;
-  min-width: 0 !important;
+  min-width: 680px !important;
   table-layout: fixed;
 }
 
 .user-interface .history-table th {
-  padding: 16px 14px;
-  font-size: 15px;
-  font-weight: 400;
+  padding: 14px 8px;
+  font-size: 13px;
+  font-weight: 500;
   color: #8C9BA5;
   border-bottom: 1px solid #EDF2F7;
 }
 
 .user-interface .history-table td {
-  padding: 22px 14px;
+  padding: 16px 8px;
   border-bottom: none;
-  font-size: 15px;
+  font-size: 13px;
 }
 
 .user-interface .history-status-text {
-  font-size: 15px;
+  font-size: 13px;
 }
 
 .user-interface .payment-total-block span,
