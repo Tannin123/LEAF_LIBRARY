@@ -93,6 +93,66 @@ app.get('/api/health', async (_req, res, next) => {
   catch (error) { next(error); }
 });
 
+app.post('/api/bookTitles/:id/reserve', async (req, res, next) => {
+  const bookId = req.params.id;
+  const body = req.body as Row;
+  const requestId = str(value(body, 'requestId'))?.trim();
+  const readerId = str(value(body, 'readerId'))?.trim();
+  if (!requestId || !readerId) return res.status(400).json({ error: 'requestId and readerId are required' });
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const bookResult = await client.query(
+      'SELECT soluongtong, soluongsan FROM dausach WHERE madausach=$1 FOR UPDATE',
+      [bookId]
+    );
+    if (!bookResult.rowCount) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Book not found' });
+    }
+    if (Number(bookResult.rows[0].soluongsan ?? 0) < 1) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'No copies are currently available' });
+    }
+
+    const copyResult = await client.query(
+      "SELECT macuonsach FROM cuonsach WHERE madausach=$1 AND trangthai='SẴN SÀNG' ORDER BY macuonsach LIMIT 1 FOR UPDATE SKIP LOCKED",
+      [bookId]
+    );
+    if (!copyResult.rowCount) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'Available stock has no ready physical copy' });
+    }
+
+    const copyId = String(copyResult.rows[0].macuonsach);
+    await client.query("UPDATE cuonsach SET trangthai='ĐANG MƯỢN' WHERE macuonsach=$1", [copyId]);
+    const updatedBook = await client.query(
+      'UPDATE dausach SET soluongsan=GREATEST(COALESCE(soluongsan,0)-1,0) WHERE madausach=$1 RETURNING soluongtong, soluongsan',
+      [bookId]
+    );
+    await client.query(
+      'INSERT INTO ixs_borrow_requests (madangky,mabandoc,madausach,macuonsach,trangthai) VALUES ($1,$2,$3,$4,$5)',
+      [requestId, readerId, bookId, copyId, 'CHO DUYET']
+    );
+    await client.query('COMMIT');
+    return res.status(201).json({
+      id: requestId,
+      readerId,
+      bookId,
+      copyId,
+      status: 'CHO DUYET',
+      total: Number(updatedBook.rows[0].soluongtong ?? 0),
+      available: Number(updatedBook.rows[0].soluongsan ?? 0)
+    });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    return next(error);
+  } finally {
+    client.release();
+  }
+});
+
 app.get('/api/config/:key', async (req, res, next) => {
   try {
     const result = await pool.query('SELECT giatri FROM ixs_cauhinh WHERE macauhinh=$1', [req.params.key]);

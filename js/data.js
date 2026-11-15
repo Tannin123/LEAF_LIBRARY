@@ -2,7 +2,150 @@ const CURRENT_DATA_VERSION = 'v6_postgresql_source_of_truth';
 
 const defaultEmployees = [];
 const defaultLogs = [];
-const defaultBookTitles = [];
+const defaultBookTitles = [
+  {
+    id: 'SEED0001',
+    title: 'Clean Code: A Handbook of Agile Software Craftsmanship',
+    authors: 'Robert C. Martin',
+    author: 'Robert C. Martin',
+    publisher: 'Prentice Hall',
+    category: 'Công nghệ thông tin',
+    genre: 'Lập trình',
+    subject: 'Phát triển phần mềm',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/cleancode.webp'
+  },
+  {
+    id: 'SEED0002',
+    title: 'Giáo trình Giải tích Tập 2',
+    authors: 'Trần Đức Long - ĐHQG HN',
+    author: 'Trần Đức Long - ĐHQG HN',
+    publisher: 'Đại học Quốc gia Hà Nội',
+    category: 'Toán học',
+    genre: 'Giải tích',
+    subject: 'Toán học',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/giatich.webp'
+  },
+  {
+    id: 'SEED0003',
+    title: 'Triết học',
+    authors: 'Edward Craig',
+    author: 'Edward Craig',
+    publisher: 'NXB Tri Thức',
+    category: 'Triết học',
+    genre: 'Triết học',
+    subject: 'Triết học nhập môn',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/triethoc.jpg'
+  },
+  {
+    id: 'SEED0004',
+    title: 'Lịch sử Văn minh Thế giới',
+    authors: 'Đào Tuấn Thành (Chủ biên)',
+    author: 'Đào Tuấn Thành (Chủ biên)',
+    publisher: 'NXB Đại học Sư phạm',
+    category: 'Lịch sử',
+    genre: 'Lịch sử',
+    subject: 'Văn minh thế giới',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/lichsuvanminhthegioi.jpg'
+  },
+  {
+    id: 'SEED0005',
+    title: 'Cây cam ngọt của tôi',
+    authors: 'José Mauro de Vasconcelos',
+    author: 'José Mauro de Vasconcelos',
+    publisher: 'Nhã Nam',
+    category: 'Văn học',
+    genre: 'Tiểu thuyết',
+    subject: 'Văn học nước ngoài',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/caycamngotcuatoi.jpg'
+  },
+  {
+    id: 'SEED0006',
+    title: 'Chiếc lá cuối cùng',
+    authors: 'O. Henry',
+    author: 'O. Henry',
+    publisher: 'NXB Văn học',
+    category: 'Văn học',
+    genre: 'Truyện ngắn',
+    subject: 'Văn học nước ngoài',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/chieclacuoicung.jpg'
+  },
+  {
+    id: 'SEED0007',
+    title: 'Dế Mèn phiêu lưu ký',
+    authors: 'Tô Hoài',
+    author: 'Tô Hoài',
+    publisher: 'NXB Kim Đồng',
+    category: 'Văn học',
+    genre: 'Văn học thiếu nhi',
+    subject: 'Văn học Việt Nam',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/demenphieuluuky.jpg'
+  },
+  {
+    id: 'SEED0008',
+    title: 'Làm đĩ',
+    authors: 'Vũ Trọng Phụng',
+    author: 'Vũ Trọng Phụng',
+    publisher: 'NXB Văn học',
+    category: 'Văn học',
+    genre: 'Tiểu thuyết',
+    subject: 'Văn học Việt Nam',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/lamdi.jpg'
+  },
+  {
+    id: 'SEED0009',
+    title: 'Đọc sách cộng hưởng',
+    authors: 'Watanabe Yasuhiro',
+    author: 'Watanabe Yasuhiro',
+    publisher: 'NXB Lao Động',
+    category: 'Kỹ năng đọc',
+    genre: 'Kỹ năng đọc',
+    subject: 'Phương pháp đọc sách',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/sachconghuon.jpg'
+  },
+  {
+    id: 'SEED0010',
+    title: 'Suối ấm mặt trời',
+    authors: 'José Mauro de Vasconcelos',
+    author: 'José Mauro de Vasconcelos',
+    category: 'Văn học',
+    genre: 'Tiểu thuyết',
+    subject: 'Văn học nước ngoài',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/suoiammattroi.jpg'
+  },
+  {
+    id: 'SEED0011',
+    title: 'Số đỏ',
+    authors: 'Vũ Trọng Phụng',
+    author: 'Vũ Trọng Phụng',
+    publisher: 'Lê Cường',
+    category: 'Văn học',
+    genre: 'Tiểu thuyết trào phúng',
+    subject: 'Văn học Việt Nam',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/sodo.jpg'
+  }
+];
 const defaultBookCopies = [];
 const defaultImportReceipts = [];
 const defaultSuppliers = [];

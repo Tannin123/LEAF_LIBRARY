@@ -1619,6 +1619,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       return `<span class="badge-copy status-badge badge-circ-borrowed">${status}</span>`;
     }
 
+    function updateBookCopyStockSummary(bookId) {
+      const summary = document.getElementById('bcBookStockSummary');
+      if (!summary) return;
+      const book = getBookTitles().find(item => String(item.id) === String(bookId));
+      if (!book) {
+        summary.textContent = 'Chưa có thông tin tồn kho';
+        return;
+      }
+      const copies = getBookCopies().filter(copy => String(copy.bookId || copy.bookTitleId) === String(bookId));
+      const total = copies.length || Number(book.total || book.totalCopies || 0);
+      const available = copies.length
+        ? copies.filter(copy => copy.circulationStatus === 'SẴN SÀNG').length
+        : Number(book.available || book.availableCopies || 0);
+      summary.textContent = `${available} / ${total} cuốn sẵn có`;
+    }
+
     function renderBookCopiesTable() {
       const copies = getBookCopies();
       const q = (searchBookCopyInput.value || '').trim().toLowerCase();
@@ -1701,6 +1717,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('bcPriceInput').value = firstBook.price || '120.000';
       document.getElementById('bcPhysicalInput').value = 'TỐT';
       document.getElementById('bcCirculationInput').value = 'SẴN SÀNG';
+      updateBookCopyStockSummary(firstBook.id);
       bcUploadWidget.setState(firstBook.coverUrl || '', false);
       openModal('modalBookCopy');
     });
@@ -1727,6 +1744,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('bcPriceInput').value = copy.price || '120.000';
         document.getElementById('bcPhysicalInput').value = copy.physicalStatus;
         document.getElementById('bcCirculationInput').value = copy.circulationStatus;
+        updateBookCopyStockSummary(copy.bookId);
         bcUploadWidget.setState(copy.coverUrl || '', true);
         openModal('modalBookCopy');
       } else if (action === 'delete-copy') {
