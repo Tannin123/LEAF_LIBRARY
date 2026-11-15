@@ -2539,23 +2539,38 @@
   margin-bottom: 16px;
 }
 
+.history-tabs {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 26px;
+}
+
 .history-tabs button {
-  min-height: 34px;
-  padding: 0 14px;
-  color: #64748B;
-  background: #F8FAFC;
-  border: 1px solid #E8EDF4;
-  border-radius: 8px;
+  min-height: 42px;
+  padding: 8px 24px;
+  color: #475569;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
   font: inherit;
-  font-size: 11px;
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.history-tabs button:hover {
+  background: #F8FAFC;
+  color: #1E293B;
+  border-color: #CBD5E1;
 }
 
 .history-tabs button.active {
-  color: #1D5D86;
-  background: #EBF3F9;
-  border-color: #BFDBFE;
-  box-shadow: 0 2px 6px rgba(29, 93, 134, 0.1);
+  color: #1A73E8;
+  background: #E8F0FE;
+  border-color: #D2E3FC;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.08);
 }
 
 .workflow-table-wrap {
@@ -2591,41 +2606,85 @@
 }
 
 .history-table {
+  width: 100% !important;
+  min-width: 0 !important;
+  border-collapse: collapse;
   table-layout: fixed;
 }
 
-.history-table th:nth-child(1),
-.history-table th:nth-child(3) {
-  width: 24%;
+.history-table th:nth-child(1) {
+  width: 20%;
+  text-align: left;
+  white-space: nowrap;
 }
 
 .history-table th:nth-child(2) {
-  width: 34%;
+  width: 40%;
+  text-align: left;
+}
+
+.history-table th:nth-child(3) {
+  width: 20%;
+  text-align: left;
+  white-space: nowrap;
 }
 
 .history-table th:nth-child(4) {
-  width: 18%;
+  width: 20%;
+  text-align: left;
+  white-space: nowrap;
 }
 
 .history-table th {
-  padding: 14px 10px;
-  font-size: 14px;
+  padding: 16px 14px;
+  font-size: 15px;
+  font-weight: 400;
+  color: #8C9BA5;
+  border-bottom: 1px solid #EDF2F7;
+  letter-spacing: 0.1px;
 }
 
 .history-table td {
-  padding: 20px 10px;
-  border-bottom: 0;
-  font-size: 14px;
+  padding: 22px 14px;
+  border-bottom: none;
+  font-size: 15px;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.history-table tr:hover td {
+  background-color: #F8FAFC;
 }
 
 .history-book-name {
-  font-weight: 500;
+  font-weight: 600;
+  color: #1E293B;
+  font-size: 15px;
 }
 
 .history-status-text {
-  color: #1E293B;
-  font-size: 13px;
+  color: #334155;
+  font-size: 15px;
+  font-weight: 400;
   white-space: nowrap;
+}
+
+.btn-renew-pill {
+  margin-left: 8px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid #1D5D86;
+  background: #EBF3F9;
+  color: #1D5D86;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-renew-pill:hover {
+  background: #1D5D86;
+  color: #FFFFFF;
 }
 
 .history-status,
@@ -3533,7 +3592,6 @@ body.user-interface {
 
 .user-interface .workflow-table th,
 .user-interface .suggestion-table td small,
-.user-interface .history-tabs button,
 .user-interface .workflow-pagination,
 .user-interface .workflow-pagination button,
 .user-interface .history-status,
@@ -3552,19 +3610,33 @@ body.user-interface {
   padding-bottom: 14px;
 }
 
+.user-interface .history-tabs button {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.user-interface .history-table {
+  width: 100% !important;
+  min-width: 0 !important;
+  table-layout: fixed;
+}
+
 .user-interface .history-table th {
-  padding: 14px 10px;
-  font-size: 14px;
+  padding: 16px 14px;
+  font-size: 15px;
+  font-weight: 400;
+  color: #8C9BA5;
+  border-bottom: 1px solid #EDF2F7;
 }
 
 .user-interface .history-table td {
-  padding: 20px 10px;
-  border-bottom: 0;
-  font-size: 14px;
+  padding: 22px 14px;
+  border-bottom: none;
+  font-size: 15px;
 }
 
 .user-interface .history-status-text {
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .user-interface .payment-total-block span,

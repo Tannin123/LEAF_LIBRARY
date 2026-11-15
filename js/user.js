@@ -1361,7 +1361,7 @@ function initReaderHistoryPage() {
   if (!rows) return;
 
   const summary = document.getElementById('historyPageSummary');
-  let currentFilter = 'Tất cả';
+  let currentFilter = 'Đang mượn';
 
   const normalizeStatus = st => {
     const s = String(st || '').toLowerCase().trim();
@@ -1387,18 +1387,20 @@ function initReaderHistoryPage() {
     rows.innerHTML = filtered.length ? filtered.map(item => {
       const canRenew = item.status === 'Đang mượn' && !item.renewed;
       const renewBtn = canRenew
-        ? `<button type="button" class="btn-profile-primary" data-renew-loan-id="${escapeCatalogHtml(item.id)}" style="padding: 4px 10px; font-size: 12px; height: auto; border-radius: 4px;">Gia hạn</button>`
-        : `<span style="font-size: 12px; color: #94A3B8;">—</span>`;
+        ? `<button type="button" class="btn-renew-pill" data-renew-loan-id="${escapeCatalogHtml(item.id)}" title="Gia hạn sách thêm 7 ngày">Gia hạn</button>`
+        : (item.renewed ? `<span style="font-size: 12px; color: #1D5D86; font-weight: 500; margin-left: 6px;">(Đã gửi)</span>` : '');
       return `<tr>
-        <td style="font-weight: 600; color: #1D5D86;">${escapeCatalogHtml(item.id)}</td>
-        <td style="font-weight: 600; color: #0284C7;">${escapeCatalogHtml(item.copyId)}</td>
-        <td class="history-book-name">${escapeCatalogHtml(item.title)}</td>
         <td>${escapeCatalogHtml(item.borrowDate)}</td>
+        <td class="history-book-name">${escapeCatalogHtml(item.title)}</td>
         <td>${escapeCatalogHtml(item.dueDate)}</td>
-        <td class="history-status-text">${escapeCatalogHtml(item.status)}</td>
-        <td style="text-align: center;">${renewBtn}</td>
+        <td class="history-status-text">
+          <div style="display: inline-flex; align-items: center; justify-content: flex-start; gap: 8px;">
+            <span>${escapeCatalogHtml(item.status)}</span>
+            ${renewBtn}
+          </div>
+        </td>
       </tr>`;
-    }).join('') : '<tr><td class="workflow-empty-cell" colspan="7">Không có lượt mượn nào trong trạng thái này.</td></tr>';
+    }).join('') : '<tr><td class="workflow-empty-cell" colspan="4">Không có lượt mượn nào trong trạng thái này.</td></tr>';
     if (summary) summary.textContent = filtered.length ? `Hiển thị 1 - ${filtered.length} trên tổng số ${filtered.length} phiếu` : 'Không có phiếu mượn';
   };
 
@@ -1450,13 +1452,14 @@ function initReaderHistoryPage() {
   });
 
   const activeBtn = document.querySelector('[data-history-status].active');
-  render(activeBtn ? activeBtn.dataset.historyStatus : 'Tất cả');
+  currentFilter = activeBtn ? activeBtn.dataset.historyStatus : 'Đang mượn';
+  render(currentFilter);
 
   Promise.resolve(DataService.ready).catch(() => {}).then(() => {
-    render();
+    render(currentFilter);
   });
   window.addEventListener('ixs:data-loaded', event => {
-    if (event.detail?.key === DataService.KEYS.READER_HISTORY) render();
+    if (event.detail?.key === DataService.KEYS.READER_HISTORY) render(currentFilter);
   });
 }
 
