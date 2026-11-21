@@ -11,9 +11,30 @@
 <body class="user-interface reader-workflow-page">
 	<div class="app-wrapper">
 		<header class="header-container navbar">
-			<div class="header-logo" id="sidebarToggle" title="Thu gọn / Mở rộng menu"><img class="logo-full" src="../assets/images/logo-leaflibrary.png" alt="Leaf Library Logo"><img class="logo-compact" src="../assets/images/logo-leaf.png" alt="Leaf Library Logo"></div>
-			<div class="header-greeting"><span class="greeting-hello">hello,</span><span class="greeting-name" id="headerGreetingName">Lưu Tấn Nin</span></div>
-			<div class="header-user" id="headerUserContainer"><div class="user-avatar-circle" id="btnUserAvatar" title="Tài khoản của tôi"><svg id="headerAvatarDefaultIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><img id="headerAvatarImg" class="avatar-img-fill" src="" alt="Avatar" style="display:none"></div><div class="user-dropdown-menu" id="userDropdownMenu"><div class="user-dropdown-header"><div class="user-dropdown-name" id="dropdownUserName">Lưu Tấn Nin</div><div class="user-dropdown-meta"><span id="dropdownUserCode">Mã ĐG: 123456</span><span class="badge status-badge badge-reader-valid" id="dropdownUserRole">Độc giả</span></div></div><button type="button" class="user-dropdown-item" id="btnOpenMyAccount"><span>Thông tin tài khoản</span></button><button type="button" class="user-dropdown-item" id="btnOpenChangePassword"><span>Đổi mật khẩu</span></button><div class="user-dropdown-divider"></div><button type="button" class="user-dropdown-item logout-item" id="btnUserLogout"><span>Đăng xuất</span></button></div></div>
+			<div class="header-logo" id="sidebarToggle" title="Thu gọn / Mở rộng menu"><img class="logo-full" src="../assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false"><img class="logo-compact" src="../assets/images/logo-leaf.png" alt="Leaf Library Logo" draggable="false"></div>
+			<div class="header-greeting"><span class="greeting-hello">hello,</span><span class="greeting-name" id="headerGreetingName">Bạn đọc</span></div>
+			<div class="header-user" id="headerUserContainer">
+				<div class="user-avatar-circle" id="btnUserAvatar" title="Tài khoản của tôi"><svg id="headerAvatarDefaultIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><img id="headerAvatarImg" class="avatar-img-fill" src="" alt="Avatar" style="display:none"></div>
+				<div class="user-dropdown-menu" id="userDropdownMenu">
+					<div class="user-dropdown-header">
+						<div class="user-dropdown-name" id="dropdownUserName">Bạn đọc</div>
+						<div class="user-dropdown-meta"><span id="dropdownUserCode">Mã ĐG: 220260004</span><span class="badge status-badge badge-reader-valid" id="dropdownUserRole">Độc giả</span></div>
+					</div>
+					<button type="button" class="user-dropdown-item" id="btnOpenMyAccount">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+						<span>Thông tin tài khoản</span>
+					</button>
+					<button type="button" class="user-dropdown-item" id="btnOpenChangePassword">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+						<span>Đổi mật khẩu</span>
+					</button>
+					<div class="user-dropdown-divider"></div>
+					<button type="button" class="user-dropdown-item logout-item" id="btnUserLogout">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+						<span>Đăng xuất</span>
+					</button>
+				</div>
+			</div>
 		</header>
 		<div class="main-body">
 			<aside class="sidebar-menu admin-sidebar" id="sidebarMenu">
@@ -24,244 +45,423 @@
 				<a href="penalties.html" class="sidebar-item active" title="Thanh toán"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><span>Thanh toán</span></a>
 				<a href="suggestions.html" class="sidebar-item" title="Đề xuất sách"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Đề xuất sách</span></a>
 			</aside>
-			<main class="content-section user-dashboard-section workflow-content">
-				<div class="user-dash-topbar"><div></div><div class="user-dash-actions"><button type="button" class="topbar-icon-btn" id="btnNotification" title="Thông báo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="topbar-badge badge-red">2</span></button></div></div>
-				<section class="workflow-page-content payment-page" aria-labelledby="paymentTitle">
-					<div class="workflow-heading"><h1 id="paymentTitle">Thanh toán</h1><p>Danh sách các khoản phí chưa thanh toán.</p></div>
-					<div class="payment-debt-list" id="paymentDebtList">
-						<div class="payment-debt-list-summary"><span id="paymentSummaryCount">Khoản nợ chưa thanh toán</span><strong id="paymentSummaryTotal">0 VND</strong></div>
-						<div id="paymentDebtItemsContainer"></div>
-						<div class="pagination-wrapper" id="paymentPagination" style="margin-top: 20px;">
-							<button type="button" class="page-box disabled" disabled>&lt;</button>
-							<button type="button" class="page-box active">1</button>
-							<button type="button" class="page-box disabled" disabled>&gt;</button>
+			<main class="content-section user-dashboard-section payment-dashboard-section">
+				<div class="user-dash-topbar"><div></div><div class="user-dash-actions"><button type="button" class="topbar-icon-btn" id="btnNotification" title="Thông báo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="topbar-badge badge-red" id="notifBadge" style="display: none;">0</span></button></div></div>
+
+				<!-- TRẠNG THÁI KHÔNG CÓ KHOẢN PHÍ NỢ -->
+				<div class="payment-step-view" id="viewPaymentClear" style="display: none;">
+					<div class="payment-checkout-card" style="text-align: center; padding: 36px 28px;">
+						<div style="width: 56px; height: 56px; border-radius: 50%; background: #DCFCE7; color: #16A34A; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+							<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
 						</div>
+						<h1 class="payment-checkout-title" style="border: none; padding-bottom: 0; margin-bottom: 8px;">Không có khoản phí cần thanh toán</h1>
+						<p class="payment-notice-sub" style="margin-bottom: 20px;">Tài khoản của bạn hiện không có khoản phạt hay lệ phí nào chưa thanh toán.</p>
+						<a href="catalog.html" class="btn-payment-now" style="text-decoration: none; max-width: 240px; margin: 0 auto;">Tiếp tục tra cứu sách</a>
 					</div>
-					<div class="payment-detail-view" id="paymentDetailView" hidden>
-						<button type="button" class="payment-back-button" id="btnBackToPaymentDebts"><span aria-hidden="true">‹</span> Danh sách khoản nợ</button>
-						<div class="payment-panel">
-							<div class="payment-summary-card">
-								<div class="payment-total-block"><div><span>Số tiền cần thanh toán</span><strong id="paymentTotal">0 VND</strong></div><button type="button" class="payment-receipt-toggle" id="btnTogglePaymentBreakdown" aria-expanded="true">Chi tiết biên lai <span>›</span></button></div>
-								<div class="payment-breakdown" id="paymentBreakdown"></div>
+				</div>
+
+				<!-- BƯỚC 1: MÀN HÌNH THÔNG BÁO KHOẢN PHÍ CẦN THANH TOÁN -->
+				<div class="payment-step-view" id="viewPaymentNotice">
+					<div class="payment-checkout-card">
+						<div class="payment-notice-header">
+							<div class="payment-notice-badge">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+									<circle cx="12" cy="12" r="10"/>
+									<line x1="12" y1="8" x2="12" y2="12"/>
+									<line x1="12" y1="16" x2="12.01" y2="16"/>
+								</svg>
 							</div>
-							<fieldset class="payment-methods"><legend>Chọn phương thức thanh toán</legend><label class="payment-method-option payment-qr-option"><input type="radio" name="paymentMethod" value="bank" checked><span class="payment-method-symbol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zm4 4h3v3h-3zm0-4h3m-7 7h3"/></svg></span><span><strong>Ngân hàng (QR)</strong><small>VietQR Napas247</small></span><i></i></label></fieldset>
-							<button type="button" class="payment-submit-button" id="btnSubmitPayment">Thanh toán ngay <span>→</span></button>
-							<div class="payment-detail-footer"><span>Gặp vấn đề khi thanh toán? <a href="mailto:hotro@leaflibrary.vn">Liên hệ thủ thư</a></span><span>Hotline hỗ trợ: 1900 6868</span></div>
+							<div>
+								<h1 class="payment-checkout-title" style="margin-bottom: 4px; padding-bottom: 0; border: none;">Thông báo khoản phí cần thanh toán</h1>
+								<p class="payment-notice-sub">Bạn hiện có <strong id="noticeFeeCount">0</strong> khoản phí chưa thanh toán cần xử lý.</p>
+							</div>
+						</div>
+
+						<!-- HỘP TỔNG KẾT KHOẢN PHÍ -->
+						<div class="payment-summary-box" style="margin-top: 24px;">
+							<div class="payment-summary-header">
+								<span class="payment-summary-label">Tổng số tiền cần thanh toán</span>
+								<span class="badge status-badge" id="noticePaymentStatusBadge" style="background:#FEE2E2; color:#DC2626; font-weight:700; border-radius:6px; padding:4px 8px; font-size:12px;">CHƯA THANH TOÁN</span>
+							</div>
+
+							<div class="payment-total-amount" id="noticePaymentTotal" style="color:#DC2626; margin: 10px 0 16px 0;">0 VND</div>
+
+							<div class="payment-breakdown-list" id="noticeDebtItemsContainer"></div>
+						</div>
+
+						<button type="button" class="btn-payment-now" id="btnGoToChooseMethod">
+							Xem chi tiết &amp; Chọn hình thức thanh toán <span class="arrow-right">→</span>
+						</button>
+					</div>
+
+					<div class="payment-page-footer">
+						<div class="footer-left">
+							Gặp vấn đề khi thanh toán? <a href="mailto:hotro@leaflibrary.vn" class="contact-link">Liên hệ thủ thư</a>
+						</div>
+						<div class="footer-right">
+							Hotline hỗ trợ: 1900 6868
 						</div>
 					</div>
-				</section>
+				</div>
+
+				<!-- BƯỚC 2: MÀN HÌNH CHỌN HÌNH THỨC THANH TOÁN -->
+				<div class="payment-step-view" id="viewPaymentMethod" style="display: none;">
+					<div class="payment-checkout-card">
+						<button type="button" class="payment-back-link" id="btnBackToNotice">
+							<span>‹</span> Quay lại thông báo khoản phí
+						</button>
+
+						<h1 class="payment-checkout-title" style="margin-top: 14px; margin-bottom: 6px; border: none; padding-bottom: 0;">Chọn hình thức thanh toán</h1>
+						<p class="payment-notice-sub" style="margin-bottom: 26px;">Số tiền thanh toán: <strong id="chooseMethodTotal" style="color: #2563EB; font-size: 16px;">0 VND</strong>. Vui lòng chọn 1 trong 2 hình thức bên dưới:</p>
+
+						<div class="payment-choices-grid">
+							<button type="button" class="payment-choice-card" id="choicePayAtDesk" style="text-align: left;">
+								<div class="choice-icon desk-icon">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+										<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+										<polyline points="9 22 9 12 15 12 15 22"/>
+									</svg>
+								</div>
+								<div class="choice-info">
+									<div class="choice-title">Thanh toán tại quầy thủ thư</div>
+									<div class="choice-desc">Thanh toán trực tiếp bằng tiền mặt hoặc thẻ tại quầy giao dịch thư viện (Tầng 1).</div>
+									<div class="choice-badge">Trực tiếp tại thư viện</div>
+								</div>
+								<div class="choice-action">
+									<span>Xem hướng dẫn</span>
+									<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+								</div>
+							</button>
+
+							<button type="button" class="payment-choice-card choice-highlight" id="choicePayOnline" style="text-align: left;">
+								<div class="choice-icon bank-icon">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+										<rect x="3" y="3" width="7" height="7" rx="1"/>
+										<rect x="14" y="3" width="7" height="7" rx="1"/>
+										<rect x="3" y="14" width="7" height="7" rx="1"/>
+										<rect x="14" y="14" width="3" height="3"/>
+										<rect x="18" y="18" width="3" height="3"/>
+									</svg>
+								</div>
+								<div class="choice-info">
+									<div class="choice-title">Thanh toán qua ngân hàng</div>
+									<div class="choice-desc">Quét mã VietQR Napas247 từ bất kỳ App ngân hàng nào, đối soát tự động 24/7.</div>
+									<div class="choice-badge recommended">Khuyên dùng · Nhanh chóng</div>
+								</div>
+								<div class="choice-action">
+									<span>Chuyển khoản ngay</span>
+									<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+								</div>
+							</button>
+						</div>
+					</div>
+
+					<div class="payment-page-footer">
+						<div class="footer-left">
+							Gặp vấn đề khi thanh toán? <a href="mailto:hotro@leaflibrary.vn" class="contact-link">Liên hệ thủ thư</a>
+						</div>
+						<div class="footer-right">
+							Hotline hỗ trợ: 1900 6868
+						</div>
+					</div>
+				</div>
+
+				<!-- BƯỚC 3: GIAO DIỆN THANH TOÁN QUA NGÂN HÀNG -->
+				<div class="payment-step-view" id="viewPaymentOnline" style="display: none;">
+					<div class="payment-checkout-card">
+						<button type="button" class="payment-back-link" id="btnBackToChooseMethod">
+							<span>‹</span> Quay lại chọn hình thức khác
+						</button>
+
+						<h1 class="payment-checkout-title" style="margin-top: 14px;">Thanh toán</h1>
+						
+						<div class="payment-summary-box">
+							<div class="payment-summary-header">
+								<span class="payment-summary-label">Số tiền cần thanh toán</span>
+								<button type="button" class="payment-receipt-link" id="btnTogglePaymentBreakdown">
+									Chi tiết biên lai <span class="arrow-icon">›</span>
+								</button>
+							</div>
+
+							<div class="payment-total-amount" id="paymentTotal">0 VND</div>
+
+							<div class="payment-breakdown-list" id="paymentBreakdown"></div>
+						</div>
+
+						<div class="payment-method-section">
+							<div class="payment-method-heading">Phương thức thanh toán đã chọn</div>
+							
+							<div class="payment-method-card active">
+								<div class="payment-method-check" aria-hidden="true">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+										<polyline points="20 6 9 17 4 12"/>
+									</svg>
+								</div>
+								<div class="payment-method-qr-icon">
+									<svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2">
+										<rect x="3" y="3" width="7" height="7" rx="1"/>
+										<rect x="14" y="3" width="7" height="7" rx="1"/>
+										<rect x="3" y="14" width="7" height="7" rx="1"/>
+										<rect x="14" y="14" width="3" height="3"/>
+										<rect x="18" y="18" width="3" height="3"/>
+										<rect x="18" y="14" width="3" height="3"/>
+										<rect x="14" y="18" width="3" height="3"/>
+									</svg>
+								</div>
+								<div class="payment-method-title">Ngân hàng (QR)</div>
+								<div class="payment-method-sub">VietQR Napas247</div>
+							</div>
+						</div>
+
+						<button type="button" class="btn-payment-now" id="btnSubmitPayment">
+							Thanh toán ngay <span class="arrow-right">→</span>
+						</button>
+					</div>
+
+					<div class="payment-page-footer">
+						<div class="footer-left">
+							Gặp vấn đề khi thanh toán? <a href="mailto:hotro@leaflibrary.vn" class="contact-link">Liên hệ thủ thư</a>
+						</div>
+						<div class="footer-right">
+							Hotline hỗ trợ: 1900 6868
+						</div>
+					</div>
+				</div>
 			</main>
 		</div>
 	</div>
-	<div class="modal-overlay" id="modalPaymentNotice"><div class="modal-box payment-notice-modal"><div class="user-modal-header"><h2 class="user-modal-title">THANH TOÁN</h2><button type="button" class="user-modal-close-btn" id="btnClosePaymentNotice" aria-label="Đóng">✕</button></div><div class="payment-notice-body"><p id="paymentNoticeText">Cổng thanh toán trực tuyến chưa được kết nối. Vui lòng liên hệ quầy thư viện.</p><button type="button" class="payment-submit-button" id="btnConfirmPaymentNotice">Đóng</button></div></div></div>
 
-  <!-- ===== MODAL THÃ”NG TIN CÃ NHÃ‚N  ===== -->
+	<!-- MODAL THANH TOÁN VIETQR -->
+	<div class="modal-overlay" id="modalPaymentNotice">
+		<div class="modal-box payment-qr-modal-box">
+			<div class="user-modal-header">
+				<div class="user-modal-title">THANH TOÁN VIETQR</div>
+				<button type="button" class="user-modal-close-btn" id="btnClosePaymentNotice" aria-label="Đóng">✕</button>
+			</div>
+			<div class="payment-qr-modal-body">
+				<div class="qr-code-frame">
+					<img id="qrCodeImg" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=LEAF_LIBRARY" alt="Mã QR VietQR" onerror="this.style.display='none'; document.getElementById('qrCodeFallback').style.display='flex';">
+					<div id="qrCodeFallback" style="display:none; width: 180px; height: 180px; background: #EFF6FF; border-radius: 12px; align-items: center; justify-content: center; flex-direction: column; gap: 8px; color: #2563EB;">
+						<svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2">
+							<rect x="3" y="3" width="7" height="7"/>
+							<rect x="14" y="3" width="7" height="7"/>
+							<rect x="3" y="14" width="7" height="7"/>
+							<rect x="14" y="14" width="3" height="3"/>
+							<rect x="18" y="18" width="3" height="3"/>
+						</svg>
+						<span style="font-size: 12px; font-weight: 700;">VIETQR NAPAS247</span>
+					</div>
+				</div>
+				<div class="qr-info-table">
+					<div class="qr-info-row"><span class="qr-label">Ngân hàng:</span><strong class="qr-val">MB Bank (Quân Đội)</strong></div>
+					<div class="qr-info-row"><span class="qr-label">Số tài khoản:</span><strong class="qr-val" style="color: #2563EB;">9999 8888 22026</strong></div>
+					<div class="qr-info-row"><span class="qr-label">Chủ tài khoản:</span><strong class="qr-val">THU VIEN LEAF LIBRARY</strong></div>
+					<div class="qr-info-row"><span class="qr-label">Số tiền:</span><strong class="qr-val" style="color: #2563EB; font-size: 17px;" id="qrModalAmount">0 VND</strong></div>
+					<div class="qr-info-row"><span class="qr-label">Nội dung CK:</span><strong class="qr-val" id="qrTransferContent" style="color: #1E293B;">TT PHI DOC GIA</strong></div>
+				</div>
+				<button type="button" class="btn-payment-now" id="btnConfirmPaymentNotice" style="margin-top: 14px;">
+					Tôi đã chuyển khoản thành công
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- MODAL HƯỚNG DẪN THANH TOÁN TẠI QUẦY -->
+	<div class="modal-overlay" id="modalPayAtDesk">
+		<div class="modal-box payment-desk-modal-box">
+			<div class="user-modal-header">
+				<div class="user-modal-title">HƯỚNG DẪN THANH TOÁN TẠI QUẦY</div>
+				<button type="button" class="user-modal-close-btn" id="btnClosePayAtDeskModal" aria-label="Đóng">✕</button>
+			</div>
+			<div class="payment-desk-modal-body">
+				<div class="desk-guide-icon">
+					<svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="#1D5D86" stroke-width="2">
+						<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+						<polyline points="9 22 9 12 15 12 15 22"/>
+					</svg>
+				</div>
+				<div class="desk-guide-steps">
+					<div class="guide-step-item">
+						<div class="step-num">1</div>
+						<div class="step-text">Đến <strong>Quầy Dịch vụ Độc giả &amp; Lưu thông</strong> tại <strong>Tầng 1 - Thư viện Leaf Library</strong>.</div>
+					</div>
+					<div class="guide-step-item">
+						<div class="step-num">2</div>
+						<div class="step-text">Xuất trình thẻ thư viện hoặc đọc Mã độc giả: <strong id="deskReaderInfo" style="color:#2563EB;">Bạn đọc</strong>.</div>
+					</div>
+					<div class="guide-step-item">
+						<div class="step-num">3</div>
+						<div class="step-text">Nộp số tiền <strong style="color:#DC2626;" id="deskModalAmount">0 VND</strong> bằng tiền mặt hoặc quẹt thẻ qua máy POS.</div>
+					</div>
+					<div class="guide-step-item">
+						<div class="step-num">4</div>
+						<div class="step-text">Nhận biên lai thu tiền từ Thủ thư. Hệ thống sẽ cập nhật trạng thái thanh toán của bạn ngay lập tức.</div>
+					</div>
+				</div>
+				<div class="desk-hours-box">
+					<strong>Giờ tiếp đón độc giả:</strong> Thứ 2 – Thứ 7 (08:00 – 17:30).
+				</div>
+				<button type="button" class="btn-payment-now" id="btnConfirmPayAtDesk" style="margin-top: 16px;">
+					Đã hiểu, tôi sẽ đến quầy thanh toán
+				</button>
+			</div>
+		</div>
+	</div>
+
+  <!-- ===== MODAL THÔNG TIN CÁ NHÂN ===== -->
   <div class="modal-overlay" id="modalUserProfile">
     <div class="modal-box user-profile-modal-box">
       <div class="user-modal-header">
-        <div class="user-modal-title">THÃ”NG TIN CÃ NHÃ‚N</div>
-        <button type="button" class="user-modal-close-btn" id="btnCloseUserProfileModal" title="ÄÃ³ng">âœ•</button>
+        <div class="user-modal-title">THÔNG TIN CÁ NHÂN</div>
+        <button type="button" class="user-modal-close-btn" id="btnCloseUserProfileModal" title="Đóng" aria-label="Đóng">✕</button>
       </div>
       <div class="user-modal-body">
-
-        <!-- Cá»™t trÃ¡i: Form thÃ´ng tin cÃ¡ nhÃ¢n & liÃªn há»‡ -->
         <div class="user-modal-left">
-
-          <div class="profile-section-heading">Pháº§n thÃ´ng tin cÃ¡ nhÃ¢n</div>
-
+          <div class="profile-section-heading">Phần thông tin cá nhân</div>
           <div class="profile-form-group">
-            <label class="profile-form-label">Há» vÃ  tÃªn</label>
-            <input type="text" class="profile-form-input" id="profFullName" value="Luu Tan Nin" readonly>
+            <label class="profile-form-label" for="profFullName">Họ và tên</label>
+            <input type="text" class="profile-form-input" id="profFullName" value="" readonly>
           </div>
-
           <div class="profile-form-row">
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">Giá»›i tÃ­nh</label>
+              <label class="profile-form-label" for="profGender">Giới tính</label>
               <div class="profile-select-wrap">
                 <select class="profile-form-select" id="profGender" disabled>
                   <option value="Nam" selected>Nam</option>
-                  <option value="Ná»¯">Ná»¯</option>
+                  <option value="Nữ">Nữ</option>
                 </select>
-                <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
+                <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9" /></svg>
               </div>
             </div>
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">NgÃ y sinh</label>
+              <label class="profile-form-label" for="profDob">Ngày sinh</label>
               <div class="profile-input-with-icon">
-                <input type="text" class="profile-form-input" id="profDob" value="10 / 1 / 2006" readonly>
-                <svg viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
+                <input type="text" class="profile-form-input" id="profDob" value="" readonly>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
               </div>
             </div>
           </div>
-
           <div class="profile-form-group">
-            <label class="profile-form-label">CCCD</label>
-            <div class="profile-select-wrap">
-              <input type="text" class="profile-form-input" id="profCccd" value="abc" readonly>
-              <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </div>
+            <label class="profile-form-label" for="profCccd">CCCD</label>
+            <input type="text" class="profile-form-input" id="profCccd" value="" readonly>
           </div>
-
-          <div class="profile-section-heading" style="margin-top: 14px;">Pháº§n thÃ´ng tin liÃªn há»‡ &amp; nhÃ³m quyá»n</div>
-
+          <div class="profile-section-heading" style="margin-top: 14px;">Phần thông tin liên hệ &amp; nhóm quyền</div>
           <div class="profile-form-group">
-            <label class="profile-form-label">Äá»‹a chá»‰</label>
-            <input type="text" class="profile-form-input" id="profAddress" value="Ã” 17, áº¤p 4, Má»¹ An, TÃ¢y Ninh" readonly>
+            <label class="profile-form-label" for="profAddress">Địa chỉ</label>
+            <input type="text" class="profile-form-input" id="profAddress" value="" readonly>
           </div>
-
           <div class="profile-form-row">
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">SÄT</label>
-              <input type="text" class="profile-form-input" id="profPhone" value="0363894957" readonly>
+              <label class="profile-form-label" for="profPhone">SĐT</label>
+              <input type="text" class="profile-form-input" id="profPhone" value="" readonly>
             </div>
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">Email</label>
-              <input type="text" class="profile-form-input" id="profEmail" value="luutannin@gmail.com" readonly>
+              <label class="profile-form-label" for="profEmail">Email</label>
+              <input type="text" class="profile-form-input" id="profEmail" value="" readonly>
             </div>
           </div>
-
         </div>
-
-        <!-- Cá»™t pháº£i: áº¢NH CÃ NHÃ‚N & MÃ£ tÃ i khoáº£n & CÃ¡c nÃºt báº¥m -->
         <div class="user-modal-right">
           <div class="profile-avatar-frame" id="profAvatarFrame">
-            <img id="profAvatarImg" src="" alt="áº¢nh cÃ¡ nhÃ¢n" style="display:none;">
+            <img id="profAvatarImg" src="" alt="Ảnh cá nhân" style="display:none;">
             <div class="profile-avatar-placeholder" id="profAvatarPlaceholder">
-              <span>áº¢NH CÃ NHÃ‚N</span>
+              <span>ẢNH CÁ NHÂN</span>
             </div>
           </div>
-
           <div class="profile-code-group">
-            <div class="profile-code-label">MÃ£ nhÃ¢n viÃªn (mÃ£ tÃ i khoáº£n)</div>
-            <div class="profile-code-value" id="profCodeValue">123456</div>
+            <div class="profile-code-label">Mã bạn đọc (mã tài khoản)</div>
+            <div class="profile-code-value" id="profCodeValue">220260004</div>
           </div>
-
           <div class="profile-actions-stack">
-            <button type="button" class="btn-profile-primary" id="btnViewReaderCard">XEM THáºº Äá»˜C GIáº¢</button>
-            <button type="button" class="btn-profile-primary" id="btnEditProfile">CHá»ˆNH Sá»¬A THÃ”NG TIN</button>
-            <button type="button" class="btn-profile-gray" id="btnExitProfile">THOÃT</button>
+            <button type="button" class="btn-profile-primary" id="btnViewReaderCard">XEM THẺ ĐỘC GIẢ</button>
+            <button type="button" class="btn-profile-primary" id="btnEditProfile">CHỈNH SỬA THÔNG TIN</button>
+            <button type="button" class="btn-profile-gray" id="btnExitProfile">THOÁT</button>
           </div>
         </div>
-
       </div>
     </div>
   </div>
 
-  <!-- ===== MODAL THAY Äá»”I THÃ”NG TIN CÃ NHÃ‚N (CHUáº¨N áº¢NH 2) ===== -->
+  <!-- ===== MODAL THAY ĐỔI THÔNG TIN CÁ NHÂN ===== -->
   <div class="modal-overlay" id="modalEditUserProfile">
     <div class="modal-box user-profile-modal-box">
       <div class="user-modal-header">
-        <div class="user-modal-title">THAY Äá»”I THÃ”NG TIN CÃ NHÃ‚N</div>
-        <button type="button" class="user-modal-close-btn" id="btnCloseEditUserProfileModal" title="ÄÃ³ng">âœ•</button>
+        <div class="user-modal-title">THAY ĐỔI THÔNG TIN CÁ NHÂN</div>
+        <button type="button" class="user-modal-close-btn" id="btnCloseEditUserProfileModal" title="Đóng" aria-label="Đóng">✕</button>
       </div>
       <div class="user-modal-body">
-
-        <!-- Cá»™t trÃ¡i: Form thÃ´ng tin cÃ¡ nhÃ¢n & liÃªn há»‡ (Ä‘Æ°á»£c phÃ©p sá»­a) -->
         <div class="user-modal-left">
-
-          <div class="profile-section-heading">Pháº§n thÃ´ng tin cÃ¡ nhÃ¢n</div>
-
+          <div class="profile-section-heading">Phần thông tin cá nhân</div>
           <div class="profile-form-group">
-            <label class="profile-form-label">Há» vÃ  tÃªn</label>
-            <input type="text" class="profile-form-input" id="editProfFullName" value="LÆ°u Táº¥n Nin">
+            <label class="profile-form-label" for="editProfFullName">Họ và tên <span aria-hidden="true">*</span></label>
+            <input type="text" class="profile-form-input" id="editProfFullName" value="">
           </div>
-
           <div class="profile-form-row">
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">Giá»›i tÃ­nh</label>
+              <label class="profile-form-label" for="editProfGender">Giới tính</label>
               <div class="profile-select-wrap">
                 <select class="profile-form-select" id="editProfGender">
                   <option value="Nam" selected>Nam</option>
-                  <option value="Ná»¯">Ná»¯</option>
+                  <option value="Nữ">Nữ</option>
                 </select>
-                <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
+                <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9" /></svg>
               </div>
             </div>
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">NgÃ y sinh</label>
+              <label class="profile-form-label" for="editProfDob">Ngày sinh (DD / MM / YYYY)</label>
               <div class="profile-input-with-icon">
-                <input type="text" class="profile-form-input" id="editProfDob" value="10 / 11 / 2006">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
+                <input type="text" class="profile-form-input" id="editProfDob" value="" placeholder="10 / 11 / 2006">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
               </div>
             </div>
           </div>
-
           <div class="profile-form-group">
-            <label class="profile-form-label">CCCD</label>
-            <div class="profile-select-wrap">
-              <input type="text" class="profile-form-input" id="editProfCccd" value="abc">
-              <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </div>
+            <label class="profile-form-label" for="editProfCccd">CCCD (9 hoặc 12 chữ số)</label>
+            <input type="text" class="profile-form-input" id="editProfCccd" value="" placeholder="079206000001">
           </div>
-
-          <div class="profile-section-heading" style="margin-top: 14px;">Pháº§n thÃ´ng tin liÃªn há»‡ &amp; nhÃ³m quyá»n</div>
-
+          <div class="profile-section-heading" style="margin-top: 14px;">Phần thông tin liên hệ &amp; nhóm quyền</div>
           <div class="profile-form-group">
-            <label class="profile-form-label">Äá»‹a chá»‰</label>
-            <input type="text" class="profile-form-input" id="editProfAddress" value="O17, Ap 4, My An, Tay Ninh">
+            <label class="profile-form-label" for="editProfAddress">Địa chỉ</label>
+            <input type="text" class="profile-form-input" id="editProfAddress" value="" placeholder="Số nhà, đường, quận/huyện...">
           </div>
-
           <div class="profile-form-row">
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">SÄT</label>
-              <input type="text" class="profile-form-input" id="editProfPhone" value="0363894957">
+              <label class="profile-form-label" for="editProfPhone">SĐT</label>
+              <input type="tel" class="profile-form-input" id="editProfPhone" value="" placeholder="09xxxxxxxx">
             </div>
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">Email</label>
-              <input type="text" class="profile-form-input" id="editProfEmail" value="luutannin@gmail.com">
+              <label class="profile-form-label" for="editProfEmail">Email</label>
+              <input type="email" class="profile-form-input" id="editProfEmail" value="" placeholder="email@domain.com">
             </div>
           </div>
-
+          <div id="editProfileError" class="field-error-text" role="alert" style="display: none;"></div>
         </div>
-
-        <!-- Cá»™t pháº£i: áº¢NH CÃ NHÃ‚N & MÃ£ tÃ i khoáº£n & 2 nÃºt LÆ¯U, THOÃT -->
         <div class="user-modal-right">
           <div class="profile-avatar-frame" id="editProfAvatarFrame">
-            <img id="editProfAvatarImg" src="" alt="áº¢nh cÃ¡ nhÃ¢n" style="display:none;">
+            <img id="editProfAvatarImg" src="" alt="Ảnh cá nhân" style="display:none;">
             <div class="profile-avatar-placeholder" id="editProfAvatarPlaceholder">
-              <span>áº¢NH CÃ NHÃ‚N</span>
+              <span>ẢNH CÁ NHÂN</span>
             </div>
           </div>
-
           <div class="profile-code-group">
-            <div class="profile-code-label">MÃ£ nhÃ¢n viÃªn (mÃ£ tÃ i khoáº£n)</div>
-            <div class="profile-code-value" id="editProfCodeValue">123456</div>
+            <div class="profile-code-label">Mã bạn đọc (mã tài khoản)</div>
+            <div class="profile-code-value" id="editProfCodeValue">220260004</div>
           </div>
-
           <div class="profile-actions-stack">
-            <button type="button" class="btn-profile-primary" id="btnSaveEditProfile">LÆ¯U</button>
-            <button type="button" class="btn-profile-gray" id="btnCancelEditProfile">THOÃT</button>
+            <button type="button" class="btn-profile-primary" id="btnSaveEditProfile">LƯU</button>
+            <button type="button" class="btn-profile-gray" id="btnCancelEditProfile">THOÁT</button>
           </div>
         </div>
-
       </div>
     </div>
   </div>
 
-  <!-- ===== MODAL THáºº THÆ¯ VIá»†N (CHUáº¨N áº¢NH 1) ===== -->
+  <!-- ===== MODAL THẺ THƯ VIỆN ===== -->
   <div class="modal-overlay" id="modalLibraryCard">
     <div class="library-card-modal-container">
       <div class="library-card-modal-header">
-        <div class="library-card-modal-title">THáºº THÆ¯ VIá»†N</div>
-        <button type="button" class="library-card-modal-close" id="btnCloseLibraryCardModal" title="ÄÃ³ng">âœ•</button>
+        <div class="library-card-modal-title">THẺ THƯ VIỆN</div>
+        <button type="button" class="library-card-modal-close" id="btnCloseLibraryCardModal" title="Đóng" aria-label="Đóng">✕</button>
       </div>
       <div class="library-card-white-panel">
         <div class="card-watermark" aria-hidden="true">
@@ -271,20 +471,20 @@
           </svg>
         </div>
         <div class="lib-card-field-group">
-          <div class="lib-card-label">MÃƒ THáºº</div>
-          <div class="lib-card-code" id="libCardCode">220260003</div>
+          <div class="lib-card-label">MÃ THẺ</div>
+          <div class="lib-card-code" id="libCardCode">220260004</div>
         </div>
         <div class="lib-card-field-group">
-          <div class="lib-card-label">Há»Œ &amp; TÃŠN</div>
-          <div class="lib-card-name" id="libCardName">LUU TAN NIN</div>
+          <div class="lib-card-label">HỌ &amp; TÊN</div>
+          <div class="lib-card-name" id="libCardName">LƯU TẤN NIN</div>
         </div>
         <div class="lib-card-row">
           <div class="lib-card-field-group">
-            <div class="lib-card-label">Äá»I TÆ¯á»¢NG</div>
-            <div class="lib-card-val" id="libCardRole">Sinh viÃªn</div>
+            <div class="lib-card-label">ĐỐI TƯỢNG</div>
+            <div class="lib-card-val" id="libCardRole">Sinh viên</div>
           </div>
           <div class="lib-card-field-group text-right">
-            <div class="lib-card-label">Háº N Sá»¬ Dá»¤NG</div>
+            <div class="lib-card-label">HẠN SỬ DỤNG</div>
             <div class="lib-card-val" id="libCardExpire">28 / 02 / 2027</div>
           </div>
         </div>
@@ -349,9 +549,9 @@
             <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
             <rect x="6" y="14" width="12" height="8"/>
           </svg>
-          <span>In tháº»</span>
+          <span>In thẻ</span>
         </button>
-        <button type="button" class="btn-lib-card-close" id="btnExitLibraryCard">âœ• ÄÃ³ng</button>
+        <button type="button" class="btn-lib-card-close" id="btnExitLibraryCard">✕ Đóng</button>
       </div>
     </div>
   </div>

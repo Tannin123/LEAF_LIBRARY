@@ -89,6 +89,7 @@
           <div class="subtabs-list">
             <button type="button" class="subtab-item active" data-tab="tabBookTitles">Danh mục đầu sách</button>
             <button type="button" class="subtab-item" data-tab="tabBookCopies">Danh sách cuốn sách</button>
+            <button type="button" class="subtab-item" data-tab="tabCategories">Danh mục tài liệu</button>
             <button type="button" class="subtab-item" data-tab="tabImportBooks">Nhập sách mới</button>
             <button type="button" class="subtab-item" data-tab="tabSuppliers" style="display: none;">Đối tác cung cấp</button>
             <button type="button" class="subtab-item" data-tab="tabSuggestions">Xử lý đề xuất sách</button>
@@ -159,8 +160,25 @@
                 <select id="filterPhysicalStatus">
                   <option value="all">Tình trạng vật lý</option>
                   <option value="TỐT">Tốt</option>
-                  <option value="RÁCH NÁT">Rách nát</option>
                   <option value="SỜN GÁY SÁCH">Sờn gáy sách</option>
+                  <option value="RÁCH NÁT">Rách nát</option>
+                  <option value="HƯ HỎNG">Hư hỏng</option>
+                  <option value="MẤT">Mất</option>
+                </select>
+                <span class="filter-arrow">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </div>
+
+              <div class="filter-box">
+                <select id="filterCirculationStatus">
+                  <option value="all">Trạng thái lưu thông</option>
+                  <option value="SẴN SÀNG">Sẵn sàng</option>
+                  <option value="ĐANG MƯỢN">Đang mượn</option>
+                  <option value="GIỮ CHỜ NGƯỜI CHỜ">Giữ cho người chờ</option>
+                  <option value="HƯ HỎNG">Hư hỏng</option>
+                  <option value="MẤT">Mất</option>
+                  <option value="ĐÃ THANH LÝ">Đã thanh lý</option>
                 </select>
                 <span class="filter-arrow">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -285,6 +303,33 @@
           <div class="pagination-wrapper" id="supPagination"></div>
         </div>
 
+        <div class="tab-content-panel" id="tabCategories">
+          <div class="toolbar-container">
+            <div class="toolbar-left-group">
+              <div class="search-box book-search">
+                <input type="text" id="searchCategoryInput" class="book-search" placeholder="Tìm theo mã danh mục hoặc tên danh mục...">
+                <span class="search-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </span>
+              </div>
+            </div>
+            <button type="button" class="btn-add btn-add-book" id="btnAddCategory">
+              <span>Thêm danh mục</span>
+              <span style="font-size: 16px; font-weight: 600;">+</span>
+            </button>
+          </div>
+          <div class="table-responsive">
+            <div class="supplier-table-header" style="grid-template-columns: 160px 1fr 180px 160px;">
+              <div>Mã danh mục</div>
+              <div>Tên danh mục tài liệu</div>
+              <div style="text-align: center;">Số đầu sách</div>
+              <div style="text-align: center;">Hành động</div>
+            </div>
+            <div class="table-frame" id="categoriesTableContent"></div>
+          </div>
+          <div class="pagination-wrapper" id="catPagination"></div>
+        </div>
+
         <div class="tab-content-panel" id="tabSuggestions">
           <div class="toolbar-container">
             <div class="toolbar-left-group">
@@ -370,7 +415,7 @@
 
             <div class="modal-id-group">
               <div class="modal-book-code-label">Mã đầu sách</div>
-              <div class="modal-book-code-val" id="btCodeDisplay">DSIT0001</div>
+              <div class="modal-book-code-val" id="btCodeDisplay">DS001</div>
               <div class="modal-book-code-label">Năm xuất bản</div>
               <div class="modal-book-code-val" id="btPublishYearDisplay">2021</div>
             </div>
@@ -403,8 +448,8 @@
               <div class="dual-fields-container">
                 <input type="text" class="form-input-text" id="btDepartment" placeholder="Khoa / Ngành..." style="flex: 1; min-width: 0;">
                 <div class="sub-field-group flex-fixed-field">
-                  <span class="form-sub-label">Số lượng tổng</span>
-                  <input type="text" class="form-input-text input-short-num" id="btQuantity" placeholder="0">
+                  <span class="form-sub-label">Tổng bản sao</span>
+                  <input type="text" class="form-input-text input-short-num" id="btQuantity" placeholder="0" readonly style="background: #F1F5F9; color: #64748B; cursor: not-allowed;" title="Tổng bản sao được đồng bộ từ danh sách cuốn sách / phiếu nhập kho">
                 </div>
               </div>
             </div>
@@ -445,7 +490,7 @@
       </div>
       <div class="modal-body">
         <div class="confirm-text-message">
-          Bạn có chắc chắn muốn xóa đầu sách <strong id="deleteBookTitleCode">DSIT0001</strong> - <strong id="deleteBookTitleName">MANAGING INFORMATION TECHNOLOGY</strong> khỏi danh mục kho sách không?<br>
+          Bạn có chắc chắn muốn xóa đầu sách <strong id="deleteBookTitleCode">DS001</strong> - <strong id="deleteBookTitleName">Clean Code: A Handbook of Agile Software Craftsmanship</strong> khỏi danh mục kho sách không?<br>
           <span style="color: #B91C1C; font-size: 12.5px;">Lưu ý: Không thể xóa đầu sách nếu đang có bản sao được độc giả mượn.</span>
         </div>
         <div class="confirm-buttons-row">
@@ -496,7 +541,7 @@
 
             <div class="modal-id-group">
               <div class="modal-book-code-label">Mã cá biệt</div>
-              <div class="modal-book-code-val" id="bcCodeDisplay">DSIT0001-01</div>
+              <div class="modal-book-code-val" id="bcCodeDisplay">CS001</div>
             </div>
           </div>
 
@@ -504,7 +549,7 @@
             <div class="modal-section-title">Phần thông tin cuốn sách</div>
             <div class="form-grid-row" style="grid-template-columns: 110px 1fr;">
               <label class="form-field-label">Mã cuốn sách</label>
-              <input type="text" class="form-input-text" id="bcIdInput" placeholder="DSIT0001-01">
+              <input type="text" class="form-input-text" id="bcIdInput" placeholder="CS001">
             </div>
             <div class="form-grid-row" style="grid-template-columns: 110px 1fr;">
               <label class="form-field-label">Tên cuốn sách</label>
@@ -523,19 +568,25 @@
           <div class="modal-card-col-side">
             <div class="modal-section-title">Tình trạng &amp; lưu thông</div>
             <div class="form-grid-row" style="grid-template-columns: 135px 1fr;">
-              <label class="form-field-label">Tình trạng</label>
+              <label class="form-field-label" for="bcPhysicalInput">Tình trạng</label>
               <select class="form-select-control" id="bcPhysicalInput">
                 <option value="TỐT">TỐT</option>
                 <option value="SỜN GÁY SÁCH">SỜN GÁY SÁCH</option>
                 <option value="RÁCH NÁT">RÁCH NÁT</option>
+                <option value="HƯ HỎNG">HƯ HỎNG</option>
+                <option value="MẤT">MẤT</option>
               </select>
             </div>
             <div class="form-grid-row" style="grid-template-columns: 135px 1fr;">
-              <label class="form-field-label">Trạng thái lưu thông</label>
+              <label class="form-field-label" for="bcCirculationInput">Trạng thái lưu thông</label>
               <select class="form-select-control" id="bcCirculationInput">
                 <option value="SẴN SÀNG">SẴN SÀNG</option>
-                <option value="KHÓA">KHÓA</option>
                 <option value="ĐANG MƯỢN">ĐANG MƯỢN</option>
+                <option value="GIỮ CHỜ NGƯỜI CHỜ">GIỮ CHỜ NGƯỜI CHỜ</option>
+                <option value="HƯ HỎNG">HƯ HỎNG</option>
+                <option value="MẤT">MẤT</option>
+                <option value="ĐÃ THANH LÝ">ĐÃ THANH LÝ</option>
+                <option value="KHÓA">KHÓA</option>
               </select>
             </div>
             <div class="form-grid-row" style="grid-template-columns: 135px 1fr;">
@@ -561,7 +612,7 @@
       </div>
       <div class="modal-body">
         <div class="confirm-text-message">
-          Bạn có chắc chắn muốn xóa bản sao cuốn sách có mã cá biệt <strong id="deleteBookCopyCode">DSIT0001-01</strong> khỏi kho lưu trữ không?
+          Bạn có chắc chắn muốn xóa bản sao cuốn sách có mã cá biệt <strong id="deleteBookCopyCode">CS001</strong> khỏi kho lưu trữ không?
         </div>
         <div class="confirm-buttons-row">
           <button type="button" class="btn-action-gray" data-close="modalDeleteBookCopy">HỦY BỎ</button>
@@ -764,7 +815,7 @@
             </div>
             <div class="supplier-field-block">
               <label class="supplier-label-italic">Người lập phiếu</label>
-              <input type="text" class="form-input-text" id="impNewCreatorInput" value="Trần Giang Tuấn Kiệt">
+              <input type="text" class="form-input-text" id="impNewCreatorInput" placeholder="Tên nhân viên lập phiếu">
             </div>
           </div>
 
@@ -789,8 +840,16 @@
           </div>
 
           <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px;">
-            <div style="font-size: 14px; font-weight: 700; color: var(--primary-navy);">
-              Tổng cộng thanh toán: <span id="impNewTotalDisplay">750.000 đ</span>
+            <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+              <div style="font-size: 14px; font-weight: 700; color: var(--primary-navy);">
+                Tổng cộng thanh toán: <span id="impNewTotalDisplay">750.000 đ</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <label class="supplier-label-italic" for="impNewStatusSelect" style="margin: 0;">Trạng thái khởi tạo:</label>
+                <select class="form-select-control" id="impNewStatusSelect" style="width: 170px; height: 34px; background: #F1F5F9;" disabled>
+                  <option value="CHỜ XÁC NHẬN" selected>Chờ xác nhận</option>
+                </select>
+              </div>
             </div>
             <div style="display: flex; gap: 12px;">
               <button type="button" class="btn-action-gray" data-close="modalCreateImport" style="width: 120px;">THOÁT</button>
@@ -916,6 +975,51 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
             <span>XÁC NHẬN IN</span>
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DANH MỤC TÀI LIỆU (UC04 - Seq 2.4) -->
+  <div class="modal-overlay" id="modalCategory">
+    <div class="modal-box modal-box-sm" style="max-width: 440px;">
+      <div class="modal-header">
+        <div class="modal-title" id="modalCategoryHeader">THÊM DANH MỤC TÀI LIỆU</div>
+        <button type="button" class="modal-close-btn" data-close="modalCategory">✕</button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+        <div class="form-grid-row" style="grid-template-columns: 120px 1fr;">
+          <label class="form-field-label" for="catIdInput">Mã danh mục *</label>
+          <input type="text" class="form-input-text" id="catIdInput" placeholder="VD: DM08">
+        </div>
+        <div class="form-grid-row" style="grid-template-columns: 120px 1fr;">
+          <label class="form-field-label" for="catNameInput">Tên danh mục *</label>
+          <input type="text" class="form-input-text" id="catNameInput" placeholder="VD: Trí tuệ nhân tạo">
+        </div>
+        <div class="confirm-buttons-row" style="margin-top: 8px;">
+          <button type="button" class="btn-action-gray" data-close="modalCategory">HỦY BỎ</button>
+          <button type="button" class="btn-action-blue" id="btnSaveCategory">LƯU DANH MỤC</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL TỪ CHỐI ĐỀ XUẤT KÈM LÝ DO (UC07 - Seq 2.7.3) -->
+  <div class="modal-overlay" id="modalRejectSuggestion">
+    <div class="modal-box modal-box-sm" style="max-width: 460px;">
+      <div class="modal-header">
+        <div class="modal-title">TỪ CHỐI ĐỀ XUẤT MUA SÁCH</div>
+        <button type="button" class="modal-close-btn" data-close="modalRejectSuggestion">✕</button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+        <p style="margin: 0; font-size: 13.5px; color: #475569;">Đề xuất: <strong id="rejectSuggestionTitleDisplay">—</strong></p>
+        <div>
+          <label class="form-field-label" for="rejectSuggestionReason" style="display: block; margin-bottom: 6px;">Lý do từ chối *</label>
+          <textarea class="loan-textarea" id="rejectSuggestionReason" placeholder="Nhập lý do từ chối đề xuất (VD: Đã có tài liệu tương đương trong kho / Chưa phù hợp ngân sách)..." style="width: 100%; min-height: 84px;"></textarea>
+        </div>
+        <div class="confirm-buttons-row" style="margin-top: 6px;">
+          <button type="button" class="btn-action-gray" data-close="modalRejectSuggestion">HỦY BỎ</button>
+          <button type="button" class="btn-action-blue" id="btnConfirmRejectSuggestion" style="background: #DC2626;">XÁC NHẬN TỪ CHỐI</button>
         </div>
       </div>
     </div>

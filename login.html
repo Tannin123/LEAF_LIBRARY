@@ -19,35 +19,41 @@
                 <div class="logo-icon">
                     <img class="logo-img" src="assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false">
                  </div>
+                <div class="subtitle">Hệ thống Quản lý Thư viện</div>
             </div>
             
             <div class="input-group">
-                <label>Tên người dùng</label>
+                <label for="demo-login-email">Tên đăng nhập, Email hoặc SĐT</label>
                 <div class="input-wrapper">
-                    <i class="fa-regular fa-envelope left-icon"></i>
-                    <input type="text" id="demo-login-email" placeholder="example123@gmail.com">
+                    <i class="fa-regular fa-user left-icon" aria-hidden="true"></i>
+                    <input type="text" id="demo-login-email" autocomplete="username" placeholder="Ví dụ: tannin hoặc email@gmail.com">
                 </div>
+                <div id="err-login-username" class="field-error" role="alert"></div>
             </div>
             
             <div class="input-group">
-                <label>Mật khẩu</label>
+                <label for="demo-login-pwd">Mật khẩu</label>
                 <div class="input-wrapper">
-                    <i class="fa-solid fa-lock left-icon"></i>
-                    <input type="password" id="demo-login-pwd" placeholder="••••••••">
-                    <i class="fa-regular fa-eye right-icon" onclick="togglePassword(this)"></i>
+                    <i class="fa-solid fa-lock left-icon" aria-hidden="true"></i>
+                    <input type="password" id="demo-login-pwd" autocomplete="current-password" placeholder="Nhập mật khẩu...">
+                    <button type="button" class="password-toggle-btn" aria-label="Hiển thị hoặc ẩn mật khẩu" onclick="togglePassword(this)">
+                        <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                    </button>
                 </div>
+                <div id="err-login-pwd" class="field-error" role="alert"></div>
             </div>
             
             <div class="actions-row">
-                <a href="#" onclick="switchForm('form-phone')">Quên mật khẩu?</a>
+                <a href="#" onclick="switchForm('form-phone'); return false;">Quên mật khẩu?</a>
             </div>
 
-            <div id="login-error" class="error-msg"></div>
+            <div id="login-success" class="success-msg" role="status" aria-live="polite"></div>
+            <div id="login-error" class="error-msg" role="alert"></div>
 
-            <button type="button" class="btn btn-primary" onclick="handleLogin()">Đăng nhập</button>
+            <button type="button" id="btn-login-submit" class="btn btn-primary" onclick="handleLogin()">Đăng nhập</button>
             
             <div class="bottom-links">
-                Chưa có tài khoản? <a href="#" onclick="switchForm('form-register')">Đăng ký ngay</a>
+                Chưa có tài khoản? <a href="#" onclick="switchForm('form-register'); return false;">Đăng ký ngay</a>
             </div>
         </div>
 
@@ -56,53 +62,68 @@
                 <div class="logo-icon">
                     <img class="logo-img" src="assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false">
                 </div>
-                <div class="subtitle">Đăng ký tài khoản mới</div>
+                <div class="subtitle">Đăng ký tài khoản bạn đọc</div>
             </div>
             
             <div class="input-group">
-                <label>Họ và tên</label>
+                <label for="reg-name">Họ và tên <span aria-hidden="true">*</span></label>
                 <div class="input-wrapper">
-                    <i class="fa-regular fa-user left-icon"></i>
-                    <input type="text" id="reg-name" placeholder="Nguyễn Văn A">
+                    <i class="fa-regular fa-user left-icon" aria-hidden="true"></i>
+                    <input type="text" id="reg-name" autocomplete="name" placeholder="Nguyễn Văn A">
                 </div>
-                <div id="err-reg-name" class="field-error"></div>
+                <div id="err-reg-name" class="field-error" role="alert"></div>
             </div>
             
             <div class="input-group">
-                <label>Số điện thoại</label>
+                <label for="reg-phone">Số điện thoại <span aria-hidden="true">*</span></label>
                 <div class="input-wrapper">
-                    <i class="fa-solid fa-phone left-icon"></i>
-                    <input type="text" id="reg-phone" placeholder="0912 345 678">
+                    <i class="fa-solid fa-phone left-icon" aria-hidden="true"></i>
+                    <input type="tel" id="reg-phone" autocomplete="tel" placeholder="0912345678 (10 chữ số)">
                 </div>
-                <div id="err-reg-phone" class="field-error"></div>
+                <div id="err-reg-phone" class="field-error" role="alert"></div>
             </div>
 
             <div class="input-group">
-                <label>Mã nhân viên hoặc Email</label>
+                <label for="reg-cccd">Số CCCD / CMND (tùy chọn)</label>
                 <div class="input-wrapper">
-                    <i class="fa-regular fa-envelope left-icon"></i>
-                    <input type="text" id="reg-email" placeholder="nhanvien@leaflibrary.vn">
+                    <i class="fa-regular fa-id-card left-icon" aria-hidden="true"></i>
+                    <input type="text" id="reg-cccd" placeholder="9 hoặc 12 chữ số">
                 </div>
-                <div id="err-reg-email" class="field-error"></div>
+                <div id="err-reg-cccd" class="field-error" role="alert"></div>
             </div>
 
             <div class="input-group">
-                <label>Mật khẩu</label>
+                <label for="reg-email">Tên đăng nhập hoặc Email <span aria-hidden="true">*</span></label>
                 <div class="input-wrapper">
-                    <i class="fa-solid fa-lock left-icon"></i>
-                    <input type="password" id="reg-pwd" placeholder="At least 8 characters">
-                    <i class="fa-regular fa-eye right-icon" onclick="togglePassword(this)"></i>
+                    <i class="fa-regular fa-envelope left-icon" aria-hidden="true"></i>
+                    <input type="text" id="reg-email" autocomplete="username" placeholder="bandoc@leaflibrary.vn">
                 </div>
-                <div id="err-reg-pwd" class="field-error"></div>
+                <div class="field-hint">Tài khoản đăng ký mới được cấp quyền Bạn đọc (Sinh viên) theo quy định thư viện.</div>
+                <div id="err-reg-email" class="field-error" role="alert"></div>
             </div>
 
             <div class="input-group">
-                <label>Xác nhận mật khẩu</label>
+                <label for="reg-pwd">Mật khẩu <span aria-hidden="true">*</span></label>
                 <div class="input-wrapper">
-                    <i class="fa-solid fa-lock left-icon"></i>
-                    <input type="password" id="reg-pwd-confirm" placeholder="Nhập lại mật khẩu">
+                    <i class="fa-solid fa-lock left-icon" aria-hidden="true"></i>
+                    <input type="password" id="reg-pwd" autocomplete="new-password" placeholder="Tối thiểu 8 ký tự">
+                    <button type="button" class="password-toggle-btn" aria-label="Hiển thị hoặc ẩn mật khẩu" onclick="togglePassword(this)">
+                        <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                    </button>
                 </div>
-                <div id="err-reg-pwd-confirm" class="field-error"></div>
+                <div id="err-reg-pwd" class="field-error" role="alert"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="reg-pwd-confirm">Xác nhận mật khẩu <span aria-hidden="true">*</span></label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock left-icon" aria-hidden="true"></i>
+                    <input type="password" id="reg-pwd-confirm" autocomplete="new-password" placeholder="Nhập lại mật khẩu">
+                    <button type="button" class="password-toggle-btn" aria-label="Hiển thị hoặc ẩn mật khẩu xác nhận" onclick="togglePassword(this)">
+                        <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div id="err-reg-pwd-confirm" class="field-error" role="alert"></div>
             </div>
             
             <div class="actions-row reg-terms" style="margin-bottom: 15px;">
@@ -112,12 +133,12 @@
                 </label>
             </div>
             
-            <div id="register-error" class="error-msg"></div>
+            <div id="register-error" class="error-msg" role="alert"></div>
             
-            <button type="button" class="btn btn-primary" onclick="validateRegister()">Đăng ký tài khoản</button>
+            <button type="button" id="btn-register-submit" class="btn btn-primary" onclick="validateRegister()">Đăng ký tài khoản</button>
             
             <div class="bottom-links" style="margin-bottom: 0;">
-                <a href="#" onclick="switchForm('form-login'); document.getElementById('register-error').style.display = 'none'; clearFieldErrors();">← Quay lại Đăng nhập</a>
+                <a href="#" onclick="switchForm('form-login'); return false;">← Quay lại Đăng nhập</a>
             </div>
         </div>
 
@@ -126,23 +147,24 @@
                 <div class="logo-icon">
                     <img class="logo-img" src="assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false">
                  </div>
+                <div class="subtitle">Khôi phục mật khẩu</div>
             </div>
 
-            <p class="description">Vui lòng nhập số điện thoại của bạn để lấy mã<br>OTP</p>
+            <p class="description">Vui lòng nhập số điện thoại đã đăng ký để nhận mã xác thực OTP qua SMS.</p>
             
             <div class="input-group">
-                <label>Nhập số điện thoại</label>
+                <label for="forgot-phone">Số điện thoại</label>
                 <div class="input-wrapper">
-                    <i class="fa-solid fa-phone left-icon"></i>
-                    <input type="text" id="forgot-phone" placeholder="0987654389">
+                    <i class="fa-solid fa-phone left-icon" aria-hidden="true"></i>
+                    <input type="tel" id="forgot-phone" autocomplete="tel" placeholder="0987654389 (10 chữ số)">
                 </div>
-                <div id="err-forgot-phone" class="field-error"></div>
+                <div id="err-forgot-phone" class="field-error" role="alert"></div>
             </div>
             
-            <button type="button" class="btn btn-primary" style="margin-top: 10px;" onclick="goToOTP()">Tiếp tục</button>
+            <button type="button" id="btn-forgot-submit" class="btn btn-primary" style="margin-top: 10px;" onclick="goToOTP()">Tiếp tục</button>
             
             <div class="bottom-links" style="margin-bottom: 0;">
-                <a href="#" onclick="switchForm('form-login')">← Quay lại Đăng nhập</a>
+                <a href="#" onclick="switchForm('form-login'); return false;">← Quay lại Đăng nhập</a>
             </div>
         </div>
 
@@ -151,34 +173,33 @@
                 <div class="logo-icon">
                     <img class="logo-img" src="assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false">
                 </div>
+                <div class="subtitle">Xác thực mã OTP</div>
             </div>
 
             <p class="description" style="margin-bottom: 25px;">
-                Vui lòng nhập mã OTP đã được gửi về số điện thoại <br>
-                <span class="highlight" id="display-phone">09******89</span>. Mã sẽ hết hiệu lực sau <span class="highlight" id="countdown-timer">101 giây</span>
+                Vui lòng nhập mã OTP gồm 6 chữ số đã được gửi về số điện thoại <br>
+                <span class="highlight" id="display-phone">09******89</span>. Mã sẽ hết hiệu lực sau <span class="highlight" id="countdown-timer">300 giây</span>
             </p>
             
             <div class="input-group" style="text-align: center;">
                 <label style="text-align: left;">Nhập mã OTP</label>
                 <div class="otp-container">
-                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
-                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
-                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
-                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
-                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
-                    <input type="text" class="otp-box" maxlength="1" onkeyup="moveOtpFocus(this, event)">
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-box" maxlength="1" aria-label="Chữ số OTP thứ 1" onkeyup="moveOtpFocus(this, event)">
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-box" maxlength="1" aria-label="Chữ số OTP thứ 2" onkeyup="moveOtpFocus(this, event)">
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-box" maxlength="1" aria-label="Chữ số OTP thứ 3" onkeyup="moveOtpFocus(this, event)">
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-box" maxlength="1" aria-label="Chữ số OTP thứ 4" onkeyup="moveOtpFocus(this, event)">
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-box" maxlength="1" aria-label="Chữ số OTP thứ 5" onkeyup="moveOtpFocus(this, event)">
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-box" maxlength="1" aria-label="Chữ số OTP thứ 6" onkeyup="moveOtpFocus(this, event)">
                 </div>
             </div>
             
+            <div id="otp-error" class="error-msg" role="alert"></div>
+
             <button type="button" class="btn btn-primary" onclick="continuePasswordReset()">Tiếp tục</button>
-            <button type="button" class="btn btn-secondary" onclick="cancelOTP()">Hủy</button>
+            <button type="button" class="btn btn-secondary" onclick="cancelOTP()">Quay lại</button>
             
-            <div class="bottom-links">
-                Chưa nhận được mã? <a href="#" onclick="resendPasswordResetCode()" style="color: #6b7280; text-decoration: underline;">Gửi lại</a>
-            </div>
-
-            <div id="otp-error" class="error-msg"></div>
-
+            <div class="bottom-links" style="margin-bottom: 0;">
+                Chưa nhận được mã? <a href="#" onclick="resendPasswordResetCode(); return false;" style="color: var(--primary-navy); text-decoration: underline;">Gửi lại mã</a>
             </div>
         </div>
 
@@ -187,29 +208,37 @@
                 <div class="logo-icon">
                     <img class="logo-img" src="assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false">
                 </div>
+                <div class="subtitle">Đặt lại mật khẩu mới</div>
             </div>
             
             <div class="input-group">
-                <label>New password</label>
+                <label for="demo-new-pwd">Mật khẩu mới <span aria-hidden="true">*</span></label>
                 <div class="input-wrapper">
-                    <i class="fa-solid fa-lock left-icon"></i>
-                    <input type="password" id="demo-new-pwd" placeholder="••••••••">
-                    <i class="fa-regular fa-eye right-icon" onclick="togglePassword(this)"></i>
+                    <i class="fa-solid fa-lock left-icon" aria-hidden="true"></i>
+                    <input type="password" id="demo-new-pwd" autocomplete="new-password" placeholder="Tối thiểu 8 ký tự">
+                    <button type="button" class="password-toggle-btn" aria-label="Hiển thị hoặc ẩn mật khẩu mới" onclick="togglePassword(this)">
+                        <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                    </button>
                 </div>
+                <div id="err-reset-pwd" class="field-error" role="alert"></div>
             </div>
             
             <div class="input-group">
-                <label>Confirm new password</label>
+                <label for="demo-confirm-new-pwd">Xác nhận mật khẩu mới <span aria-hidden="true">*</span></label>
                 <div class="input-wrapper">
-                    <i class="fa-solid fa-lock left-icon"></i>
-                    <input type="password" id="demo-confirm-new-pwd" placeholder="••••••••">
-                    <i class="fa-regular fa-eye right-icon" onclick="togglePassword(this)"></i>
+                    <i class="fa-solid fa-lock left-icon" aria-hidden="true"></i>
+                    <input type="password" id="demo-confirm-new-pwd" autocomplete="new-password" placeholder="Nhập lại mật khẩu mới">
+                    <button type="button" class="password-toggle-btn" aria-label="Hiển thị hoặc ẩn mật khẩu xác nhận" onclick="togglePassword(this)">
+                        <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                    </button>
                 </div>
+                <div id="err-reset-confirm" class="field-error" role="alert"></div>
             </div>
             
-            <button type="button" class="btn btn-primary" style="margin-top: 10px;" onclick="handlePasswordReset()">Cập nhật</button>
-            <div id="reset-error" class="error-msg"></div>
-            <button type="button" class="btn btn-secondary" onclick="switchForm('form-login')">Hủy</button>
+            <div id="reset-error" class="error-msg" role="alert"></div>
+
+            <button type="button" id="btn-reset-submit" class="btn btn-primary" style="margin-top: 10px;" onclick="handlePasswordReset()">Cập nhật mật khẩu</button>
+            <button type="button" class="btn btn-secondary" onclick="switchForm('form-login')">Hủy bỏ</button>
         </div>
 
     </div>

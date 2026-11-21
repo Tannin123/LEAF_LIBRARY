@@ -30,10 +30,10 @@ SELECT
   120000,
   seed.cover
 FROM (VALUES
-  ('SEED0001', 'Công nghệ thông tin', 'Clean Code: A Handbook of Agile Software Craftsmanship', 'Robert C. Martin', 'Lập trình', 'Phát triển phần mềm', 'Prentice Hall', '../assets/images/cleancode.webp'),
-  ('SEED0002', 'Toán học', 'Giáo trình Giải tích Tập 2', 'Trần Đức Long - ĐHQG HN', 'Giải tích', 'Toán học', 'Đại học Quốc gia Hà Nội', '../assets/images/giatich.webp'),
-  ('SEED0003', 'Triết học', 'Triết học', 'Edward Craig', 'Triết học', 'Triết học nhập môn', 'NXB Tri Thức', '../assets/images/triethoc.jpg'),
-  ('SEED0004', 'Lịch sử', 'Lịch sử Văn minh Thế giới', 'Đào Tuấn Thành (Chủ biên)', 'Lịch sử', 'Văn minh thế giới', 'NXB Đại học Sư phạm', '../assets/images/lichsuvanminhthegioi.jpg')
+  ('DS001', 'Công nghệ thông tin', 'Clean Code: A Handbook of Agile Software Craftsmanship', 'Robert C. Martin', 'Lập trình', 'Phát triển phần mềm', 'Prentice Hall', '../assets/images/cleancode.webp'),
+  ('DS002', 'Toán học', 'Giáo trình Giải tích Tập 2', 'Trần Đức Long - ĐHQG HN', 'Giải tích', 'Toán học', 'Đại học Quốc gia Hà Nội', '../assets/images/giatich.webp'),
+  ('DS003', 'Triết học', 'Triết học', 'Edward Craig', 'Triết học', 'Triết học nhập môn', 'NXB Tri Thức', '../assets/images/triethoc.jpg'),
+  ('DS004', 'Lịch sử', 'Lịch sử Văn minh Thế giới', 'Đào Tuấn Thành (Chủ biên)', 'Lịch sử', 'Văn minh thế giới', 'NXB Đại học Sư phạm', '../assets/images/lichsuvanminhthegioi.jpg')
 ) AS seed(id, category, title, author, genre, subject, publisher, cover)
 WHERE NOT EXISTS (
   SELECT 1 FROM dausach existing

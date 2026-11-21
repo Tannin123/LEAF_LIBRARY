@@ -131,17 +131,17 @@
         <!-- THANH CÔNG CỤ BỘ LỌC BÁO CÁO -->
         <div class="report-toolbar">
           <div class="filter-col">
-            <label class="date-filter-label">Từ ngày</label>
-            <input type="date" class="form-input-text date-filter-input">
+            <label class="date-filter-label" for="reportDateFrom">Từ ngày</label>
+            <input type="date" id="reportDateFrom" class="form-input-text date-filter-input">
           </div>
 
           <div class="filter-col">
-            <label class="date-filter-label">Đến ngày</label>
-            <input type="date" class="form-input-text date-filter-input">
+            <label class="date-filter-label" for="reportDateTo">Đến ngày</label>
+            <input type="date" id="reportDateTo" class="form-input-text date-filter-input">
           </div>
 
           <!-- Nút Lọc -->
-          <button type="button" class="btn-action-gray btn-report-action">
+          <button type="button" class="btn-action-gray btn-report-action" id="btnFilterReport">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
             </svg>
@@ -149,7 +149,7 @@
           </button>
 
           <!-- Nút Reset -->
-          <button type="button" class="btn-action-gray btn-report-action">
+          <button type="button" class="btn-action-gray btn-report-action" id="btnResetReport">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="1 4 1 10 7 10" />
               <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
@@ -158,13 +158,13 @@
           </button>
 
           <!-- Nút Xuất Excel -->
-          <button type="button" class="btn-action-gray btn-report-action btn-excel">
+          <button type="button" class="btn-action-gray btn-report-action btn-excel" id="btnExportReport">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
               <line x1="3" y1="9" x2="21" y2="9" />
               <line x1="9" y1="21" x2="9" y2="9" />
             </svg>
-            Xuất Excel
+            Xuất CSV / Excel
           </button>
         </div>
 
@@ -172,22 +172,22 @@
         <div class="tab-content-panel active" id="tabReportBook">
           <div class="report-overview-grid">
             <div class="report-stats-list">
-              <div class="report-stats-row"><span class="report-stats-label">Tổng số sách</span> <span
-                  class="report-stats-value">--</span></div>
-              <div class="report-stats-row"><span class="report-stats-label">Số sách còn trong kho</span> <span
-                  class="report-stats-value">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Tổng số bản sao</span> <span
+                  class="report-stats-value" id="repBookTotal">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Số sách sẵn sàng trong kho</span> <span
+                  class="report-stats-value" id="repBookAvail">--</span></div>
               <div class="report-stats-row"><span class="report-stats-label">Số sách đang được mượn</span> <span
-                  class="report-stats-value">--</span></div>
-              <div class="report-stats-row"><span class="report-stats-label">Sách hỏng / mất</span> <span
-                  class="report-stats-value">--</span></div>
+                  class="report-stats-value" id="repBookBorrowed">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Sách hỏng / mất / khóa</span> <span
+                  class="report-stats-value" id="repBookDamaged">--</span></div>
               <div class="report-stats-row"><span class="report-stats-label">Sách mượn nhiều nhất</span> <span
-                  class="report-stats-value" style="font-style: italic;">---</span></div>
+                  class="report-stats-value" id="repBookTop" style="font-style: italic;">---</span></div>
             </div>
-            <div class="report-chart-placeholder">
-              [Biểu đồ thống kê thể loại sách - Chờ dữ liệu từ hệ thống]
+            <div class="report-chart-placeholder" id="repBookChartLegend">
+              Đang tổng hợp thống kê sách...
             </div>
             <div class="report-pie-container">
-              <div class="report-pie-chart"
+              <div class="report-pie-chart" id="repBookPieChart"
                 style="background: conic-gradient(#3b82f6 0deg 270deg, #94a3b8 270deg 360deg);">
                 <div class="report-pie-inner"></div>
               </div>
@@ -207,10 +207,10 @@
                   <th class="table-header-cell" style="text-align: center;">Số lượt mượn</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="repBookTableBody">
                 <tr>
                   <td colspan="7" class="report-empty-cell">
-                    Chưa có dữ liệu thống kê. Vui lòng chọn khoảng thời gian và bấm Lọc.
+                    Đang tải dữ liệu thống kê sách...
                   </td>
                 </tr>
               </tbody>
@@ -224,21 +224,21 @@
           <div class="report-overview-grid">
             <div class="report-stats-list">
               <div class="report-stats-row"><span class="report-stats-label">Tổng số độc giả</span> <span
-                  class="report-stats-value">--</span></div>
-              <div class="report-stats-row"><span class="report-stats-label">Độc giả mới</span> <span
-                  class="report-stats-value">--</span></div>
-              <div class="report-stats-row"><span class="report-stats-label">Độc giả bị khóa</span> <span
-                  class="report-stats-value">--</span></div>
-              <div class="report-stats-row"><span class="report-stats-label">Độc giả mượn sách</span> <span
-                  class="report-stats-value">--</span></div>
+                  class="report-stats-value" id="repReaderTotal">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Độc giả đang hoạt động</span> <span
+                  class="report-stats-value" id="repReaderActive">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Độc giả bị khóa / hết hạn</span> <span
+                  class="report-stats-value" id="repReaderLocked">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Độc giả có lượt mượn</span> <span
+                  class="report-stats-value" id="repReaderBorrowing">--</span></div>
               <div class="report-stats-row"><span class="report-stats-label">Mượn nhiều nhất</span> <span
-                  class="report-stats-value" style="font-style: italic;">---</span></div>
+                  class="report-stats-value" id="repReaderTop" style="font-style: italic;">---</span></div>
             </div>
-            <div class="report-chart-placeholder">
-              [Biểu đồ phân loại độc giả - Chờ dữ liệu từ hệ thống]
+            <div class="report-chart-placeholder" id="repReaderChartLegend">
+              Đang tổng hợp thống kê độc giả...
             </div>
             <div class="report-pie-container">
-              <div class="report-pie-chart"
+              <div class="report-pie-chart" id="repReaderPieChart"
                 style="background: conic-gradient(#10b981 0deg 200deg, #f59e0b 200deg 360deg);">
                 <div class="report-pie-inner"></div>
               </div>
@@ -257,10 +257,10 @@
                   <th class="table-header-cell" style="text-align: center;">Trạng thái</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="repReaderTableBody">
                 <tr>
                   <td colspan="6" class="report-empty-cell">
-                    Chưa có dữ liệu thống kê độc giả.
+                    Đang tải dữ liệu thống kê độc giả...
                   </td>
                 </tr>
               </tbody>
@@ -274,21 +274,21 @@
           <div class="report-overview-grid">
             <div class="report-stats-list">
               <div class="report-stats-row"><span class="report-stats-label">Tổng số phiếu mượn</span> <span
-                  class="report-stats-value">--</span></div>
-              <div class="report-stats-row"><span class="report-stats-label">Số phiếu trong kỳ</span> <span
-                  class="report-stats-value">--</span></div>
-              <div class="report-stats-row"><span class="report-stats-label">Số lượt mượn trong kỳ</span> <span
-                  class="report-stats-value">--</span></div>
-              <div class="report-stats-row"><span class="report-stats-label">Sách phiếu quá hạn</span> <span
-                  class="report-stats-value">--</span></div>
-              <div class="report-stats-row"><span class="report-stats-label">Tỷ lệ trả đúng hạn</span> <span
-                  class="report-stats-value">--%</span></div>
+                  class="report-stats-value" id="repLoanTotal">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Số phiếu đang mượn</span> <span
+                  class="report-stats-value" id="repLoanBorrowing">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Số phiếu đã trả</span> <span
+                  class="report-stats-value" id="repLoanReturned">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Số phiếu quá hạn</span> <span
+                  class="report-stats-value" id="repLoanOverdue">--</span></div>
+              <div class="report-stats-row"><span class="report-stats-label">Tỷ lệ hoàn trả đúng hạn</span> <span
+                  class="report-stats-value" id="repLoanOnTimeRate">--%</span></div>
             </div>
-            <div class="report-chart-placeholder">
-              [Biểu đồ biến động mượn trả theo tháng - Chờ dữ liệu]
+            <div class="report-chart-placeholder" id="repLoanChartLegend">
+              Đang tổng hợp thống kê mượn trả...
             </div>
             <div class="report-pie-container">
-              <div class="report-pie-chart"
+              <div class="report-pie-chart" id="repLoanPieChart"
                 style="background: conic-gradient(#6366f1 0deg 310deg, #ef4444 310deg 360deg);">
                 <div class="report-pie-inner"></div>
               </div>
@@ -300,17 +300,17 @@
               <thead>
                 <tr style="border-bottom: 2px solid var(--border-color);">
                   <th class="table-header-cell" style="text-align: center; width: 60px;">STT</th>
-                  <th class="table-header-cell">Thời gian</th>
+                  <th class="table-header-cell">Thời gian (Tháng/Năm)</th>
                   <th class="table-header-cell" style="text-align: center;">Lượt mượn</th>
-                  <th class="table-header-cell" style="text-align: center;">Lượt trả</th>
+                  <th class="table-header-cell" style="text-align: center;">Đã trả</th>
                   <th class="table-header-cell" style="text-align: center;">Chưa trả</th>
                   <th class="table-header-cell" style="text-align: center;">Quá hạn</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="repLoanTableBody">
                 <tr>
                   <td colspan="6" class="report-empty-cell">
-                    Chưa có dữ liệu thống kê mượn trả.
+                    Đang tải dữ liệu thống kê mượn trả...
                   </td>
                 </tr>
               </tbody>

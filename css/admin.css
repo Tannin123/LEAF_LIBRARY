@@ -104,12 +104,13 @@
   color: #1D5D86;
 }
 
-.greeting-name {
-  font-family: 'Inter', sans-serif;
-  font-style: normal;
+.greeting-name,
+#headerGreetingName {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
   font-weight: 600;
-  font-size: 16px;
-  color: var(--text-main);
+  font-size: 20px;
+  color: #1D5D86;
 }
 
 .header-user {
@@ -3624,7 +3625,7 @@ td {
   align-items: flex-end;
   gap: 12px;
   margin: 20px 0;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
 /* Chuẩn hóa tất cả các nút chức năng trong thanh công cụ báo cáo sang màu trắng đồng bộ */
@@ -3715,4 +3716,44 @@ td {
   padding: 30px;
   color: var(--text-muted);
   font-style: italic;
+}
+
+.report-legend-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  font-style: normal;
+  text-align: left;
+}
+
+.report-legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  color: #334155;
+}
+
+.report-legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .report-overview-grid {
+    grid-template-columns: 1fr;
+  }
+  .loan-modal-body {
+    grid-template-columns: 1fr;
+  }
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }

@@ -57,6 +57,32 @@ function verifyPassword(password: string, encoded: string): { valid: boolean; ne
 function normalizeStatus(status: unknown): string {
   return String(status ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 }
+function cleanPhoneDigits(input: unknown): string {
+  return String(input ?? '').replace(/[\s.-]/g, '').trim();
+}
+function isValidPhone(input: unknown): boolean {
+  const digits = cleanPhoneDigits(input);
+  return /^\d{10,11}$/.test(digits);
+}
+function isValidEmail(input: unknown): boolean {
+  const email = String(input ?? '').trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+function isValidCccd(input: unknown): boolean {
+  const cccd = String(input ?? '').trim();
+  return /^\d{9}$|^\d{12}$/.test(cccd);
+}
+function isValidCalendarDate(input: unknown): boolean {
+  const iso = dateValue(input);
+  if (!iso) return false;
+  const match = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return false;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  return parsed.getUTCFullYear() === year && parsed.getUTCMonth() === month - 1 && parsed.getUTCDate() === day;
+}
 async function resolveCategoryId(input: unknown): Promise<string | null> {
   const category = str(input)?.trim();
   if (!category) return null;
@@ -65,6 +91,56 @@ async function resolveCategoryId(input: unknown): Promise<string | null> {
   const id = `CAT${createHash('sha1').update(category.toLocaleLowerCase('vi')).digest('hex').slice(0, 12).toUpperCase()}`;
   await pool.query('INSERT INTO danhmuc (madanhmuc,tendanhmuc) VALUES ($1,$2) ON CONFLICT (madanhmuc) DO NOTHING', [id, category]);
   return id;
+}
+async function generateNextCode(
+  queryable: { query: (text: string, values?: unknown[]) => Promise<{ rows: Row[] }> },
+  table: string,
+  column: string,
+  prefix: string,
+  pad = 3
+): Promise<string> {
+  const res = await queryable.query(
+    `SELECT COALESCE(MAX(substring(${column} FROM $1)::int), 0) AS max_seq FROM ${table} WHERE ${column} ~ $2`,
+    [`^${prefix}([0-9]+)$`, `^${prefix}[0-9]+$`]
+  );
+  let nextNum = Number(res.rows[0]?.max_seq ?? 0) + 1;
+  let candidate = `${prefix}${String(nextNum).padStart(pad, '0')}`;
+  while (true) {
+    const dup = await queryable.query(`SELECT 1 FROM ${table} WHERE ${column}=$1 LIMIT 1`, [candidate]);
+    if (!dup.rows.length) return candidate;
+    nextNum += 1;
+    candidate = `${prefix}${String(nextNum).padStart(pad, '0')}`;
+  }
+}
+async function readerHasUnpaidFines(
+  queryable: { query: (text: string, values?: unknown[]) => Promise<{ rows: Row[]; rowCount: number | null }> },
+  readerId: string
+): Promise<boolean> {
+  const res = await queryable.query(
+    "SELECT COALESCE(b.tongnophat, 0) AS debt, EXISTS(SELECT 1 FROM phieuphat fp WHERE fp.mabandoc=$1 AND UPPER(COALESCE(fp.trangthaithanhtoan,'')) NOT LIKE '%ĐÃ THANH TOÁN%' AND UPPER(COALESCE(fp.trangthaithanhtoan,'')) NOT LIKE '%DA_THANH_TOAN%') AS has_unpaid FROM bandoc b WHERE b.mabandoc=$1",
+    [readerId]
+  );
+  return Number(res.rows[0]?.debt ?? 0) > 0 || Boolean(res.rows[0]?.has_unpaid);
+}
+async function releaseHeldCopyOrPromoteNextWaiter(
+  queryable: { query: (text: string, values?: unknown[]) => Promise<{ rows: Row[]; rowCount: number | null }> },
+  bookId: string
+): Promise<void> {
+  const heldCopy = await queryable.query(
+    "SELECT macuonsach FROM cuonsach WHERE madausach=$1 AND trangthai='GIỮ CHỜ NGƯỜI CHỜ' LIMIT 1 FOR UPDATE",
+    [bookId]
+  );
+  if (!heldCopy.rowCount) return;
+  const nextWaiter = await queryable.query(
+    "SELECT mabandoc FROM danhsachcho WHERE madausach=$1 AND UPPER(COALESCE(trangthai,'')) IN ('DANG CHO','DANG_CHO') ORDER BY thutu ASC, ngaydangky ASC LIMIT 1",
+    [bookId]
+  );
+  if (nextWaiter.rowCount) {
+    await queryable.query("UPDATE danhsachcho SET trangthai='SAN SANG' WHERE mabandoc=$1 AND madausach=$2", [nextWaiter.rows[0].mabandoc, bookId]);
+  } else {
+    await queryable.query("UPDATE cuonsach SET trangthai='SẴN SÀNG' WHERE macuonsach=$1", [heldCopy.rows[0].macuonsach]);
+    await queryable.query('UPDATE dausach SET soluongsan = COALESCE(soluongsan, 0) + 1 WHERE madausach=$1', [bookId]);
+  }
 }
 const routes: Record<Resource, { select: string; from: string; map: (row: Row) => Row; id: string }> = {
   readers: { id: 'mabandoc', from: 'bandoc b JOIN nguoidung u ON u.manguoidung = b.mabandoc JOIN taikhoan a ON a.tendangnhap = u.tendangnhap', select: 'b.mabandoc, u.hoten, u.email, u.sodienthoai, u.cccd, u.gioitinh, u.ngaysinh, u.diachi, u.anhdaidien, u.tendangnhap, b.loaibandoc, b.tongnophat, b.ngaycapthe, b.ngayhetthe, a.vaitro, a.trangthai', map: r => ({ id: str(r.mabandoc), name: str(r.hoten), fullName: str(r.hoten), email: str(r.email), phone: str(r.sodienthoai), cccd: str(r.cccd), username: str(r.tendangnhap), readerType: str(r.loaibandoc), outstandingFine: Number(r.tongnophat ?? 0), role: str(r.vaitro), status: str(r.trangthai), gender: str(r.gioitinh), dob: date(r.ngaysinh), address: str(r.diachi), issueDate: date(r.ngaycapthe), expiryDate: date(r.ngayhetthe), avatarUrl: str(r.anhdaidien) ?? '' }) },
@@ -83,7 +159,7 @@ const routes: Record<Resource, { select: string; from: string; map: (row: Row) =
   logs: { id: 'manhatky', from: 'ixs_nhatky', select: "manhatky, TO_CHAR(thoigian,'DD / MM / YYYY') AS ngay, TO_CHAR(thoigian,'HH24:MI:SS') AS gio, nguoidung, manguoidung, hanhdong, doituong, chitiet", map: r => ({ id: String(r.manhatky), date: str(r.ngay), time: str(r.gio), user: str(r.nguoidung), userId: str(r.manguoidung), action: str(r.hanhdong), target: str(r.doituong), detail: str(r.chitiet) }) },
   wishlist: { id: 'madausach', from: 'tusachcanhan', select: '*', map: r => ({ readerId: str(r.mabandoc), bookTitleId: str(r.madausach), id: str(r.madausach), addedAt: date(r.ngaythem) }) },
   waitingList: { id: 'madausach', from: 'danhsachcho', select: '*', map: r => ({ readerId: str(r.mabandoc), bookTitleId: str(r.madausach), id: str(r.madausach), registeredAt: date(r.ngaydangky), position: Number(r.thutu ?? 0), status: str(r.trangthai) }) },
-  suggestions: { id: 'id', from: 'ixs_reader_book_suggestions', select: '*', map: r => ({ id: str(r.id), readerId: str(r.reader_id), title: str(r.title), author: str(r.author), publisher: str(r.publisher) ?? '', year: r.publication_year ? String(r.publication_year) : '', quantity: r.requested_quantity ? `${r.requested_quantity} bản` : '—', requestedQuantity: Number(r.requested_quantity ?? 0), edition: str(r.edition) ?? '', isbn: str(r.isbn) ?? '', reason: str(r.reason) ?? '', coverUrl: str(r.cover_url) ?? '', status: str(r.status) ?? 'Chờ duyệt', submittedAt: date(r.submitted_at), type: 'Sách / giáo trình' }) }
+  suggestions: { id: 'id', from: 'ixs_reader_book_suggestions', select: '*', map: r => ({ id: str(r.id), readerId: str(r.reader_id), title: str(r.title), author: str(r.author), publisher: str(r.publisher) ?? '', year: r.publication_year ? String(r.publication_year) : '', quantity: r.requested_quantity ? `${r.requested_quantity} bản` : '—', requestedQuantity: Number(r.requested_quantity ?? 0), edition: str(r.edition) ?? '', isbn: str(r.isbn) ?? '', reason: str(r.reason) ?? '', rejectionReason: str(r.rejection_reason) ?? '', coverUrl: str(r.cover_url) ?? '', status: str(r.status) ?? 'Chờ duyệt', submittedAt: date(r.submitted_at), type: 'Sách / giáo trình' }) }
 };
 
 const resourceNames = Object.keys(routes) as Resource[];
@@ -99,58 +175,472 @@ app.post('/api/bookTitles/:id/reserve', async (req, res, next) => {
   const body = req.body as Row;
   const requestId = str(value(body, 'requestId'))?.trim();
   const readerId = str(value(body, 'readerId'))?.trim();
-  if (!requestId || !readerId) return res.status(400).json({ error: 'requestId and readerId are required' });
+  const preferredCopyId = str(value(body, 'copyId'))?.trim();
+  if (!requestId || !readerId) return res.status(400).json({ error: 'Mã yêu cầu và mã bạn đọc là bắt buộc.' });
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    const readerResult = await client.query(
+      `SELECT b.mabandoc, b.ngayhetthe, a.trangthai
+       FROM bandoc b
+       JOIN nguoidung u ON u.manguoidung = b.mabandoc
+       JOIN taikhoan a ON a.tendangnhap = u.tendangnhap
+       WHERE b.mabandoc = $1
+       LIMIT 1`,
+      [readerId]
+    );
+    if (!readerResult.rowCount) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Không tìm thấy hồ sơ bạn đọc trong hệ thống.' });
+    }
+    const readerRow = readerResult.rows[0];
+    const resolvedReaderId = String(readerRow.mabandoc);
+    const readerStatus = normalizeStatus(readerRow.trangthai);
+    if (['bi khoa', 'khoa', 'locked', 'het han', 'expired', 'disabled', 'inactive'].some(flag => readerStatus.includes(flag))) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'Thẻ bạn đọc đang bị khóa hoặc hết hạn, không thể đăng ký mượn sách.' });
+    }
+    if (readerRow.ngayhetthe && new Date(readerRow.ngayhetthe) < new Date(new Date().toISOString().slice(0, 10))) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'Thẻ bạn đọc đã hết hạn sử dụng. Vui lòng gia hạn thẻ tại quầy thư viện.' });
+    }
+
+    const activeBookLoan = await client.query(
+      `SELECT p.maphieumuon
+       FROM phieumuon p
+       JOIN cuonsach c ON c.macuonsach = p.macuonsach
+       WHERE p.mabandoc = $1 AND c.madausach = $2
+         AND LOWER(COALESCE(p.trangthai, '')) LIKE '%đang mượn%'
+       LIMIT 1`,
+      [resolvedReaderId, bookId]
+    );
+    if (activeBookLoan.rowCount) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'Bạn đang mượn một bản sao của đầu sách này rồi.' });
+    }
+
+    const rulesResult = await client.query("SELECT giatri FROM ixs_cauhinh WHERE macauhinh='library_rules' LIMIT 1");
+    const maxBorrowBooks = Number(rulesResult.rows[0]?.giatri?.maxBorrowBooks ?? 5);
+    if (Number.isFinite(maxBorrowBooks) && maxBorrowBooks > 0) {
+      const activeLoansCount = await client.query(
+        "SELECT COUNT(*)::int AS cnt FROM phieumuon WHERE mabandoc=$1 AND (LOWER(COALESCE(trangthai,'')) LIKE '%đang mượn%' OR LOWER(COALESCE(trangthai,'')) LIKE '%quá hạn%')",
+        [resolvedReaderId]
+      );
+      if (Number(activeLoansCount.rows[0]?.cnt ?? 0) >= maxBorrowBooks) {
+        await client.query('ROLLBACK');
+        return res.status(409).json({ error: `Bạn đã đạt giới hạn mượn tối đa ${maxBorrowBooks} cuốn sách cùng lúc.` });
+      }
+    }
+
     const bookResult = await client.query(
       'SELECT soluongtong, soluongsan FROM dausach WHERE madausach=$1 FOR UPDATE',
       [bookId]
     );
     if (!bookResult.rowCount) {
       await client.query('ROLLBACK');
-      return res.status(404).json({ error: 'Book not found' });
+      return res.status(404).json({ error: 'Không tìm thấy đầu sách yêu cầu.' });
     }
     if (Number(bookResult.rows[0].soluongsan ?? 0) < 1) {
       await client.query('ROLLBACK');
-      return res.status(409).json({ error: 'No copies are currently available' });
+      return res.status(409).json({ error: 'Đầu sách này hiện đã hết bản sao sẵn sàng trong kho.' });
     }
 
-    const copyResult = await client.query(
-      "SELECT macuonsach FROM cuonsach WHERE madausach=$1 AND trangthai='SẴN SÀNG' ORDER BY macuonsach LIMIT 1 FOR UPDATE SKIP LOCKED",
-      [bookId]
-    );
+    const copyResult = preferredCopyId
+      ? await client.query(
+          "SELECT macuonsach FROM cuonsach WHERE madausach=$1 AND macuonsach=$2 AND trangthai='SẴN SÀNG' LIMIT 1",
+          [bookId, preferredCopyId]
+        )
+      : await client.query(
+          "SELECT macuonsach FROM cuonsach WHERE madausach=$1 AND trangthai='SẴN SÀNG' ORDER BY macuonsach LIMIT 1",
+          [bookId]
+        );
     if (!copyResult.rowCount) {
       await client.query('ROLLBACK');
-      return res.status(409).json({ error: 'Available stock has no ready physical copy' });
+      return res.status(409).json({ error: preferredCopyId ? `Cuốn sách ${preferredCopyId} hiện không còn sẵn sàng để mượn.` : 'Hiện không có bản sao vật lý nào sẵn sàng.' });
     }
 
-    const copyId = String(copyResult.rows[0].macuonsach);
-    await client.query("UPDATE cuonsach SET trangthai='ĐANG MƯỢN' WHERE macuonsach=$1", [copyId]);
-    const updatedBook = await client.query(
-      'UPDATE dausach SET soluongsan=GREATEST(COALESCE(soluongsan,0)-1,0) WHERE madausach=$1 RETURNING soluongtong, soluongsan',
-      [bookId]
+    if (await readerHasUnpaidFines(client, resolvedReaderId)) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'Bạn đọc đang còn khoản phạt chưa thanh toán. Vui lòng hoàn tất thanh toán trước khi đăng ký mượn.' });
+    }
+
+    const dupRequest = await client.query(
+      "SELECT madangky FROM ixs_borrow_requests WHERE mabandoc=$1 AND madausach=$2 AND UPPER(COALESCE(trangthai,'')) IN ('CHO DUYET','CHỜ DUYỆT') LIMIT 1",
+      [resolvedReaderId, bookId]
     );
-    const validReaderId = readerId === '220260003' ? '220260004' : readerId;
+    if (dupRequest.rowCount) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'Bạn đã gửi yêu cầu mượn đầu sách này và đang chờ thủ thư duyệt.' });
+    }
+
+    // Theo Seq 2.8.1: Bạn đọc chỉ ghi nhận yêu cầu mượn ('CHO DUYET'), KHÔNG tự ý chuyển sách sang ĐANG MƯỢN hay lập PHIEUMUON khi chưa qua Thủ thư
+    const copyId = String(copyResult.rows[0].macuonsach);
     await client.query(
       'INSERT INTO ixs_borrow_requests (madangky,mabandoc,madausach,macuonsach,trangthai) VALUES ($1,$2,$3,$4,$5)',
-      [requestId, validReaderId, bookId, copyId, 'CHO DUYET']
-    );
-    await client.query(
-      'INSERT INTO phieumuon (maphieumuon, mabandoc, manhanvien, macuonsach, ngaymuon, ngayhentra, trangthai) VALUES ($1,$2,$3,$4,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP + INTERVAL \'14 days\',\'ĐANG MƯỢN\') ON CONFLICT (maphieumuon) DO NOTHING',
-      [requestId, validReaderId, '12026001', copyId]
+      [requestId, resolvedReaderId, bookId, copyId, 'CHO DUYET']
     );
     await client.query('COMMIT');
     return res.status(201).json({
       id: requestId,
-      readerId,
+      readerId: resolvedReaderId,
       bookId,
       copyId,
       status: 'CHO DUYET',
-      total: Number(updatedBook.rows[0].soluongtong ?? 0),
-      available: Number(updatedBook.rows[0].soluongsan ?? 0)
+      total: Number(bookResult.rows[0].soluongtong ?? 0),
+      available: Number(bookResult.rows[0].soluongsan ?? 0)
     });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    return next(error);
+  } finally {
+    client.release();
+  }
+});
+
+// Seq 2.8.1 Phần 2: Thủ thư tiếp nhận danh sách yêu cầu mượn sách, kiểm tra điều kiện và lập phiếu mượn
+app.get('/api/borrowRequests', async (req, res, next) => {
+  try {
+    const readerId = req.query.readerId ? String(req.query.readerId) : null;
+    const result = await pool.query(
+      `SELECT r.madangky, r.mabandoc, u.hoten AS reader_name, b.tongnophat, a.trangthai AS account_status,
+              b.ngayhetthe, r.madausach, d.tensach AS book_title, d.soluongsan, r.macuonsach,
+              r.ngaydangky, r.trangthai,
+              (SELECT COUNT(*)::int FROM phieumuon pm WHERE pm.mabandoc=r.mabandoc AND (LOWER(COALESCE(pm.trangthai,'')) LIKE '%đang mượn%' OR LOWER(COALESCE(pm.trangthai,'')) LIKE '%quá hạn%')) AS active_loans
+       FROM ixs_borrow_requests r
+       JOIN bandoc b ON b.mabandoc = r.mabandoc
+       JOIN nguoidung u ON u.manguoidung = b.mabandoc
+       JOIN taikhoan a ON a.tendangnhap = u.tendangnhap
+       JOIN dausach d ON d.madausach = r.madausach
+       ${readerId ? 'WHERE r.mabandoc=$1' : ''}
+       ORDER BY r.ngaydangky DESC`,
+      readerId ? [readerId] : []
+    );
+    res.json(result.rows.map(r => ({
+      id: str(r.madangky),
+      requestId: str(r.madangky),
+      readerId: str(r.mabandoc),
+      readerName: str(r.reader_name) ?? '',
+      outstandingFine: Number(r.tongnophat ?? 0),
+      readerStatus: str(r.account_status) ?? 'ACTIVE',
+      expiryDate: date(r.ngayhetthe),
+      activeLoans: Number(r.active_loans ?? 0),
+      bookId: str(r.madausach),
+      bookTitle: str(r.book_title) ?? '',
+      bookAvailable: Number(r.soluongsan ?? 0),
+      copyId: str(r.macuonsach),
+      requestDate: date(r.ngaydangky),
+      status: str(r.trangthai) ?? 'CHO DUYET'
+    })));
+  } catch (error) { next(error); }
+});
+
+app.post('/api/borrowRequests/:id/approve', async (req, res, next) => {
+  const requestId = req.params.id;
+  const body = req.body as Row;
+  const employeeId = str(value(body, 'employeeId', 'maNhanVien'))?.trim() || '12026001';
+  const requestedCopyId = str(value(body, 'copyId', 'maCuonSach'))?.trim();
+  const providedLoanId = str(value(body, 'loanId', 'maPhieuMuon'))?.trim();
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const loanId = providedLoanId && /^PM\d{3,}$/.test(providedLoanId)
+      ? providedLoanId
+      : await generateNextCode(client, 'phieumuon', 'maphieumuon', 'PM', 3);
+    const reqRes = await client.query(
+      'SELECT * FROM ixs_borrow_requests WHERE madangky=$1 FOR UPDATE',
+      [requestId]
+    );
+    if (!reqRes.rowCount) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Không tìm thấy yêu cầu mượn sách.' });
+    }
+    const reqRow = reqRes.rows[0];
+    if (!normalizeStatus(reqRow.trangthai).includes('cho')) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'Yêu cầu mượn này đã được xử lý trước đó.' });
+    }
+    const readerId = String(reqRow.mabandoc);
+    const bookId = String(reqRow.madausach);
+    const targetCopyId = requestedCopyId || String(reqRow.macuonsach);
+
+    // Kiểm tra điều kiện mượn của bạn đọc: trạng thái thẻ, hạn thẻ, nợ phạt, hạn mức
+    const readerRes = await client.query(
+      'SELECT b.mabandoc, b.tongnophat, b.ngayhetthe, a.trangthai FROM bandoc b JOIN nguoidung u ON u.manguoidung=b.mabandoc JOIN taikhoan a ON a.tendangnhap=u.tendangnhap WHERE b.mabandoc=$1 FOR UPDATE',
+      [readerId]
+    );
+    const rInfo = readerRes.rows[0];
+    if (!rInfo) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Không tìm thấy hồ sơ bạn đọc.' });
+    }
+    const rSt = normalizeStatus(rInfo.trangthai);
+    if (['bi khoa', 'khoa', 'locked', 'het han', 'expired', 'deleted'].some(f => rSt.includes(f))) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'Thẻ bạn đọc đang bị khóa hoặc hết hạn.' });
+    }
+    if (rInfo.ngayhetthe && new Date(rInfo.ngayhetthe) < new Date(new Date().toISOString().slice(0, 10))) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'Thẻ bạn đọc đã hết hạn sử dụng.' });
+    }
+    if (await readerHasUnpaidFines(client, readerId)) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'Từ chối lập phiếu: bạn đọc còn khoản phạt chưa thanh toán.' });
+    }
+
+    const rulesRes = await client.query("SELECT giatri FROM ixs_cauhinh WHERE macauhinh='library_rules' LIMIT 1");
+    const rules = rulesRes.rows[0]?.giatri ?? {};
+    const maxBorrowBooks = Number(rules.maxBorrowBooks ?? 5);
+    const borrowDays = Number(rules.maxBorrowDays ?? rules.borrowDays ?? 14);
+    const activeLoans = await client.query(
+      "SELECT COUNT(*)::int AS cnt FROM phieumuon WHERE mabandoc=$1 AND (LOWER(COALESCE(trangthai,'')) LIKE '%đang mượn%' OR LOWER(COALESCE(trangthai,'')) LIKE '%quá hạn%')",
+      [readerId]
+    );
+    if (Number(activeLoans.rows[0]?.cnt ?? 0) >= maxBorrowBooks) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: `Bạn đọc đã đạt giới hạn mượn tối đa ${maxBorrowBooks} cuốn.` });
+    }
+
+    const copyRes = await client.query(
+      "SELECT macuonsach, madausach FROM cuonsach WHERE macuonsach=$1 AND madausach=$2 AND trangthai IN ('SẴN SÀNG','GIỮ CHỜ NGƯỜI CHỜ') FOR UPDATE SKIP LOCKED",
+      [targetCopyId, bookId]
+    );
+    if (!copyRes.rowCount) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: `Cuốn sách vật lý ${targetCopyId} không khả dụng để cho mượn.` });
+    }
+
+    const prevWasReady = String((await client.query('SELECT trangthai FROM cuonsach WHERE macuonsach=$1', [targetCopyId])).rows[0]?.trangthai) === 'SẴN SÀNG';
+    await client.query("UPDATE cuonsach SET trangthai='ĐANG MƯỢN' WHERE macuonsach=$1", [targetCopyId]);
+    if (prevWasReady) {
+      await client.query('UPDATE dausach SET soluongsan=GREATEST(COALESCE(soluongsan,0)-1,0) WHERE madausach=$1', [bookId]);
+    }
+    await client.query(
+      `INSERT INTO phieumuon (maphieumuon, mabandoc, manhanvien, macuonsach, ngaymuon, ngayhentra, trangthai)
+       VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + ($5 || ' days')::interval, 'Đang mượn')`,
+      [loanId, readerId, employeeId, targetCopyId, String(borrowDays)]
+    );
+    await client.query(
+      "UPDATE ixs_borrow_requests SET macuonsach=$1, trangthai='DA DUYET' WHERE madangky=$2",
+      [targetCopyId, requestId]
+    );
+    await client.query(
+      "UPDATE danhsachcho SET trangthai='DA_NHAN' WHERE mabandoc=$1 AND madausach=$2 AND UPPER(COALESCE(trangthai,'')) IN ('DANG CHO','DANG_CHO','SAN SANG','DA_GIU_SACH')",
+      [readerId, bookId]
+    );
+    await client.query('COMMIT');
+    return res.status(201).json({ id: loanId, loanId, requestId, readerId, copyId: targetCopyId, status: 'Đang mượn' });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    return next(error);
+  } finally {
+    client.release();
+  }
+});
+
+app.post('/api/borrowRequests/:id/reject', async (req, res, next) => {
+  try {
+    const result = await pool.query(
+      "UPDATE ixs_borrow_requests SET trangthai='TU CHOI' WHERE madangky=$1 AND UPPER(COALESCE(trangthai,'')) IN ('CHO DUYET','CHỜ DUYỆT')",
+      [req.params.id]
+    );
+    if (!result.rowCount) return res.status(404).json({ error: 'Không tìm thấy yêu cầu đang chờ duyệt.' });
+    return res.json({ id: req.params.id, status: 'TU CHOI' });
+  } catch (error) { next(error); }
+});
+
+app.delete('/api/borrowRequests/:id', async (req, res, next) => {
+  try {
+    const result = await pool.query(
+      "DELETE FROM ixs_borrow_requests WHERE madangky=$1 AND UPPER(COALESCE(trangthai,'')) IN ('CHO DUYET','CHỜ DUYET')",
+      [req.params.id]
+    );
+    if (!result.rowCount) return res.status(404).json({ error: 'Chỉ có thể hủy yêu cầu mượn đang chờ duyệt.' });
+    return res.status(204).end();
+  } catch (error) { next(error); }
+});
+
+// Seq 2.8.2: Thủ thư xác nhận trả sách + kiểm tra tình trạng vật lý + xử lý chờ + phạt quá hạn/hư hỏng/mất
+app.post('/api/loans/:id/return', async (req, res, next) => {
+  const loanId = req.params.id;
+  const body = req.body as Row;
+  const condition = str(value(body, 'physicalCondition', 'condition')) || 'NGUYEN_VEN';
+  const employeeId = str(value(body, 'employeeId', 'maNhanVien')) || '12026001';
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const loanRes = await client.query(
+      `SELECT p.*, c.madausach, c.gia
+       FROM phieumuon p
+       JOIN cuonsach c ON c.macuonsach = p.macuonsach
+       WHERE p.maphieumuon=$1 FOR UPDATE`,
+      [loanId]
+    );
+    if (!loanRes.rowCount) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Không tìm thấy phiếu mượn.' });
+    }
+    const loan = loanRes.rows[0];
+    if (normalizeStatus(loan.trangthai).includes('da tra')) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'Phiếu mượn này đã được trả trước đó.' });
+    }
+
+    const rulesRes = await client.query("SELECT giatri FROM ixs_cauhinh WHERE macauhinh='library_rules' LIMIT 1");
+    const rules = rulesRes.rows[0]?.giatri ?? {};
+    const lateFeePerDay = Number(rules.lateFeePerDay ?? 5000);
+    const damageFee = Number(rules.damageFee ?? 30000);
+    const lostPercent = Number(rules.lostCompensationPercent ?? 150);
+    const maxLateDaysBeforeLock = Number(rules.maxLateDaysBeforeLock ?? 30);
+
+    const dueDate = loan.ngayhentra ? new Date(loan.ngayhentra) : new Date();
+    const today = new Date();
+    const lateDays = Math.max(0, Math.floor((new Date(today.toISOString().slice(0, 10)).getTime() - new Date(dueDate.toISOString().slice(0, 10)).getTime()) / 86400000));
+    const lateFee = lateDays * lateFeePerDay;
+    const bookPrice = Number(loan.gia ?? 120000) || 120000;
+    let condFee = 0;
+    if (condition === 'HU_HONG') condFee = damageFee;
+    if (condition === 'MAT_SACH') condFee = Math.round(bookPrice * lostPercent / 100);
+    const totalFee = lateFee + condFee;
+
+    await client.query("UPDATE phieumuon SET ngaytrathucte=CURRENT_TIMESTAMP, trangthai='Đã trả' WHERE maphieumuon=$1", [loanId]);
+
+    let promotedReaderId: string | null = null;
+    if (condition === 'NGUYEN_VEN' || condition === 'SON_GAY') {
+      const waitRes = await client.query(
+        "SELECT mabandoc FROM danhsachcho WHERE madausach=$1 AND UPPER(COALESCE(trangthai,'')) IN ('DANG CHO','DANG_CHO') ORDER BY COALESCE(thutu, 999999), ngaydangky ASC LIMIT 1 FOR UPDATE",
+        [loan.madausach]
+      );
+      if (waitRes.rowCount) {
+        promotedReaderId = String(waitRes.rows[0].mabandoc);
+        await client.query("UPDATE danhsachcho SET trangthai='SAN SANG' WHERE mabandoc=$1 AND madausach=$2", [promotedReaderId, loan.madausach]);
+        await client.query(
+          "UPDATE cuonsach SET tinhtrangvatly=$1, trangthai='GIỮ CHỜ NGƯỜI CHỜ' WHERE macuonsach=$2",
+          [condition === 'SON_GAY' ? 'SỜN GÁY SÁCH' : 'TỐT', loan.macuonsach]
+        );
+      } else {
+        await client.query(
+          "UPDATE cuonsach SET tinhtrangvatly=$1, trangthai='SẴN SÀNG' WHERE macuonsach=$2",
+          [condition === 'SON_GAY' ? 'SỜN GÁY SÁCH' : 'TỐT', loan.macuonsach]
+        );
+        await client.query(
+          'UPDATE dausach SET soluongsan=LEAST(COALESCE(soluongtong, soluongsan+1), COALESCE(soluongsan,0)+1) WHERE madausach=$1',
+          [loan.madausach]
+        );
+      }
+    } else if (condition === 'HU_HONG') {
+      await client.query("UPDATE cuonsach SET tinhtrangvatly='HƯ HỎNG', trangthai='HƯ HỎNG' WHERE macuonsach=$1", [loan.macuonsach]);
+    } else if (condition === 'MAT_SACH') {
+      await client.query("UPDATE cuonsach SET tinhtrangvatly='MẤT', trangthai='MẤT' WHERE macuonsach=$1", [loan.macuonsach]);
+    }
+
+    let createdFine: Row | null = null;
+    if (totalFee > 0) {
+      const reasons: string[] = [];
+      if (lateDays > 0) reasons.push(`Trễ hạn ${lateDays} ngày`);
+      if (condition === 'HU_HONG') reasons.push('Làm hỏng sách');
+      if (condition === 'MAT_SACH') reasons.push('Làm mất sách');
+      const fineId = `PP-${Date.now().toString().slice(-6)}`;
+      const violationText = reasons.join(' + ');
+      await client.query(
+        "INSERT INTO phieuphat (maphieuphat, maphieumuon, mabandoc, manhanvien, ngaylap, loaivipham, sotien, trangthaithanhtoan) VALUES ($1,$2,$3,$4,CURRENT_TIMESTAMP,$5,$6,'Chưa thanh toán')",
+        [fineId, loanId, loan.mabandoc, employeeId, violationText, totalFee]
+      );
+      await client.query('UPDATE bandoc SET tongnophat=COALESCE(tongnophat,0)+$1 WHERE mabandoc=$2', [totalFee, loan.mabandoc]);
+      if (lateDays >= maxLateDaysBeforeLock) {
+        await client.query(
+          "UPDATE taikhoan a SET trangthai='LOCKED' FROM nguoidung u WHERE u.tendangnhap=a.tendangnhap AND u.manguoidung=$1",
+          [loan.mabandoc]
+        );
+      }
+      createdFine = { id: fineId, loanId, readerId: loan.mabandoc, violation: violationText, amount: totalFee, paymentStatus: 'Chưa thanh toán' };
+    }
+
+    await client.query('COMMIT');
+    return res.json({ id: loanId, status: 'Đã trả', promotedReaderId, fine: createdFine });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    return next(error);
+  } finally {
+    client.release();
+  }
+});
+
+// Seq 2.5.3 & State 5.4: Xác nhận phiếu nhập sách mới cập nhật tồn kho và sinh cuốn sách
+app.post('/api/importReceipts/:id/confirm', async (req, res, next) => {
+  const receiptId = req.params.id;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const recRes = await client.query('SELECT * FROM phieunhap WHERE maphieunhap=$1 FOR UPDATE', [receiptId]);
+    if (!recRes.rowCount) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Không tìm thấy phiếu nhập kho.' });
+    }
+    if (normalizeStatus(recRes.rows[0].trangthai).includes('da xac nhan') || normalizeStatus(recRes.rows[0].trangthai).includes('hoan thanh')) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'Phiếu nhập này đã được xác nhận trước đó.' });
+    }
+    const itemsRes = await client.query('SELECT madausach, soluongnhap, dongia FROM chitietphieunhap WHERE maphieunhap=$1', [receiptId]);
+    const generatedCopies: Row[] = [];
+    for (const item of itemsRes.rows) {
+      const bookId = String(item.madausach);
+      const qty = Number(item.soluongnhap ?? 0);
+      const price = Number(item.dongia ?? 0);
+      const titleRes = await client.query('SELECT tensach, anhbia FROM dausach WHERE madausach=$1', [bookId]);
+      const titleName = String(titleRes.rows[0]?.tensach ?? bookId);
+      const coverUrl = str(titleRes.rows[0]?.anhbia) ?? '';
+      for (let i = 0; i < qty; i++) {
+        const copyId = await generateNextCode(client, 'cuonsach', 'macuonsach', 'CS', 3);
+        await client.query(
+          "INSERT INTO cuonsach (macuonsach, madausach, mavach, tinhtrangvatly, trangthai, vitriluutru, gia, anhbia) VALUES ($1,$2,$3,'TỐT','SẴN SÀNG','A1 - Ngăn 1',$4,$5) ON CONFLICT (macuonsach) DO NOTHING",
+          [copyId, bookId, copyId, price, coverUrl]
+        );
+        generatedCopies.push({ id: copyId, bookId, bookTitle: titleName, physicalStatus: 'TỐT', circulationStatus: 'SẴN SÀNG', location: 'A1 - Ngăn 1', price });
+      }
+      await client.query(
+        'UPDATE dausach SET soluongtong=COALESCE(soluongtong,0)+$1, soluongsan=COALESCE(soluongsan,0)+$1 WHERE madausach=$2',
+        [qty, bookId]
+      );
+    }
+    await client.query("UPDATE phieunhap SET trangthai='ĐÃ XÁC NHẬN' WHERE maphieunhap=$1", [receiptId]);
+    await client.query('COMMIT');
+    return res.json({ id: receiptId, status: 'ĐÃ XÁC NHẬN', generatedCopies });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    return next(error);
+  } finally {
+    client.release();
+  }
+});
+
+// Seq 2.5.4: Thanh lý cuốn sách cụ thể (chặn nếu đang mượn, bảo toàn lịch sử)
+app.post('/api/bookCopies/:id/liquidate', async (req, res, next) => {
+  const copyId = req.params.id;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const copyRes = await client.query('SELECT macuonsach, madausach, trangthai FROM cuonsach WHERE macuonsach=$1 FOR UPDATE', [copyId]);
+    if (!copyRes.rowCount) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Không tìm thấy cuốn sách.' });
+    }
+    const copy = copyRes.rows[0];
+    if (normalizeStatus(copy.trangthai).includes('dang muon')) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'Không thể thanh lý sách đang trong trạng thái mượn.' });
+    }
+    if (normalizeStatus(copy.trangthai).includes('thanh ly')) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'Cuốn sách này đã được thanh lý trước đó.' });
+    }
+    const wasReady = normalizeStatus(copy.trangthai).includes('san sang');
+    await client.query("UPDATE cuonsach SET trangthai='ĐÃ THANH LÝ' WHERE macuonsach=$1", [copyId]);
+    if (wasReady) {
+      await client.query('UPDATE dausach SET soluongsan=GREATEST(COALESCE(soluongsan,0)-1,0) WHERE madausach=$1', [copy.madausach]);
+    }
+    await client.query('COMMIT');
+    return res.json({ id: copyId, status: 'ĐÃ THANH LÝ' });
   } catch (error) {
     await client.query('ROLLBACK');
     return next(error);
@@ -250,21 +740,40 @@ app.post('/api/auth/register', async (req, res, next) => {
     const name = str(req.body?.name)?.trim();
     const username = str(req.body?.username)?.trim().toLowerCase();
     const password = str(req.body?.password);
-    const phone = str(req.body?.phone)?.replace(/[.\s-]/g, '');
+    const phone = cleanPhoneDigits(req.body?.phone);
+    const cccd = str(req.body?.cccd)?.trim() || null;
     const emailInput = str(req.body?.email)?.trim().toLowerCase() ?? '';
     const email = emailInput.includes('@') ? emailInput : null;
-    if (!name || !username || !password || !phone) return res.status(400).json({ error: 'Name, username, phone and password are required' });
-    if (password.length < 8) return res.status(400).json({ error: 'Password must contain at least 8 characters' });
-    if (!/^\d{10}$/.test(phone)) return res.status(400).json({ error: 'Phone must contain 10 digits' });
-    const id = `STF${randomBytes(4).toString('hex').toUpperCase()}`;
+    if (!name || !username || !password || !phone) return res.status(400).json({ error: 'Vui lòng nhập đầy đủ họ tên, tên đăng nhập, số điện thoại và mật khẩu.' });
+    if (name.length > 255) return res.status(400).json({ error: 'Họ và tên không được vượt quá 255 ký tự.' });
+    if (username.length < 3 || /\s/.test(username)) return res.status(400).json({ error: 'Tên đăng nhập phải có ít nhất 3 ký tự và không chứa khoảng trắng.' });
+    if (email && !isValidEmail(email)) return res.status(400).json({ error: 'Địa chỉ email không hợp lệ.' });
+    if (cccd && !isValidCccd(cccd)) return res.status(400).json({ error: 'Số CCCD/CMND phải gồm 9 hoặc 12 chữ số.' });
+    if (password.length < 8) return res.status(400).json({ error: 'Mật khẩu phải có tối thiểu 8 ký tự.' });
+    if (!/^\d{10,11}$/.test(phone)) return res.status(400).json({ error: 'Số điện thoại phải gồm 10 hoặc 11 chữ số.' });
+
+    const dupCheck = await client.query(
+      `SELECT manguoidung FROM nguoidung
+       WHERE regexp_replace(COALESCE(sodienthoai,''), '[^0-9]', '', 'g')=$1
+          OR ($2 <> '' AND LOWER(COALESCE(email,''))=$2)
+          OR ($3 <> '' AND COALESCE(cccd,'')=$3)
+       LIMIT 1`,
+      [phone, email ?? '', cccd ?? '']
+    );
+    if (dupCheck.rowCount) {
+      return res.status(409).json({ error: 'Số điện thoại, Email hoặc CCCD đã được sử dụng trong hệ thống.' });
+    }
+
+    // Theo Seq 2.1.2 Bước 7: Khởi tạo tài khoản mới mặc định là Bạn đọc (ACTIVE)
+    const id = `22026${String(Math.floor(1000 + Math.random() * 9000))}`;
     await client.query('BEGIN');
     transactionStarted = true;
-    await client.query('INSERT INTO taikhoan (tendangnhap,matkhau,vaitro,trangthai) VALUES ($1,$2,$3,$4)', [username, hashPassword(password), 'NHÂN VIÊN', 'HOẠT ĐỘNG']);
-    await client.query('INSERT INTO nguoidung (manguoidung,tendangnhap,hoten,email,sodienthoai,gioitinh,ngaysinh,diachi,anhdaidien) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)', [id, username, name, email, phone, req.body.gender ?? null, dateValue(req.body.dob), req.body.address ?? null, req.body.avatarUrl ?? null]);
-    await client.query('INSERT INTO nhanvien (manhanvien,chucvu,trangthailamviec) VALUES ($1,$2,$3)', [id, 'NHÂN VIÊN', 'ĐANG LÀM']);
+    await client.query('INSERT INTO taikhoan (tendangnhap,matkhau,vaitro,trangthai) VALUES ($1,$2,$3,$4)', [username, hashPassword(password), 'Sinh viên', 'ACTIVE']);
+    await client.query('INSERT INTO nguoidung (manguoidung,tendangnhap,hoten,email,sodienthoai,cccd,gioitinh,ngaysinh,diachi,anhdaidien) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)', [id, username, name, email, phone, cccd, req.body.gender ?? 'Nam', dateValue(req.body.dob), req.body.address ?? null, req.body.avatarUrl ?? null]);
+    await client.query("INSERT INTO bandoc (mabandoc,loaibandoc,tongnophat,ngaycapthe,ngayhetthe) VALUES ($1,'Sinh viên',0,CURRENT_DATE,CURRENT_DATE + INTERVAL '1 year')", [id]);
     await client.query('COMMIT');
     transactionStarted = false;
-    return res.status(201).json({ user: { id, username, fullName: name, name, role: 'NHÂN VIÊN', accountType: 'employee', email: email ?? '', phone } });
+    return res.status(201).json({ user: { id, username, fullName: name, name, role: 'Sinh viên', accountType: 'reader', email: email ?? '', phone, cccd: cccd ?? '' } });
   } catch (error) {
     if (transactionStarted) await client.query('ROLLBACK');
     next(error);
@@ -383,11 +892,18 @@ app.get('/api/:resource', async (req, res, next) => {
       const result = await pool.query(`SELECT ${route.select} FROM ${route.from}${readerId ? ' WHERE reader_id=$1' : ''} ORDER BY submitted_at DESC`, readerId ? [readerId] : []);
       return res.json(result.rows.map(route.map));
     }
-    if (requested === 'wishlist' || requested === 'waitingList') {
+    if (requested === 'wishlist') {
       const readerId = String(req.query.readerId ?? '');
       if (!readerId) return res.status(400).json({ error: 'readerId query parameter is required' });
-      const table = requested === 'wishlist' ? 'tusachcanhan' : 'danhsachcho';
-      const result = await pool.query(`SELECT * FROM ${table} WHERE mabandoc=$1`, [readerId]);
+      const result = await pool.query('SELECT * FROM tusachcanhan WHERE mabandoc=$1', [readerId]);
+      return res.json(result.rows.map(route.map));
+    }
+    if (requested === 'waitingList') {
+      const readerId = req.query.readerId ? String(req.query.readerId) : null;
+      const result = await pool.query(
+        `SELECT * FROM danhsachcho${readerId ? ' WHERE mabandoc=$1' : ''} ORDER BY ngaydangky DESC`,
+        readerId ? [readerId] : []
+      );
       return res.json(result.rows.map(route.map));
     }
     const activePeople = requested === 'readers' || requested === 'employees' ? " WHERE UPPER(COALESCE(a.trangthai,'')) <> 'DELETED'" : '';
@@ -404,14 +920,24 @@ app.post('/api/:resource', async (req, res, next) => {
     const body = req.body as Row;
     if (resource === 'readers' || resource === 'employees') {
       const reader = resource === 'readers';
-      const id = str(value(body, 'id', 'maBanDoc', 'maNhanVien'));
-      const requestedUsername = str(value(body, 'username', 'tenDangNhap'));
-      const name = str(value(body, 'name', 'hoTen'));
-      if (!id || !name) return res.status(400).json({ error: 'id and name are required' });
+      const id = str(value(body, 'id', 'maBanDoc', 'maNhanVien'))?.trim();
+      const requestedUsername = str(value(body, 'username', 'tenDangNhap'))?.trim();
+      const name = str(value(body, 'name', 'hoTen'))?.trim();
+      const emailVal = str(value(body, 'email'))?.trim() ?? '';
+      const phoneVal = str(value(body, 'phone', 'sodienthoai'))?.trim() ?? '';
+      const cccdVal = str(value(body, 'cccd'))?.trim() ?? '';
+      const dobVal = value(body, 'dob', 'ngaySinh');
+      if (!id || !name) return res.status(400).json({ error: 'Mã và họ tên là bắt buộc.' });
+      if (emailVal && emailVal.includes('@') && !isValidEmail(emailVal)) return res.status(400).json({ error: 'Địa chỉ email không hợp lệ.' });
+      if (phoneVal && !isValidPhone(phoneVal)) return res.status(400).json({ error: 'Số điện thoại phải gồm 10 hoặc 11 chữ số.' });
+      if (cccdVal && !isValidCccd(cccdVal)) return res.status(400).json({ error: 'Số CCCD/CMND phải gồm 9 hoặc 12 chữ số.' });
+      if (dobVal && !isValidCalendarDate(dobVal)) return res.status(400).json({ error: 'Ngày sinh không hợp lệ (định dạng DD / MM / YYYY).' });
+      const outstandingFine = Number(value(body, 'outstandingFine', 'tongnophat') ?? 0);
+      if (!Number.isFinite(outstandingFine) || outstandingFine < 0) return res.status(400).json({ error: 'Tổng nợ phạt phải lớn hơn hoặc bằng 0.' });
       const hasAccount = reader || value(body, 'hasAccount') !== false;
       const suppliedPassword = str(value(body, 'password', 'matkhau'));
       if (hasAccount && (!requestedUsername || !suppliedPassword || suppliedPassword.length < 8)) {
-        return res.status(400).json({ error: 'username and a password of at least 8 characters are required for an active account' });
+        return res.status(400).json({ error: 'Tên đăng nhập và mật khẩu tối thiểu 8 ký tự là bắt buộc khi cấp tài khoản.' });
       }
       const username = requestedUsername ?? `profile_${id.toLowerCase()}`;
       const password = suppliedPassword ?? randomBytes(32).toString('hex');
@@ -441,10 +967,24 @@ app.post('/api/:resource', async (req, res, next) => {
       finally { client.release(); }
     }
     if (resource === 'bookTitles') {
-      const id = str(value(body, 'id', 'maDauSach')); const categoryId = await resolveCategoryId(value(body, 'categoryId', 'category', 'maDanhMuc')); const title = str(value(body, 'title', 'tenSach'));
-      if (!id || !categoryId || !title) return res.status(400).json({ error: 'id, categoryId and title are required' });
-      await pool.query('INSERT INTO dausach (madausach,madanhmuc,tensach,tacgia,theloai,chude,khoa,soluongtong,soluongsan,nhaxuatban,namxuatban,anhbia) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)', [id, categoryId, title, value(body, 'authors', 'author', 'tacGia'), value(body, 'genre', 'theLoai'), value(body, 'subject', 'chuDe'), value(body, 'faculty', 'khoa'), Number(value(body, 'total', 'totalCopies', 'soLuongTong') ?? 0), Number(value(body, 'available', 'availableCopies', 'soLuongSan') ?? 0), value(body,'publisher','nhaXuatBan'), value(body,'publishYear','namXuatBan') ? Number(value(body,'publishYear','namXuatBan')) : 2021, value(body,'coverUrl')]);
-      return res.status(201).json(body);
+      const rawId = str(value(body, 'id', 'maDauSach'))?.trim();
+      const id = rawId || await generateNextCode(pool, 'dausach', 'madausach', 'DS', 3);
+      if (!/^DS\d{3,}$/.test(id)) return res.status(400).json({ error: 'Mã đầu sách phải đúng định dạng DS001, DS002...' });
+      const categoryId = await resolveCategoryId(value(body, 'categoryId', 'category', 'maDanhMuc'));
+      const title = str(value(body, 'title', 'tenSach'))?.trim();
+      if (!id || !categoryId || !title) return res.status(400).json({ error: 'Mã đầu sách, thể loại và tên sách là bắt buộc.' });
+      const total = Number(value(body, 'total', 'totalCopies', 'soLuongTong') ?? 0);
+      const available = Number(value(body, 'available', 'availableCopies', 'soLuongSan') ?? 0);
+      const publishYearRaw = value(body, 'publishYear', 'namXuatBan');
+      const publishYear = publishYearRaw ? Number(publishYearRaw) : 2021;
+      if (!Number.isInteger(total) || total < 0 || !Number.isInteger(available) || available < 0 || available > total) {
+        return res.status(400).json({ error: 'Số lượng tổng và số lượng sẵn có phải là số nguyên không âm và số sẵn có không vượt quá tổng.' });
+      }
+      if (!Number.isInteger(publishYear) || publishYear < 1800 || publishYear > 2100) {
+        return res.status(400).json({ error: 'Năm xuất bản phải nằm trong khoảng 1800 đến 2100.' });
+      }
+      await pool.query('INSERT INTO dausach (madausach,madanhmuc,tensach,tacgia,theloai,chude,khoa,soluongtong,soluongsan,nhaxuatban,namxuatban,anhbia) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)', [id, categoryId, title, value(body, 'authors', 'author', 'tacGia'), value(body, 'genre', 'theLoai'), value(body, 'subject', 'chuDe'), value(body, 'faculty', 'khoa'), total, available, value(body,'publisher','nhaXuatBan'), publishYear, value(body,'coverUrl')]);
+      return res.status(201).json({ ...body, id });
     }
     if (resource === 'categories') {
       const id = str(value(body, 'id', 'maDanhMuc')); const name = str(value(body, 'name', 'tenDanhMuc'));
@@ -453,39 +993,181 @@ app.post('/api/:resource', async (req, res, next) => {
       return res.status(201).json(body);
     }
     if (resource === 'bookCopies') {
-      const id = str(value(body, 'id', 'maCuonSach')); const bookId = str(value(body, 'bookId', 'bookTitleId', 'maDauSach'));
-      if (!id || !bookId) return res.status(400).json({ error: 'id and bookTitleId are required' });
-      await pool.query('INSERT INTO cuonsach (macuonsach,madausach,mavach,tinhtrangvatly,trangthai,vitriluutru,gia,anhbia) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)', [id, bookId, value(body, 'barcode', 'maVach'), value(body, 'physicalStatus', 'physicalCondition', 'tinhTrangVatLy'), value(body, 'circulationStatus', 'status', 'trangThai'), value(body, 'location', 'viTriLuuTru'), Number(String(value(body,'price') ?? 0).replace(/[^0-9.-]/g,'')), value(body,'coverUrl')]);
-      return res.status(201).json(body);
+      const rawId = str(value(body, 'id', 'maCuonSach'))?.trim();
+      const id = rawId || await generateNextCode(pool, 'cuonsach', 'macuonsach', 'CS', 3);
+      if (!/^CS\d{3,}$/.test(id)) return res.status(400).json({ error: 'Mã cuốn sách phải đúng định dạng CS001, CS002...' });
+      const bookId = str(value(body, 'bookId', 'bookTitleId', 'maDauSach'))?.trim();
+      if (!id || !bookId) return res.status(400).json({ error: 'Mã cuốn sách và mã đầu sách là bắt buộc.' });
+      const priceNum = Number(String(value(body, 'price') ?? 0).replace(/[^0-9.-]/g, ''));
+      if (!Number.isFinite(priceNum) || priceNum < 0) return res.status(400).json({ error: 'Giá trị cuốn sách phải là số không âm.' });
+      const titleExists = await pool.query('SELECT 1 FROM dausach WHERE madausach=$1 LIMIT 1', [bookId]);
+      if (!titleExists.rowCount) return res.status(404).json({ error: `Đầu sách ${bookId} không tồn tại.` });
+      await pool.query('INSERT INTO cuonsach (macuonsach,madausach,mavach,tinhtrangvatly,trangthai,vitriluutru,gia,anhbia) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)', [id, bookId, value(body, 'barcode', 'maVach') ?? id, value(body, 'physicalStatus', 'physicalCondition', 'tinhTrangVatLy'), value(body, 'circulationStatus', 'status', 'trangThai'), value(body, 'location', 'viTriLuuTru'), priceNum, value(body,'coverUrl')]);
+      return res.status(201).json({ ...body, id });
     }
     if (resource === 'loans') {
-      const id = str(value(body, 'id', 'maPhieuMuon'));
-      let readerId = str(value(body, 'readerId', 'maBanDoc'));
-      if (readerId === '220260003' || !readerId) readerId = '220260004';
-      let employeeId = str(value(body, 'employeeId', 'maNhanVien'));
-      if (employeeId === 'NV001' || !employeeId) employeeId = '12026001';
-      const copyId = str(value(body, 'copyId', 'maCuonSach'));
-      if (!id || !readerId || !copyId) return res.status(400).json({ error: 'id, readerId and copyId are required' });
-      await pool.query('INSERT INTO phieumuon (maphieumuon, mabandoc, manhanvien, macuonsach, ngaymuon, ngayhentra, ngaytrathucte, trangthai) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)', [id, readerId, employeeId, copyId, dateValue(value(body,'borrowDate','ngayMuon')), dateValue(value(body,'dueDate','ngayHenTra')), dateValue(value(body,'returnDate','ngayTraThucTe')), value(body,'status','trangThai')]);
-      return res.status(201).json(body);
+      const rawId = str(value(body, 'id', 'maPhieuMuon'))?.trim();
+      const id = rawId || await generateNextCode(pool, 'phieumuon', 'maphieumuon', 'PM', 3);
+      if (!/^PM\d{3,}$/.test(id)) return res.status(400).json({ error: 'Mã phiếu mượn phải đúng định dạng PM001, PM002...' });
+      const readerId = str(value(body, 'readerId', 'maBanDoc'))?.trim();
+      const employeeId = str(value(body, 'employeeId', 'maNhanVien'))?.trim() || '12026001';
+      const copyId = str(value(body, 'copyId', 'maCuonSach'))?.trim();
+      if (!id || !readerId || !copyId) return res.status(400).json({ error: 'Mã phiếu mượn, mã bạn đọc và mã cuốn sách là bắt buộc.' });
+      const borrowIso = dateValue(value(body,'borrowDate','ngayMuon'));
+      const dueIso = dateValue(value(body,'dueDate','ngayHenTra'));
+      if (borrowIso && dueIso && new Date(dueIso) < new Date(borrowIso)) {
+        return res.status(400).json({ error: 'Hạn trả không được nhỏ hơn ngày mượn.' });
+      }
+      const maxBorrow = Number(value(body, 'maxBorrowBooks') ?? 5);
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const readerCheck = await client.query(
+          `SELECT b.mabandoc, b.ngayhetthe, a.trangthai AS account_status
+           FROM bandoc b
+           JOIN nguoidung u ON u.manguoidung = b.mabandoc
+           JOIN taikhoan a ON a.tendangnhap = u.tendangnhap
+           WHERE b.mabandoc=$1 LIMIT 1`,
+          [readerId]
+        );
+        if (!readerCheck.rowCount) {
+          await client.query('ROLLBACK');
+          return res.status(404).json({ error: `Bạn đọc ${readerId} không tồn tại.` });
+        }
+        const r = readerCheck.rows[0];
+        if (normalizeStatus(r.account_status) !== 'active') {
+          await client.query('ROLLBACK');
+          return res.status(403).json({ error: 'Thẻ bạn đọc hiện không ở trạng thái hoạt động (ACTIVE).' });
+        }
+        if (r.ngayhetthe && new Date(String(r.ngayhetthe)) < new Date(new Date().toISOString().slice(0, 10))) {
+          await client.query('ROLLBACK');
+          return res.status(403).json({ error: 'Thẻ bạn đọc đã hết hạn sử dụng.' });
+        }
+        if (await readerHasUnpaidFines(client, readerId)) {
+          await client.query('ROLLBACK');
+          return res.status(403).json({ error: 'Bạn đọc đang còn khoản phạt chưa thanh toán.' });
+        }
+        const activeCountRes = await client.query(
+          "SELECT COUNT(*)::int AS cnt FROM phieumuon WHERE mabandoc=$1 AND (LOWER(COALESCE(trangthai,'')) LIKE '%đang mượn%' OR LOWER(COALESCE(trangthai,'')) LIKE '%quá hạn%')",
+          [readerId]
+        );
+        if (Number(activeCountRes.rows[0]?.cnt ?? 0) >= maxBorrow) {
+          await client.query('ROLLBACK');
+          return res.status(409).json({ error: `Bạn đọc đã đạt hạn mức tối đa (${maxBorrow} cuốn đang mượn).` });
+        }
+        const copyRes = await client.query(
+          'SELECT macuonsach, madausach, trangthai FROM cuonsach WHERE macuonsach=$1 FOR UPDATE',
+          [copyId]
+        );
+        if (!copyRes.rowCount) {
+          await client.query('ROLLBACK');
+          return res.status(404).json({ error: `Cuốn sách ${copyId} không tồn tại.` });
+        }
+        const copyNorm = normalizeStatus(copyRes.rows[0].trangthai);
+        const canLend = copyNorm === 'san sang' || copyNorm === 'co san' || copyNorm === 'giu cho nguoi cho';
+        if (!canLend) {
+          await client.query('ROLLBACK');
+          return res.status(409).json({ error: `Cuốn sách ${copyId} đang ở trạng thái "${copyRes.rows[0].trangthai}", không thể cho mượn.` });
+        }
+        const activeLoanOnCopy = await client.query(
+          "SELECT maphieumuon FROM phieumuon WHERE macuonsach=$1 AND (LOWER(COALESCE(trangthai,'')) LIKE '%đang mượn%' OR LOWER(COALESCE(trangthai,'')) LIKE '%quá hạn%') LIMIT 1",
+          [copyId]
+        );
+        if (activeLoanOnCopy.rowCount) {
+          await client.query('ROLLBACK');
+          return res.status(409).json({ error: `Cuốn sách ${copyId} đang được gắn với một phiếu mượn hoạt động khác.` });
+        }
+
+        await client.query(
+          'INSERT INTO phieumuon (maphieumuon, mabandoc, manhanvien, macuonsach, ngaymuon, ngayhentra, ngaytrathucte, trangthai) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)',
+          [id, readerId, employeeId, copyId, borrowIso, dueIso, dateValue(value(body,'returnDate','ngayTraThucTe')), value(body,'status','trangThai') ?? 'Đang mượn']
+        );
+        await client.query("UPDATE cuonsach SET trangthai='ĐANG MƯỢN' WHERE macuonsach=$1", [copyId]);
+        if (copyNorm === 'san sang' || copyNorm === 'co san') {
+          await client.query('UPDATE dausach SET soluongsan = GREATEST(0, COALESCE(soluongsan, 0) - 1) WHERE madausach=$1', [copyRes.rows[0].madausach]);
+        }
+        await client.query(
+          "UPDATE danhsachcho SET trangthai='DA_NHAN' WHERE mabandoc=$1 AND madausach=$2 AND UPPER(COALESCE(trangthai,'')) IN ('DANG CHO','DANG_CHO','SAN SANG','DA_GIU_SACH')",
+          [readerId, copyRes.rows[0].madausach]
+        );
+        await client.query('COMMIT');
+        return res.status(201).json({ ...body, id });
+      } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+      } finally {
+        client.release();
+      }
     }
     if (resource === 'fines') {
-      const id = str(value(body, 'id', 'maPhieuPhat')); const loanId = str(value(body, 'loanId', 'maPhieuMuon')) || null;
-      let readerId = str(value(body, 'readerId', 'maBanDoc'));
-      if (readerId === '220260003' || !readerId) readerId = '220260004';
-      let employeeId = str(value(body, 'employeeId', 'maNhanVien'));
-      if (employeeId === 'NV001' || !employeeId) employeeId = '12026001';
-      if (!id || !readerId) return res.status(400).json({ error: 'id and readerId are required' });
-      await pool.query('INSERT INTO phieuphat (maphieuphat, maphieumuon, mabandoc, manhanvien, ngaylap, loaivipham, sotien, trangthaithanhtoan) VALUES ($1,$2,$3,$4,COALESCE($5,CURRENT_TIMESTAMP),$6,$7,$8)', [id, loanId, readerId, employeeId, value(body,'ngayLap','date','createdDate'), value(body,'violation','loaiViPham'), Number(value(body,'amount','soTien') ?? 0), value(body,'paymentStatus','trangThaiThanhToan')]);
-      return res.status(201).json(body);
+      const id = str(value(body, 'id', 'maPhieuPhat'))?.trim(); const loanId = str(value(body, 'loanId', 'maPhieuMuon')) || null;
+      const readerId = str(value(body, 'readerId', 'maBanDoc'))?.trim();
+      const employeeId = str(value(body, 'employeeId', 'maNhanVien'))?.trim() || '12026001';
+      if (!id || !readerId) return res.status(400).json({ error: 'Mã phiếu phạt và mã bạn đọc là bắt buộc.' });
+      const fineAmount = Number(value(body,'amount','soTien') ?? 0);
+      if (!Number.isFinite(fineAmount) || fineAmount < 0) return res.status(400).json({ error: 'Số tiền phạt phải lớn hơn hoặc bằng 0.' });
+      const payStatus = str(value(body,'paymentStatus','trangThaiThanhToan')) || 'Chưa thanh toán';
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        await client.query('INSERT INTO phieuphat (maphieuphat, maphieumuon, mabandoc, manhanvien, ngaylap, loaivipham, sotien, trangthaithanhtoan) VALUES ($1,$2,$3,$4,COALESCE($5,CURRENT_TIMESTAMP),$6,$7,$8)', [id, loanId, readerId, employeeId, dateValue(value(body,'ngayLap','date','createdDate')), value(body,'violation','loaiViPham'), fineAmount, payStatus]);
+        if (!normalizeStatus(payStatus).includes('da thanh toan')) {
+          await client.query('UPDATE bandoc SET tongnophat = COALESCE(tongnophat, 0) + $1 WHERE mabandoc=$2', [fineAmount, readerId]);
+        }
+        await client.query('COMMIT');
+        return res.status(201).json(body);
+      } catch (error) { await client.query('ROLLBACK'); throw error; }
+      finally { client.release(); }
     }
     if (resource === 'renewals') {
-      const id = str(value(body, 'id', 'maGiaHan'));
-      const loanId = str(value(body, 'loanId', 'maPhieuMuon'));
+      const id = str(value(body, 'id', 'maGiaHan'))?.trim();
+      const loanId = str(value(body, 'loanId', 'maPhieuMuon'))?.trim();
       const requestDate = value(body, 'requestDate', 'ngayYeuCau');
       const days = Number(value(body, 'days', 'soNgayGiaHan'));
-      if (!id || !loanId || !requestDate || !Number.isInteger(days) || days < 1) {
-        return res.status(400).json({ error: 'id, loanId, requestDate and positive days are required' });
+      const maxRenewals = Number(value(body, 'maxRenewals') ?? 2);
+      if (!id || !loanId || !requestDate || !Number.isInteger(days) || days < 1 || days > 30) {
+        return res.status(400).json({ error: 'Yêu cầu gia hạn cần mã gia hạn, mã phiếu mượn, ngày yêu cầu và số ngày gia hạn từ 1 đến 30.' });
+      }
+      const loanRes = await pool.query(
+        `SELECT pm.maphieumuon, pm.ngayhentra, pm.trangthai, c.madausach
+         FROM phieumuon pm
+         JOIN cuonsach c ON c.macuonsach = pm.macuonsach
+         WHERE pm.maphieumuon=$1 LIMIT 1`,
+        [loanId]
+      );
+      if (!loanRes.rowCount) {
+        return res.status(404).json({ error: `Không tìm thấy phiếu mượn ${loanId}.` });
+      }
+      const loanRow = loanRes.rows[0];
+      const loanNorm = normalizeStatus(loanRow.trangthai);
+      if (loanNorm.includes('da tra') || loanNorm.includes('mat')) {
+        return res.status(409).json({ error: `Phiếu mượn ${loanId} đã kết thúc, không thể gia hạn.` });
+      }
+      const dueDateObj = loanRow.ngayhentra ? new Date(String(loanRow.ngayhentra)) : null;
+      const todayIso = new Date().toISOString().slice(0, 10);
+      if (loanNorm.includes('qua han') || (dueDateObj && dueDateObj < new Date(todayIso))) {
+        return res.status(409).json({ error: `Phiếu mượn ${loanId} đã quá hạn, không đủ điều kiện gia hạn.` });
+      }
+      const approvedCountRes = await pool.query(
+        "SELECT COUNT(*)::int AS cnt FROM yeucaugiahan WHERE maphieumuon=$1 AND UPPER(COALESCE(trangthaiduyet,'')) IN ('DA DUYET','ĐÃ DUYỆT','DA_DUYET')",
+        [loanId]
+      );
+      if (Number(approvedCountRes.rows[0]?.cnt ?? 0) >= maxRenewals) {
+        return res.status(409).json({ error: `Phiếu mượn ${loanId} đã đạt số lần gia hạn tối đa (${maxRenewals} lần).` });
+      }
+      const waitingRes = await pool.query(
+        "SELECT 1 FROM danhsachcho WHERE madausach=$1 AND UPPER(COALESCE(trangthai,'')) IN ('DANG CHO','DANG_CHO','SAN SANG','DA_GIU_SACH') LIMIT 1",
+        [loanRow.madausach]
+      );
+      if (waitingRes.rowCount) {
+        return res.status(409).json({ error: 'Sách này đang có bạn đọc khác đăng ký hàng chờ, không thể gia hạn.' });
+      }
+      const existingPending = await pool.query(
+        "SELECT magiahan FROM yeucaugiahan WHERE maphieumuon=$1 AND UPPER(COALESCE(trangthaiduyet,'')) IN ('CHO DUYET', 'CHỜ DUYỆT') LIMIT 1",
+        [loanId]
+      );
+      if (existingPending.rowCount) {
+        return res.status(409).json({ error: `Phiếu mượn ${loanId} đã có yêu cầu gia hạn đang chờ duyệt.` });
       }
       await pool.query(
         'INSERT INTO yeucaugiahan (magiahan, maphieumuon, ngayyeucau, songaygiahan, trangthaiduyet) VALUES ($1,$2,$3,$4,$5)',
@@ -505,7 +1187,7 @@ app.post('/api/:resource', async (req, res, next) => {
         await client.query('BEGIN');
         await client.query(
           'INSERT INTO phieunhap (maphieunhap,manhanvien,ngaynhap,tongsoluong,trangthai,nhacungcap,nguoitao) VALUES ($1,$2,$3,$4,$5,$6,$7)',
-          [id, employeeId, receiptDate, quantity, value(body, 'status', 'trangThai') ?? 'HOAN THANH', value(body,'supplier'), value(body,'creator')]
+          [id, employeeId, receiptDate, quantity, value(body, 'status', 'trangThai') ?? 'CHỜ XÁC NHẬN', value(body,'supplier'), value(body,'creator')]
         );
         const items = Array.isArray(body.items) ? body.items as Row[] : [];
         for (const item of items) {
@@ -542,20 +1224,27 @@ app.post('/api/:resource', async (req, res, next) => {
     }
     if (resource === 'suggestions') {
       const id = str(value(body, 'id')) || `DX-${Date.now()}`;
-      const readerId = str(value(body, 'readerId', 'reader_id', 'mabandoc'));
-      const title = str(value(body, 'title'));
-      const author = str(value(body, 'author'));
+      const readerId = str(value(body, 'readerId', 'reader_id', 'mabandoc'))?.trim();
+      const title = str(value(body, 'title'))?.trim();
+      const author = str(value(body, 'author'))?.trim();
       if (!readerId || !title || !author) {
-        return res.status(400).json({ error: 'readerId, title and author are required' });
+        return res.status(400).json({ error: 'Vui lòng nhập đầy đủ tên sách, tác giả và mã bạn đọc.' });
       }
-      const publisher = str(value(body, 'publisher'));
-      const year = value(body, 'year', 'publication_year') ? Number(value(body, 'year', 'publication_year')) : null;
+      const publisher = str(value(body, 'publisher'))?.trim() || null;
+      const yearRaw = value(body, 'year', 'publication_year');
+      const year = yearRaw ? Number(yearRaw) : null;
+      if (year !== null && (!Number.isInteger(year) || year < 1800 || year > 2100)) {
+        return res.status(400).json({ error: 'Năm xuất bản phải nằm trong khoảng 1800 đến 2100.' });
+      }
       const rawQty = str(value(body, 'quantity', 'requested_quantity')) || '';
       const qtyMatch = rawQty.match(/\d+/);
       const requestedQuantity = qtyMatch ? Number(qtyMatch[0]) : null;
-      const edition = str(value(body, 'edition'));
-      const isbn = str(value(body, 'isbn'));
-      const reason = str(value(body, 'reason'));
+      if (requestedQuantity !== null && (!Number.isInteger(requestedQuantity) || requestedQuantity < 1 || requestedQuantity > 1000)) {
+        return res.status(400).json({ error: 'Số lượng đề xuất phải từ 1 đến 1000 bản.' });
+      }
+      const edition = str(value(body, 'edition'))?.trim() || null;
+      const isbn = str(value(body, 'isbn'))?.trim() || null;
+      const reason = str(value(body, 'reason'))?.trim() || null;
       const coverUrl = str(value(body, 'coverUrl', 'cover_url'));
       const status = str(value(body, 'status')) || 'Chờ duyệt';
       await pool.query(
@@ -568,22 +1257,46 @@ app.post('/api/:resource', async (req, res, next) => {
     if (resource === 'wishlist' || resource === 'waitingList') {
       const readerId = str(value(body, 'readerId', 'mabandoc')); const bookId = str(value(body, 'bookTitleId', 'madausach'));
       if (!readerId || !bookId) return res.status(400).json({ error: 'readerId and bookTitleId are required' });
-      if (resource === 'wishlist') await pool.query('INSERT INTO tusachcanhan (mabandoc, madausach) VALUES ($1,$2)', [readerId, bookId]);
-      else await pool.query('INSERT INTO danhsachcho (mabandoc, madausach, ngaydangky, thutu, trangthai) VALUES ($1,$2,COALESCE($3::timestamp, CURRENT_TIMESTAMP),$4,$5)', [readerId, bookId, value(body,'registeredAt'), value(body,'position'), value(body,'status')]);
+      if (resource === 'wishlist') {
+        const dup = await pool.query('SELECT 1 FROM tusachcanhan WHERE mabandoc=$1 AND madausach=$2', [readerId, bookId]);
+        if (dup.rowCount) return res.status(409).json({ error: 'Sách đã có trong tủ sách cá nhân.' });
+        await pool.query('INSERT INTO tusachcanhan (mabandoc, madausach) VALUES ($1,$2)', [readerId, bookId]);
+      } else {
+        const existingWait = await pool.query(
+          "SELECT 1 FROM danhsachcho WHERE mabandoc=$1 AND madausach=$2 AND UPPER(COALESCE(trangthai,'')) IN ('DANG CHO','DANG_CHO','SAN SANG','DA_GIU_SACH')",
+          [readerId, bookId]
+        );
+        if (existingWait.rowCount) return res.status(409).json({ error: 'Bạn đã đăng ký chờ đầu sách này rồi.' });
+        const posRes = await pool.query(
+          "SELECT COALESCE(MAX(thutu), 0) + 1 AS nextpos FROM danhsachcho WHERE madausach=$1 AND UPPER(COALESCE(trangthai,'')) IN ('DANG CHO','DANG_CHO','SAN SANG','DA_GIU_SACH')",
+          [bookId]
+        );
+        const nextPos = Number(value(body, 'position') ?? posRes.rows[0]?.nextpos ?? 1);
+        const status = str(value(body, 'status')) || 'DANG CHO';
+        await pool.query('INSERT INTO danhsachcho (mabandoc, madausach, ngaydangky, thutu, trangthai) VALUES ($1,$2,COALESCE($3::timestamp, CURRENT_TIMESTAMP),$4,$5)', [readerId, bookId, value(body, 'registeredAt'), nextPos, status]);
+      }
       return res.status(201).json({ ...body, id: `${readerId}:${bookId}` });
     }
     if (resource === 'suppliers') {
-      const id = str(value(body, 'id', 'maNhaCungCap'));
-      const name = str(value(body, 'name', 'tenNhaCungCap'));
-      if (!id || !name) return res.status(400).json({ error: 'id and name are required' });
-      await pool.query('INSERT INTO nhacungcap (manhacungcap,tennhacungcap,nguoilienhe,sodienthoai,email,diachi,trangthai) VALUES ($1,$2,$3,$4,$5,$6,$7)', [id,name,value(body,'contact','nguoiLienHe'),value(body,'phone','soDienThoai'),value(body,'email'),value(body,'address','diaChi'),value(body,'status','trangThai')]);
+      const id = str(value(body, 'id', 'maNhaCungCap'))?.trim();
+      const name = str(value(body, 'name', 'tenNhaCungCap'))?.trim();
+      const emailVal = str(value(body, 'email'))?.trim() ?? '';
+      const phoneVal = str(value(body, 'phone', 'soDienThoai'))?.trim() ?? '';
+      if (!id || !name) return res.status(400).json({ error: 'Mã và tên nhà cung cấp là bắt buộc.' });
+      if (emailVal && !isValidEmail(emailVal)) return res.status(400).json({ error: 'Email nhà cung cấp không hợp lệ.' });
+      if (phoneVal && !isValidPhone(phoneVal)) return res.status(400).json({ error: 'Số điện thoại nhà cung cấp phải gồm 10 hoặc 11 chữ số.' });
+      await pool.query('INSERT INTO nhacungcap (manhacungcap,tennhacungcap,nguoilienhe,sodienthoai,email,diachi,trangthai) VALUES ($1,$2,$3,$4,$5,$6,$7)', [id,name,value(body,'contact','nguoiLienHe'),phoneVal || null,emailVal || null,value(body,'address','diaChi'),value(body,'status','trangThai')]);
       return res.status(201).json(body);
     }
     if (resource === 'publishers') {
-      const id = str(value(body, 'id', 'maNhaXuatBan'));
-      const name = str(value(body, 'name', 'tenNhaXuatBan'));
-      if (!id || !name) return res.status(400).json({ error: 'id and name are required' });
-      await pool.query('INSERT INTO nhaxuatban (manhaxuatban,tennhaxuatban,sodienthoai,email,diachi,ghichu,trangthai) VALUES ($1,$2,$3,$4,$5,$6,$7)', [id,name,value(body,'phone','soDienThoai'),value(body,'email'),value(body,'address','diaChi'),value(body,'note','ghiChu'),value(body,'status','trangThai')]);
+      const id = str(value(body, 'id', 'maNhaXuatBan'))?.trim();
+      const name = str(value(body, 'name', 'tenNhaXuatBan'))?.trim();
+      const emailVal = str(value(body, 'email'))?.trim() ?? '';
+      const phoneVal = str(value(body, 'phone', 'soDienThoai'))?.trim() ?? '';
+      if (!id || !name) return res.status(400).json({ error: 'Mã và tên nhà xuất bản là bắt buộc.' });
+      if (emailVal && !isValidEmail(emailVal)) return res.status(400).json({ error: 'Email nhà xuất bản không hợp lệ.' });
+      if (phoneVal && !isValidPhone(phoneVal)) return res.status(400).json({ error: 'Số điện thoại nhà xuất bản phải gồm 10 hoặc 11 chữ số.' });
+      await pool.query('INSERT INTO nhaxuatban (manhaxuatban,tennhaxuatban,sodienthoai,email,diachi,ghichu,trangthai) VALUES ($1,$2,$3,$4,$5,$6,$7)', [id,name,phoneVal || null,emailVal || null,value(body,'address','diaChi'),value(body,'note','ghiChu'),value(body,'status','trangThai')]);
       return res.status(201).json(body);
     }
     if (resource === 'logs') {
@@ -617,22 +1330,45 @@ app.put('/api/:resource/:id', async (req, res, next) => {
     }
     if (resource === 'bookTitles') {
       const categoryId = await resolveCategoryId(value(body,'categoryId','category','maDanhMuc'));
-      if (!categoryId) return res.status(400).json({ error: 'category is required' });
-      const result = await pool.query('INSERT INTO dausach (madausach,madanhmuc,tensach,tacgia,theloai,chude,khoa,soluongtong,soluongsan,nhaxuatban,namxuatban,anhbia) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) ON CONFLICT (madausach) DO UPDATE SET madanhmuc=EXCLUDED.madanhmuc,tensach=EXCLUDED.tensach,tacgia=EXCLUDED.tacgia,theloai=EXCLUDED.theloai,chude=EXCLUDED.chude,khoa=EXCLUDED.khoa,soluongtong=EXCLUDED.soluongtong,soluongsan=EXCLUDED.soluongsan,nhaxuatban=EXCLUDED.nhaxuatban,namxuatban=EXCLUDED.namxuatban,anhbia=EXCLUDED.anhbia', [id, categoryId, value(body,'title','tenSach'), value(body,'authors','author','tacGia'), value(body,'genre','theLoai'), value(body,'subject','chuDe'), value(body,'faculty','khoa'), value(body,'total','totalCopies','soLuongTong') ?? 0, value(body,'available','availableCopies','soLuongSan') ?? 0, value(body,'publisher','nhaXuatBan'), value(body,'publishYear','namXuatBan') ? Number(value(body,'publishYear','namXuatBan')) : 2021, value(body,'coverUrl')]);
+      const title = str(value(body,'title','tenSach'))?.trim();
+      if (!categoryId || !title) return res.status(400).json({ error: 'Thể loại và tên đầu sách là bắt buộc.' });
+      const total = Number(value(body,'total','totalCopies','soLuongTong') ?? 0);
+      const available = Number(value(body,'available','availableCopies','soLuongSan') ?? 0);
+      const publishYearRaw = value(body,'publishYear','namXuatBan');
+      const publishYear = publishYearRaw ? Number(publishYearRaw) : 2021;
+      if (!Number.isInteger(total) || total < 0 || !Number.isInteger(available) || available < 0 || available > total) {
+        return res.status(400).json({ error: 'Số lượng tổng và số sẵn có không hợp lệ.' });
+      }
+      if (!Number.isInteger(publishYear) || publishYear < 1800 || publishYear > 2100) {
+        return res.status(400).json({ error: 'Năm xuất bản phải nằm trong khoảng 1800 đến 2100.' });
+      }
+      await pool.query('INSERT INTO dausach (madausach,madanhmuc,tensach,tacgia,theloai,chude,khoa,soluongtong,soluongsan,nhaxuatban,namxuatban,anhbia) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) ON CONFLICT (madausach) DO UPDATE SET madanhmuc=EXCLUDED.madanhmuc,tensach=EXCLUDED.tensach,tacgia=EXCLUDED.tacgia,theloai=EXCLUDED.theloai,chude=EXCLUDED.chude,khoa=EXCLUDED.khoa,soluongtong=EXCLUDED.soluongtong,soluongsan=EXCLUDED.soluongsan,nhaxuatban=EXCLUDED.nhaxuatban,namxuatban=EXCLUDED.namxuatban,anhbia=EXCLUDED.anhbia', [id, categoryId, title, value(body,'authors','author','tacGia'), value(body,'genre','theLoai'), value(body,'subject','chuDe'), value(body,'faculty','khoa'), total, available, value(body,'publisher','nhaXuatBan'), publishYear, value(body,'coverUrl')]);
       return res.json({ ...body, id });
     }
     if (resource === 'readers' || resource === 'employees') {
       const reader = resource === 'readers';
-      const username = str(value(body, 'username', 'tenDangNhap'));
-      const name = str(value(body, 'name', 'hoTen'));
-      if (!username || !name) return res.status(400).json({ error: 'username and name are required' });
+      const username = str(value(body, 'username', 'tenDangNhap'))?.trim();
+      const name = str(value(body, 'name', 'hoTen'))?.trim();
+      const emailVal = str(value(body, 'email'))?.trim() ?? '';
+      const phoneVal = str(value(body, 'phone', 'soDienThoai'))?.trim() ?? '';
+      const cccdVal = str(value(body, 'cccd'))?.trim() ?? '';
+      const dobVal = value(body, 'dob', 'ngaySinh');
+      if (!username || !name) return res.status(400).json({ error: 'Tên đăng nhập và họ tên là bắt buộc.' });
+      if (emailVal && emailVal.includes('@') && !isValidEmail(emailVal)) return res.status(400).json({ error: 'Địa chỉ email không hợp lệ.' });
+      if (phoneVal && !isValidPhone(phoneVal)) return res.status(400).json({ error: 'Số điện thoại phải gồm 10 hoặc 11 chữ số.' });
+      if (dobVal && !isValidCalendarDate(dobVal)) return res.status(400).json({ error: 'Ngày sinh không hợp lệ (định dạng DD / MM / YYYY).' });
       const client = await pool.connect();
       try {
         await client.query('BEGIN');
-        const current = await client.query('SELECT u.tendangnhap FROM nguoidung u WHERE u.manguoidung=$1', [id]);
-        if (!current.rowCount) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Record not found' }); }
+        const current = await client.query('SELECT u.tendangnhap, u.cccd FROM nguoidung u WHERE u.manguoidung=$1', [id]);
+        if (!current.rowCount) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Không tìm thấy hồ sơ cần cập nhật.' }); }
         const oldUsername = current.rows[0].tendangnhap;
-        await client.query('UPDATE nguoidung SET hoten=$1,email=$2,sodienthoai=$3,cccd=$4,gioitinh=$5,ngaysinh=$6,diachi=$7,anhdaidien=$8 WHERE manguoidung=$9', [name, value(body,'email'), value(body,'phone','soDienThoai'), value(body,'cccd'), value(body,'gender','gioiTinh'), dateValue(value(body,'dob','ngaySinh')), value(body,'address','diaChi'), value(body,'avatarUrl','anhDaiDien'), id]);
+        const existingCccd = String(current.rows[0].cccd ?? '').trim();
+        if (cccdVal && cccdVal !== existingCccd && !isValidCccd(cccdVal)) {
+          await client.query('ROLLBACK');
+          return res.status(400).json({ error: 'Số CCCD/CMND phải gồm 9 hoặc 12 chữ số.' });
+        }
+        await client.query('UPDATE nguoidung SET hoten=$1,email=$2,sodienthoai=$3,cccd=$4,gioitinh=$5,ngaysinh=$6,diachi=$7,anhdaidien=$8 WHERE manguoidung=$9', [name, value(body,'email'), value(body,'phone','soDienThoai'), value(body,'cccd'), value(body,'gender','gioiTinh'), dateValue(dobVal), value(body,'address','diaChi'), value(body,'avatarUrl','anhDaiDien'), id]);
         await client.query('UPDATE taikhoan SET vaitro=COALESCE($1,vaitro),trangthai=COALESCE($2,trangthai) WHERE tendangnhap=$3', [value(body,'role','vaiTro'), value(body,'status','trangThai'), oldUsername]);
         if (reader) await client.query('UPDATE bandoc SET loaibandoc=$1,tongnophat=COALESCE($2,tongnophat),ngaycapthe=$3,ngayhetthe=$4 WHERE mabandoc=$5', [value(body,'readerType','loaiBanDoc'), value(body,'outstandingFine','tongNoPhat'), dateValue(value(body,'issueDate','ngayCapThe')), dateValue(value(body,'expiryDate','ngayHetHanThe')), id]);
         else await client.query('UPDATE nhanvien SET chucvu=$1,trangthailamviec=$2 WHERE manhanvien=$3', [value(body,'position','chucVu'), value(body,'employmentStatus','trangThaiLamViec'), id]);
@@ -672,17 +1408,130 @@ app.put('/api/:resource/:id', async (req, res, next) => {
       return res.json({ ...body, id });
     }
     if (resource === 'fines') {
-      const result = await pool.query('UPDATE phieuphat SET trangthaithanhtoan=COALESCE($1,trangthaithanhtoan), sotien=COALESCE($2,sotien), loaivipham=COALESCE($3,loaivipham) WHERE maphieuphat=$4', [value(body,'paymentStatus','trangThaiThanhToan'), value(body,'amount','soTien'), value(body,'violation','loaiViPham'), id]);
-      if (!result.rowCount) return res.status(404).json({ error: 'Record not found' });
-      return res.json({ ...body, id });
+      const amtRaw = value(body,'amount','soTien');
+      if (amtRaw !== null && amtRaw !== undefined) {
+        const amt = Number(amtRaw);
+        if (!Number.isFinite(amt) || amt < 0) return res.status(400).json({ error: 'Số tiền phạt phải lớn hơn hoặc bằng 0.' });
+      }
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const fineRes = await client.query(
+          'UPDATE phieuphat SET trangthaithanhtoan=COALESCE($1,trangthaithanhtoan), sotien=COALESCE($2,sotien), loaivipham=COALESCE($3,loaivipham) WHERE maphieuphat=$4 RETURNING mabandoc',
+          [value(body,'paymentStatus','trangThaiThanhToan'), value(body,'amount','soTien'), value(body,'violation','loaiViPham'), id]
+        );
+        if (!fineRes.rowCount) {
+          await client.query('ROLLBACK');
+          return res.status(404).json({ error: 'Record not found' });
+        }
+        const readerId = String(fineRes.rows[0].mabandoc);
+        const debtRes = await client.query(
+          "SELECT COALESCE(SUM(sotien), 0) AS total_debt FROM phieuphat WHERE mabandoc=$1 AND UPPER(COALESCE(trangthaithanhtoan,'')) NOT LIKE '%ĐÃ THANH TOÁN%' AND UPPER(COALESCE(trangthaithanhtoan,'')) NOT LIKE '%DA_THANH_TOAN%'",
+          [readerId]
+        );
+        const newDebt = Number(debtRes.rows[0]?.total_debt ?? 0);
+        await client.query('UPDATE bandoc SET tongnophat=$1 WHERE mabandoc=$2', [newDebt, readerId]);
+        if (newDebt <= 0) {
+          await client.query(
+            "UPDATE taikhoan a SET trangthai='ACTIVE' FROM nguoidung u WHERE u.tendangnhap=a.tendangnhap AND u.manguoidung=$1 AND UPPER(COALESCE(a.trangthai,''))='LOCKED'",
+            [readerId]
+          );
+        }
+        await client.query('COMMIT');
+        return res.json({ ...body, id, readerId, outstandingFine: newDebt });
+      } catch (error) { await client.query('ROLLBACK'); throw error; }
+      finally { client.release(); }
     }
     if (resource === 'renewals') {
-      const result = await pool.query(
-        'UPDATE yeucaugiahan SET trangthaiduyet=COALESCE($1,trangthaiduyet), songaygiahan=COALESCE($2,songaygiahan) WHERE magiahan=$3',
-        [value(body, 'status', 'trangThaiDuyet'), value(body, 'days', 'soNgayGiaHan'), id]
-      );
-      if (!result.rowCount) return res.status(404).json({ error: 'Record not found' });
-      return res.json({ ...body, id });
+      const daysRaw = value(body, 'days', 'soNgayGiaHan');
+      if (daysRaw !== null && daysRaw !== undefined) {
+        const d = Number(daysRaw);
+        if (!Number.isInteger(d) || d < 1 || d > 30) return res.status(400).json({ error: 'Số ngày gia hạn phải từ 1 đến 30.' });
+      }
+      const nextStatus = str(value(body, 'status', 'trangThaiDuyet'));
+      const maxRenewals = Number(value(body, 'maxRenewals') ?? 2);
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const reqRes = await client.query(
+          `SELECT y.magiahan, y.maphieumuon, y.songaygiahan, y.trangthaiduyet, pm.ngayhentra, pm.trangthai AS loan_status, c.madausach
+           FROM yeucaugiahan y
+           JOIN phieumuon pm ON pm.maphieumuon = y.maphieumuon
+           JOIN cuonsach c ON c.macuonsach = pm.macuonsach
+           WHERE y.magiahan=$1 FOR UPDATE`,
+          [id]
+        );
+        if (!reqRes.rowCount) {
+          await client.query('ROLLBACK');
+          return res.status(404).json({ error: 'Record not found' });
+        }
+        const row = reqRes.rows[0];
+        const daysToAdd = Number(daysRaw ?? row.songaygiahan ?? 7);
+        const normNext = normalizeStatus(nextStatus);
+        const isApproving = normNext.includes('da duyet') && !normalizeStatus(row.trangthaiduyet).includes('da duyet');
+
+        if (isApproving) {
+          const loanNorm = normalizeStatus(row.loan_status);
+          if (loanNorm.includes('da tra') || loanNorm.includes('mat')) {
+            await client.query('ROLLBACK');
+            return res.status(409).json({ error: 'Phiếu mượn đã kết thúc, không thể duyệt gia hạn.' });
+          }
+          const todayIso = new Date().toISOString().slice(0, 10);
+          if (loanNorm.includes('qua han') || (row.ngayhentra && new Date(String(row.ngayhentra)) < new Date(todayIso))) {
+            await client.query('ROLLBACK');
+            return res.status(409).json({ error: 'Phiếu mượn đã quá hạn, không đủ điều kiện duyệt gia hạn.' });
+          }
+          const approvedCntRes = await client.query(
+            "SELECT COUNT(*)::int AS cnt FROM yeucaugiahan WHERE maphieumuon=$1 AND UPPER(COALESCE(trangthaiduyet,'')) IN ('DA DUYET','ĐÃ DUYỆT','DA_DUYET')",
+            [row.maphieumuon]
+          );
+          if (Number(approvedCntRes.rows[0]?.cnt ?? 0) >= maxRenewals) {
+            await client.query('ROLLBACK');
+            return res.status(409).json({ error: `Phiếu mượn ${row.maphieumuon} đã đạt số lần gia hạn tối đa (${maxRenewals}).` });
+          }
+          const waitingRes = await client.query(
+            "SELECT 1 FROM danhsachcho WHERE madausach=$1 AND UPPER(COALESCE(trangthai,'')) IN ('DANG CHO','DANG_CHO','SAN SANG','DA_GIU_SACH') LIMIT 1",
+            [row.madausach]
+          );
+          if (waitingRes.rowCount) {
+            await client.query('ROLLBACK');
+            return res.status(409).json({ error: 'Đầu sách đang có bạn đọc khác chờ mượn, không thể duyệt gia hạn.' });
+          }
+          await client.query(
+            "UPDATE phieumuon SET ngayhentra = COALESCE(ngayhentra, CURRENT_DATE) + ($1 * INTERVAL '1 day') WHERE maphieumuon=$2",
+            [daysToAdd, row.maphieumuon]
+          );
+        }
+
+        await client.query(
+          'UPDATE yeucaugiahan SET trangthaiduyet=COALESCE($1,trangthaiduyet), songaygiahan=COALESCE($2,songaygiahan) WHERE magiahan=$3',
+          [nextStatus, daysRaw ?? null, id]
+        );
+        await client.query('COMMIT');
+        return res.json({ ...body, id });
+      } catch (error) { await client.query('ROLLBACK'); throw error; }
+      finally { client.release(); }
+    }
+    if (resource === 'waitingList') {
+      const readerId = str(value(body, 'readerId', 'mabandoc'));
+      const bookId = str(value(body, 'bookTitleId', 'madausach')) || id;
+      const nextStatus = str(value(body, 'status', 'trangThai'));
+      if (!readerId || !bookId) return res.status(400).json({ error: 'readerId and bookTitleId are required' });
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const prevRes = await client.query('SELECT trangthai FROM danhsachcho WHERE mabandoc=$1 AND madausach=$2 FOR UPDATE', [readerId, bookId]);
+        if (!prevRes.rowCount) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Record not found' }); }
+        const prevNorm = normalizeStatus(prevRes.rows[0].trangthai);
+        const nextNorm = normalizeStatus(nextStatus);
+        await client.query('UPDATE danhsachcho SET trangthai=COALESCE($1,trangthai) WHERE mabandoc=$2 AND madausach=$3', [nextStatus, readerId, bookId]);
+        if ((prevNorm === 'san sang' || prevNorm === 'da_giu_sach') && (nextNorm.includes('huy') || nextNorm.includes('het han'))) {
+          await releaseHeldCopyOrPromoteNextWaiter(client, bookId);
+        }
+        await client.query('COMMIT');
+        return res.json({ ...body, id });
+      } catch (error) { await client.query('ROLLBACK'); throw error; }
+      finally { client.release(); }
     }
     if (resource === 'purchaseRequests') {
       const result = await pool.query(
@@ -694,8 +1543,8 @@ app.put('/api/:resource/:id', async (req, res, next) => {
     }
     if (resource === 'suggestions') {
       const result = await pool.query(
-        'UPDATE ixs_reader_book_suggestions SET status=COALESCE($1,status) WHERE id=$2',
-        [value(body, 'status', 'trangThaiDuyet'), id]
+        'UPDATE ixs_reader_book_suggestions SET status=COALESCE($1,status), rejection_reason=COALESCE($2,rejection_reason) WHERE id=$3',
+        [value(body, 'status', 'trangThaiDuyet'), value(body, 'rejectionReason', 'lyDoTuChoi'), id]
       );
       if (!result.rowCount) return res.status(404).json({ error: 'Record not found' });
       return res.json({ ...body, id });
@@ -714,13 +1563,29 @@ app.delete('/api/:resource/:id', async (req, res, next) => {
       if (!result.rowCount) return res.status(404).json({ error: 'Record not found' });
       return res.status(204).end();
     }
-    if (resource === 'wishlist' || resource === 'waitingList') {
+    if (resource === 'wishlist') {
       const readerId = String(req.query.readerId ?? ''); const bookId = String(req.query.bookTitleId ?? id);
       if (!readerId || !bookId) return res.status(400).json({ error: 'readerId and bookTitleId query parameters are required' });
-      const table = resource === 'wishlist' ? 'tusachcanhan' : 'danhsachcho';
-      const result = await pool.query(`DELETE FROM ${table} WHERE mabandoc=$1 AND madausach=$2`, [readerId, bookId]);
+      const result = await pool.query('DELETE FROM tusachcanhan WHERE mabandoc=$1 AND madausach=$2', [readerId, bookId]);
       if (!result.rowCount) return res.status(404).json({ error: 'Record not found' });
       return res.status(204).end();
+    }
+    if (resource === 'waitingList') {
+      const readerId = String(req.query.readerId ?? ''); const bookId = String(req.query.bookTitleId ?? id);
+      if (!readerId || !bookId) return res.status(400).json({ error: 'readerId and bookTitleId query parameters are required' });
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const cur = await client.query('DELETE FROM danhsachcho WHERE mabandoc=$1 AND madausach=$2 RETURNING trangthai', [readerId, bookId]);
+        if (!cur.rowCount) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Record not found' }); }
+        const curNorm = normalizeStatus(cur.rows[0].trangthai);
+        if (curNorm === 'san sang' || curNorm === 'da_giu_sach') {
+          await releaseHeldCopyOrPromoteNextWaiter(client, bookId);
+        }
+        await client.query('COMMIT');
+        return res.status(204).end();
+      } catch (error) { await client.query('ROLLBACK'); throw error; }
+      finally { client.release(); }
     }
     if (resource === 'readers' || resource === 'employees') {
       const client = await pool.connect();
@@ -733,31 +1598,51 @@ app.delete('/api/:resource/:id', async (req, res, next) => {
         const { tendangnhap } = lookup.rows[0];
 
         if (resource === 'readers') {
-          // Xóa các bảng phụ thuộc vào bạn đọc trước
-          await client.query('DELETE FROM ixs_reader_book_suggestions WHERE reader_id=$1', [id]);
-          await client.query('DELETE FROM tusachcanhan WHERE mabandoc=$1', [id]);
-          await client.query('DELETE FROM danhsachcho WHERE mabandoc=$1', [id]);
-          await client.query('DELETE FROM phieuphat WHERE mabandoc=$1', [id]);
-          // Cập nhật hoặc xóa các phiếu mượn của bạn đọc
-          const loanRows = await client.query('SELECT maphieumuon FROM phieumuon WHERE mabandoc=$1', [id]);
-          for (const loan of loanRows.rows) {
-            await client.query('DELETE FROM yeucaugiahan WHERE maphieumuon=$1', [loan.maphieumuon]);
-            await client.query('DELETE FROM phieuphat WHERE maphieumuon=$1', [loan.maphieumuon]);
+          const activeLoans = await client.query(
+            "SELECT 1 FROM phieumuon WHERE mabandoc=$1 AND UPPER(COALESCE(trangthai,'')) NOT LIKE '%ĐÃ TRẢ%' AND UPPER(COALESCE(trangthai,'')) NOT LIKE '%DA_TRA%' LIMIT 1",
+            [id]
+          );
+          const unpaidFines = await client.query(
+            "SELECT 1 FROM phieuphat WHERE mabandoc=$1 AND UPPER(COALESCE(trangthaithanhtoan,'')) NOT LIKE '%ĐÃ THANH TOÁN%' AND UPPER(COALESCE(trangthaithanhtoan,'')) NOT LIKE '%DA_THANH_TOAN%' LIMIT 1",
+            [id]
+          );
+          if (activeLoans.rowCount || unpaidFines.rowCount) {
+            await client.query('ROLLBACK');
+            return res.status(409).json({ error: 'Không thể xóa bạn đọc đang có giao dịch chưa xong (còn sách đang mượn hoặc còn nợ tiền phạt).' });
           }
-          await client.query('DELETE FROM phieumuon WHERE mabandoc=$1', [id]);
-          await client.query('DELETE FROM bandoc WHERE mabandoc=$1', [id]);
+          if (tendangnhap) {
+            await client.query("UPDATE taikhoan SET trangthai='DELETED' WHERE tendangnhap=$1", [tendangnhap]);
+          }
         } else {
-          await client.query('DELETE FROM nhanvien WHERE manhanvien=$1', [id]);
-        }
-
-        await client.query('DELETE FROM nguoidung WHERE manguoidung=$1', [id]);
-        if (tendangnhap) {
-          await client.query('DELETE FROM taikhoan WHERE tendangnhap=$1', [tendangnhap]);
+          const hasTx = await client.query(
+            'SELECT 1 FROM phieumuon WHERE manhanvien=$1 UNION ALL SELECT 1 FROM phieunhap WHERE manhanvien=$1 UNION ALL SELECT 1 FROM phieuphat WHERE manhanvien=$1 LIMIT 1',
+            [id]
+          );
+          if (hasTx.rowCount) {
+            await client.query('ROLLBACK');
+            return res.status(409).json({ error: 'Không thể xóa nhân viên đã có lịch sử xử lý giao dịch.' });
+          }
+          await client.query("UPDATE nhanvien SET trangthailamviec='DA_NGHI' WHERE manhanvien=$1", [id]);
+          if (tendangnhap) {
+            await client.query("UPDATE taikhoan SET trangthai='DELETED' WHERE tendangnhap=$1", [tendangnhap]);
+          }
         }
         await client.query('COMMIT');
         return res.status(204).end();
       } catch (error) { await client.query('ROLLBACK'); throw error; }
       finally { client.release(); }
+    }
+    if (resource === 'categories') {
+      const hasTitles = await pool.query('SELECT 1 FROM dausach WHERE madanhmuc=$1 LIMIT 1', [id]);
+      if (hasTitles.rowCount) return res.status(409).json({ error: 'Không thể xóa danh mục đã chứa tài liệu.' });
+    }
+    if (resource === 'bookTitles') {
+      const hasCopies = await pool.query('SELECT 1 FROM cuonsach WHERE madausach=$1 LIMIT 1', [id]);
+      if (hasCopies.rowCount) return res.status(409).json({ error: 'Không thể xóa đầu sách đang có cuốn sách liên kết.' });
+    }
+    if (resource === 'bookCopies') {
+      const activeCopy = await pool.query("SELECT 1 FROM phieumuon WHERE macuonsach=$1 AND UPPER(COALESCE(trangthai,'')) NOT LIKE '%ĐÃ TRẢ%' LIMIT 1", [id]);
+      if (activeCopy.rowCount) return res.status(409).json({ error: 'Không thể xóa cuốn sách đang được mượn.' });
     }
     if (resource === 'importReceipts') {
       const client = await pool.connect();
@@ -788,16 +1673,19 @@ app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
     const code = String(error.code);
     const constraint = 'constraint' in error ? String(error.constraint) : '';
     if (code === '23505') {
-      return res.status(409).json({ error: constraint.includes('taikhoan') ? 'Username already exists' : 'A record with this identifier already exists' });
+      return res.status(409).json({ error: constraint.includes('taikhoan') ? 'Tên đăng nhập đã tồn tại trong hệ thống.' : 'Dữ liệu với mã định danh này đã tồn tại.' });
     }
-    if (code === '23503') return res.status(409).json({ error: 'This record is still referenced by related data' });
+    if (code === '23503') return res.status(409).json({ error: 'Không thể thao tác vì dữ liệu đang được liên kết bởi bản ghi khác.' });
+    if (code === '22P02' || code === '22007' || code === '22008') {
+      return res.status(400).json({ error: 'Định dạng dữ liệu hoặc ngày tháng không hợp lệ.' });
+    }
   }
-  const message = error instanceof Error ? error.message : 'Database request failed';
-  res.status(500).json({ error: message });
+  res.status(500).json({ error: 'Lỗi hệ thống khi xử lý yêu cầu. Vui lòng thử lại sau.' });
 });
 
 async function start(): Promise<void> {
   await runMigrations();
+  await pool.query('ALTER TABLE ixs_reader_book_suggestions ADD COLUMN IF NOT EXISTS rejection_reason TEXT');
   app.listen(port, () => console.log(`IXS Library API listening on port ${port}`));
 }
 

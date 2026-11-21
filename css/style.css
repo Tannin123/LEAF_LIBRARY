@@ -391,3 +391,128 @@ body.auth-page {
   background-color: var(--bg-surface);
   border-color: var(--primary-navy);
 }
+
+/* ===== NIELSEN USABILITY ENHANCEMENTS (SHARED) ===== */
+:focus-visible {
+  outline: 2px solid var(--primary-navy);
+  outline-offset: 2px;
+}
+
+.auth-page .success-msg {
+  color: #166534;
+  font-size: 12.5px;
+  text-align: center;
+  margin-bottom: 12px;
+  display: none;
+  font-weight: 500;
+  background-color: #DCFCE7;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid #86EFAC;
+}
+
+.auth-page .field-hint {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.auth-page .input-wrapper input.is-invalid,
+.is-invalid {
+  border-color: #DC2626 !important;
+  background-color: #FEF2F2 !important;
+}
+
+.auth-page .btn:disabled,
+button.is-loading {
+  opacity: 0.65;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.auth-page .password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+.auth-page .password-toggle-btn:hover {
+  color: var(--primary-navy);
+}
+
+.field-error-text {
+  color: #B91C1C;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+  display: block;
+}
+
+.form-helper-text {
+  color: var(--text-muted);
+  font-size: 11.5px;
+  margin-top: 3px;
+  line-height: 1.35;
+}
+
+.data-status-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  background-color: #FFFBEB;
+  border: 1px solid #FDE68A;
+  color: #92400E;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.data-status-banner.is-error {
+  background-color: #FEF2F2;
+  border-color: #FECACA;
+  color: #991B1B;
+}
+
+.data-status-banner-btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid currentColor;
+  background: #FFFFFF;
+  color: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.data-status-banner-btn:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.toast-undo-btn {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid currentColor;
+  color: inherit;
+  border-radius: 6px;
+  padding: 3px 9px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.toast-undo-btn:hover {
+  background: #FFFFFF;
+}

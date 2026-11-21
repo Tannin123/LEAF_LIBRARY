@@ -11,9 +11,30 @@
 <body class="user-interface reader-workflow-page">
   <div class="app-wrapper">
     <header class="header-container navbar">
-      <div class="header-logo" id="sidebarToggle" title="Thu gọn / Mở rộng menu"><img class="logo-full" src="../assets/images/logo-leaflibrary.png" alt="Leaf Library Logo"><img class="logo-compact" src="../assets/images/logo-leaf.png" alt="Leaf Library Logo"></div>
-      <div class="header-greeting"><span class="greeting-hello">hello,</span><span class="greeting-name" id="headerGreetingName">Lưu Tấn Nin</span></div>
-      <div class="header-user" id="headerUserContainer"><div class="user-avatar-circle" id="btnUserAvatar" title="Tài khoản của tôi"><svg id="headerAvatarDefaultIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><img id="headerAvatarImg" class="avatar-img-fill" src="" alt="Avatar" style="display:none"></div><div class="user-dropdown-menu" id="userDropdownMenu"><div class="user-dropdown-header"><div class="user-dropdown-name" id="dropdownUserName">Lưu Tấn Nin</div><div class="user-dropdown-meta"><span id="dropdownUserCode">Mã ĐG: 123456</span><span class="badge status-badge badge-reader-valid" id="dropdownUserRole">Độc giả</span></div></div><button type="button" class="user-dropdown-item" id="btnOpenMyAccount"><span>Thông tin tài khoản</span></button><button type="button" class="user-dropdown-item" id="btnOpenChangePassword"><span>Đổi mật khẩu</span></button><div class="user-dropdown-divider"></div><button type="button" class="user-dropdown-item logout-item" id="btnUserLogout"><span>Đăng xuất</span></button></div></div>
+      <div class="header-logo" id="sidebarToggle" title="Thu gọn / Mở rộng menu"><img class="logo-full" src="../assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false"><img class="logo-compact" src="../assets/images/logo-leaf.png" alt="Leaf Library Logo" draggable="false"></div>
+      <div class="header-greeting"><span class="greeting-hello">hello,</span><span class="greeting-name" id="headerGreetingName">Bạn đọc</span></div>
+      <div class="header-user" id="headerUserContainer">
+        <div class="user-avatar-circle" id="btnUserAvatar" title="Tài khoản của tôi"><svg id="headerAvatarDefaultIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><img id="headerAvatarImg" class="avatar-img-fill" src="" alt="Avatar" style="display:none"></div>
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <div class="user-dropdown-header">
+            <div class="user-dropdown-name" id="dropdownUserName">Bạn đọc</div>
+            <div class="user-dropdown-meta"><span id="dropdownUserCode">Mã ĐG: 220260004</span><span class="badge status-badge badge-reader-valid" id="dropdownUserRole">Độc giả</span></div>
+          </div>
+          <button type="button" class="user-dropdown-item" id="btnOpenMyAccount">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Thông tin tài khoản</span>
+          </button>
+          <button type="button" class="user-dropdown-item" id="btnOpenChangePassword">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            <span>Đổi mật khẩu</span>
+          </button>
+          <div class="user-dropdown-divider"></div>
+          <button type="button" class="user-dropdown-item logout-item" id="btnUserLogout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span>Đăng xuất</span>
+          </button>
+        </div>
+      </div>
     </header>
     <div class="main-body">
       <aside class="sidebar-menu admin-sidebar" id="sidebarMenu">
@@ -25,10 +46,29 @@
         <a href="suggestions.html" class="sidebar-item active" title="Đề xuất sách"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Đề xuất sách</span></a>
       </aside>
       <main class="content-section user-dashboard-section workflow-content">
-        <div class="user-dash-topbar"><div class="workflow-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="suggestionSearch" type="search" placeholder="Tìm theo mã hoặc tên sách..."></div><div class="user-dash-actions"><button type="button" class="topbar-icon-btn" id="btnNotification" title="Thông báo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="topbar-badge badge-red">2</span></button></div></div>
+        <div class="user-dash-topbar"><div class="workflow-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="suggestionSearch" type="search" placeholder="Tìm theo mã, tên sách hoặc tác giả..." aria-label="Tìm kiếm đề xuất sách"></div><div class="user-dash-actions"><button type="button" class="topbar-icon-btn" id="btnNotification" title="Thông báo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="topbar-badge badge-red" id="notifBadge" style="display: none;">0</span></button></div></div>
         <section class="workflow-page-content" aria-labelledby="suggestionsTitle">
           <div class="workflow-heading workflow-heading-actions"><div><h1 id="suggestionsTitle">Đề xuất sách mới</h1><p>Gửi thư viện bổ sung sách bạn cần cho việc học và nghiên cứu.</p></div><button type="button" class="suggestion-create-button" id="btnOpenSuggestionForm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Tạo đề xuất mới</button></div>
-          <div class="workflow-table-wrap"><table class="workflow-table suggestion-table"><thead><tr><th>Mã đề xuất</th><th>Tên tài liệu / giáo trình</th><th>Tác giả / NXB</th><th>Năm XB / SL</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody id="suggestionRows"></tbody></table></div>
+          <div class="subtabs-container suggestion-subtabs-container">
+            <div class="subtabs-list suggestion-tabs" role="tablist" aria-label="Lọc đề xuất sách">
+              <button type="button" class="subtab-item active" role="tab" aria-selected="true" data-suggestion-status="all">Tất cả đề xuất</button>
+              <button type="button" class="subtab-item" role="tab" aria-selected="false" data-suggestion-status="Chờ duyệt">Chờ duyệt</button>
+              <button type="button" class="subtab-item" role="tab" aria-selected="false" data-suggestion-status="Đã duyệt">Đã duyệt</button>
+              <button type="button" class="subtab-item" role="tab" aria-selected="false" data-suggestion-status="Từ chối">Từ chối</button>
+            </div>
+            <div class="subtabs-line"></div>
+          </div>
+          <div class="table-responsive suggestion-table-responsive">
+            <div class="user-suggestion-header">
+              <div>Mã đề xuất</div>
+              <div>Tên tài liệu / giáo trình</div>
+              <div>Tác giả / NXB</div>
+              <div>Năm XB / SL</div>
+              <div>Trạng thái</div>
+              <div>Thao tác</div>
+            </div>
+            <div class="table-frame user-suggestion-frame" id="suggestionRows"></div>
+          </div>
           <div class="pagination-wrapper" id="suggestionPagination"><button type="button" class="page-box disabled" disabled>&lt;</button><button type="button" class="page-box active">1</button><button type="button" class="page-box disabled" disabled>&gt;</button></div>
         </section>
       </main>
@@ -38,227 +78,207 @@
   <div class="modal-overlay" id="modalCreateSuggestion">
     <div class="modal-box suggestion-modal" role="dialog" aria-modal="true" aria-labelledby="suggestionFormTitle">
       <div class="user-modal-header"><h2 class="user-modal-title" id="suggestionFormTitle">TẠO ĐỀ XUẤT SÁCH MỚI</h2><button type="button" class="user-modal-close-btn" id="btnCloseSuggestionForm" aria-label="Đóng">✕</button></div>
-      <form id="formCreateSuggestion" class="suggestion-form">
+      <form id="formCreateSuggestion" class="suggestion-form" novalidate>
         <div class="suggestion-form-grid">
-          <div class="suggestion-cover-column"><label for="suggestionCover">Ảnh bìa tài liệu dự kiến</label><label class="suggestion-upload-box" for="suggestionCover"><img id="suggestionCoverPreview" alt="Ảnh bìa xem trước" hidden><span id="suggestionCoverPrompt">Chọn ảnh bìa<br><small>PNG, JPG hoặc WEBP</small></span></label><input id="suggestionCover" type="file" accept="image/png,image/jpeg,image/webp"><div class="suggestion-form-note">Mã đề xuất được tạo tự động khi gửi.</div></div>
+          <div class="suggestion-cover-column"><label for="suggestionCover">Ảnh bìa tài liệu dự kiến</label><label class="suggestion-upload-box" for="suggestionCover"><img id="suggestionCoverPreview" alt="Ảnh bìa xem trước" hidden><span id="suggestionCoverPrompt">Chọn ảnh bìa<br><small>PNG, JPG hoặc WEBP (tối đa 5 MB)</small></span></label><input id="suggestionCover" type="file" accept="image/png,image/jpeg,image/webp"><div class="suggestion-form-note">Mã đề xuất được tạo tự động khi gửi.</div></div>
           <div class="suggestion-fields-column"><div class="suggestion-form-section-title">Thông tin giáo trình / sách</div><label for="suggestionTitle">Tên tài liệu / giáo trình <b>*</b></label><input id="suggestionTitle" name="title" required placeholder="Ví dụ: Thiết kế hệ thống phân tán">
             <div class="suggestion-fields-two"><div><label for="suggestionAuthor">Tác giả / Nhóm tác giả <b>*</b></label><input id="suggestionAuthor" name="author" required placeholder="Tên tác giả"></div><div><label for="suggestionPublisher">Nhà xuất bản</label><input id="suggestionPublisher" name="publisher" placeholder="Nhà xuất bản"></div></div>
-            <div class="suggestion-fields-four"><div><label for="suggestionYear">Năm xuất bản</label><input id="suggestionYear" name="year" type="number" min="1900" max="2100" placeholder="2026"></div><div><label for="suggestionQuantity">Số lượng</label><input id="suggestionQuantity" name="quantity" type="number" min="1" placeholder="10"></div><div><label for="suggestionEdition">Tái bản lần thứ</label><input id="suggestionEdition" name="edition" placeholder="Lần 1"></div><div><label for="suggestionIsbn">Mã ISBN-10/13</label><input id="suggestionIsbn" name="isbn" placeholder="ISBN"></div></div>
+            <div class="suggestion-fields-four"><div><label for="suggestionYear">Năm xuất bản</label><input id="suggestionYear" name="year" type="number" min="1800" max="2100" placeholder="2026"></div><div><label for="suggestionQuantity">Số lượng</label><input id="suggestionQuantity" name="quantity" type="number" min="1" max="1000" placeholder="5"></div><div><label for="suggestionEdition">Tái bản lần thứ</label><input id="suggestionEdition" name="edition" placeholder="Lần 1"></div><div><label for="suggestionIsbn">Mã ISBN-10/13</label><input id="suggestionIsbn" name="isbn" placeholder="978-604-..."></div></div>
             <label for="suggestionReason">Lý do đề xuất</label><textarea id="suggestionReason" name="reason" rows="3" placeholder="Nêu lý do thư viện nên bổ sung sách này..."></textarea>
+            <div id="suggestionFormError" class="field-error-text" role="alert" style="display: none;"></div>
           </div>
         </div>
-        <div class="suggestion-form-actions"><button type="button" class="bookshelf-cancel-button" id="btnCancelSuggestionForm">Thoát</button><button type="submit" class="suggestion-create-button">Gửi đề xuất sách</button></div>
+        <div class="suggestion-form-actions"><button type="button" class="bookshelf-cancel-button" id="btnCancelSuggestionForm">Thoát</button><button type="submit" id="btnSubmitSuggestion" class="suggestion-create-button">Gửi đề xuất sách</button></div>
       </form>
     </div>
   </div>
 
-  <!-- ===== MODAL THÃ”NG TIN CÃ NHÃ‚N  ===== -->
+  <!-- ===== MODAL CHI TIẾT ĐỀ XUẤT SÁCH ===== -->
+  <div class="modal-overlay" id="modalSuggestionDetail">
+    <div class="modal-box notif-detail-modal-box" role="dialog" aria-modal="true" aria-labelledby="sugDetailTitle" style="max-width: 540px;">
+      <div class="user-modal-header">
+        <div class="user-modal-title" id="sugDetailTitle">CHI TIẾT ĐỀ XUẤT SÁCH</div>
+        <button type="button" class="user-modal-close-btn" id="btnCloseSugDetail" aria-label="Đóng">✕</button>
+      </div>
+      <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px; font-size: 13.5px; color: #334155;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong id="sugDetailId" style="color: #1D5D86; font-size: 15px;"></strong>
+          <span id="sugDetailStatus"></span>
+        </div>
+        <div style="font-size: 16px; font-weight: 700; color: #1E293B;" id="sugDetailBookTitle"></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; background: #F8FAFC; padding: 12px 14px; border-radius: 10px; border: 1px solid #E2E8F0;">
+          <div><span style="color:#64748B;">Tác giả:</span> <strong id="sugDetailAuthor"></strong></div>
+          <div><span style="color:#64748B;">Nhà xuất bản:</span> <strong id="sugDetailPublisher"></strong></div>
+          <div><span style="color:#64748B;">Năm XB:</span> <strong id="sugDetailYear"></strong></div>
+          <div><span style="color:#64748B;">Số lượng:</span> <strong id="sugDetailQty"></strong></div>
+          <div><span style="color:#64748B;">Tái bản:</span> <strong id="sugDetailEdition"></strong></div>
+          <div><span style="color:#64748B;">ISBN:</span> <strong id="sugDetailIsbn"></strong></div>
+        </div>
+        <div>
+          <div style="color:#64748B; font-weight: 600; margin-bottom: 4px;">Lý do đề xuất:</div>
+          <div id="sugDetailReason" style="background: #F8FAFC; padding: 10px 12px; border-radius: 8px; border: 1px solid #E2E8F0; line-height: 1.5;"></div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
+          <button type="button" class="btn-profile-gray" id="btnCloseSugDetailFooter" style="width: 110px;">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL THÔNG TIN CÁ NHÂN ===== -->
   <div class="modal-overlay" id="modalUserProfile">
     <div class="modal-box user-profile-modal-box">
       <div class="user-modal-header">
-        <div class="user-modal-title">THÃ”NG TIN CÃ NHÃ‚N</div>
-        <button type="button" class="user-modal-close-btn" id="btnCloseUserProfileModal" title="ÄÃ³ng">âœ•</button>
+        <div class="user-modal-title">THÔNG TIN CÁ NHÂN</div>
+        <button type="button" class="user-modal-close-btn" id="btnCloseUserProfileModal" title="Đóng" aria-label="Đóng">✕</button>
       </div>
       <div class="user-modal-body">
-
-        <!-- Cá»™t trÃ¡i: Form thÃ´ng tin cÃ¡ nhÃ¢n & liÃªn há»‡ -->
         <div class="user-modal-left">
-
-          <div class="profile-section-heading">Pháº§n thÃ´ng tin cÃ¡ nhÃ¢n</div>
-
+          <div class="profile-section-heading">Phần thông tin cá nhân</div>
           <div class="profile-form-group">
-            <label class="profile-form-label">Há» vÃ  tÃªn</label>
-            <input type="text" class="profile-form-input" id="profFullName" value="Luu Tan Nin" readonly>
+            <label class="profile-form-label" for="profFullName">Họ và tên</label>
+            <input type="text" class="profile-form-input" id="profFullName" value="" readonly>
           </div>
-
           <div class="profile-form-row">
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">Giá»›i tÃ­nh</label>
+              <label class="profile-form-label" for="profGender">Giới tính</label>
               <div class="profile-select-wrap">
                 <select class="profile-form-select" id="profGender" disabled>
                   <option value="Nam" selected>Nam</option>
-                  <option value="Ná»¯">Ná»¯</option>
+                  <option value="Nữ">Nữ</option>
                 </select>
-                <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
+                <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9" /></svg>
               </div>
             </div>
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">NgÃ y sinh</label>
+              <label class="profile-form-label" for="profDob">Ngày sinh</label>
               <div class="profile-input-with-icon">
-                <input type="text" class="profile-form-input" id="profDob" value="10 / 1 / 2006" readonly>
-                <svg viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
+                <input type="text" class="profile-form-input" id="profDob" value="" readonly>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
               </div>
             </div>
           </div>
-
           <div class="profile-form-group">
-            <label class="profile-form-label">CCCD</label>
-            <div class="profile-select-wrap">
-              <input type="text" class="profile-form-input" id="profCccd" value="abc" readonly>
-              <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </div>
+            <label class="profile-form-label" for="profCccd">CCCD</label>
+            <input type="text" class="profile-form-input" id="profCccd" value="" readonly>
           </div>
-
-          <div class="profile-section-heading" style="margin-top: 14px;">Pháº§n thÃ´ng tin liÃªn há»‡ &amp; nhÃ³m quyá»n</div>
-
+          <div class="profile-section-heading" style="margin-top: 14px;">Phần thông tin liên hệ &amp; nhóm quyền</div>
           <div class="profile-form-group">
-            <label class="profile-form-label">Äá»‹a chá»‰</label>
-            <input type="text" class="profile-form-input" id="profAddress" value="Ã” 17, áº¤p 4, Má»¹ An, TÃ¢y Ninh" readonly>
+            <label class="profile-form-label" for="profAddress">Địa chỉ</label>
+            <input type="text" class="profile-form-input" id="profAddress" value="" readonly>
           </div>
-
           <div class="profile-form-row">
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">SÄT</label>
-              <input type="text" class="profile-form-input" id="profPhone" value="0363894957" readonly>
+              <label class="profile-form-label" for="profPhone">SĐT</label>
+              <input type="text" class="profile-form-input" id="profPhone" value="" readonly>
             </div>
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">Email</label>
-              <input type="text" class="profile-form-input" id="profEmail" value="luutannin@gmail.com" readonly>
+              <label class="profile-form-label" for="profEmail">Email</label>
+              <input type="text" class="profile-form-input" id="profEmail" value="" readonly>
             </div>
           </div>
-
         </div>
-
-        <!-- Cá»™t pháº£i: áº¢NH CÃ NHÃ‚N & MÃ£ tÃ i khoáº£n & CÃ¡c nÃºt báº¥m -->
         <div class="user-modal-right">
           <div class="profile-avatar-frame" id="profAvatarFrame">
-            <img id="profAvatarImg" src="" alt="áº¢nh cÃ¡ nhÃ¢n" style="display:none;">
+            <img id="profAvatarImg" src="" alt="Ảnh cá nhân" style="display:none;">
             <div class="profile-avatar-placeholder" id="profAvatarPlaceholder">
-              <span>áº¢NH CÃ NHÃ‚N</span>
+              <span>ẢNH CÁ NHÂN</span>
             </div>
           </div>
-
           <div class="profile-code-group">
-            <div class="profile-code-label">MÃ£ nhÃ¢n viÃªn (mÃ£ tÃ i khoáº£n)</div>
-            <div class="profile-code-value" id="profCodeValue">123456</div>
+            <div class="profile-code-label">Mã bạn đọc (mã tài khoản)</div>
+            <div class="profile-code-value" id="profCodeValue">220260004</div>
           </div>
-
           <div class="profile-actions-stack">
-            <button type="button" class="btn-profile-primary" id="btnViewReaderCard">XEM THáºº Äá»˜C GIáº¢</button>
-            <button type="button" class="btn-profile-primary" id="btnEditProfile">CHá»ˆNH Sá»¬A THÃ”NG TIN</button>
-            <button type="button" class="btn-profile-gray" id="btnExitProfile">THOÃT</button>
+            <button type="button" class="btn-profile-primary" id="btnViewReaderCard">XEM THẺ ĐỘC GIẢ</button>
+            <button type="button" class="btn-profile-primary" id="btnEditProfile">CHỈNH SỬA THÔNG TIN</button>
+            <button type="button" class="btn-profile-gray" id="btnExitProfile">THOÁT</button>
           </div>
         </div>
-
       </div>
     </div>
   </div>
 
-  <!-- ===== MODAL THAY Äá»”I THÃ”NG TIN CÃ NHÃ‚N (CHUáº¨N áº¢NH 2) ===== -->
+  <!-- ===== MODAL THAY ĐỔI THÔNG TIN CÁ NHÂN ===== -->
   <div class="modal-overlay" id="modalEditUserProfile">
     <div class="modal-box user-profile-modal-box">
       <div class="user-modal-header">
-        <div class="user-modal-title">THAY Äá»”I THÃ”NG TIN CÃ NHÃ‚N</div>
-        <button type="button" class="user-modal-close-btn" id="btnCloseEditUserProfileModal" title="ÄÃ³ng">âœ•</button>
+        <div class="user-modal-title">THAY ĐỔI THÔNG TIN CÁ NHÂN</div>
+        <button type="button" class="user-modal-close-btn" id="btnCloseEditUserProfileModal" title="Đóng" aria-label="Đóng">✕</button>
       </div>
       <div class="user-modal-body">
-
-        <!-- Cá»™t trÃ¡i: Form thÃ´ng tin cÃ¡ nhÃ¢n & liÃªn há»‡ (Ä‘Æ°á»£c phÃ©p sá»­a) -->
         <div class="user-modal-left">
-
-          <div class="profile-section-heading">Pháº§n thÃ´ng tin cÃ¡ nhÃ¢n</div>
-
+          <div class="profile-section-heading">Phần thông tin cá nhân</div>
           <div class="profile-form-group">
-            <label class="profile-form-label">Há» vÃ  tÃªn</label>
-            <input type="text" class="profile-form-input" id="editProfFullName" value="LÆ°u Táº¥n Nin">
+            <label class="profile-form-label" for="editProfFullName">Họ và tên <span aria-hidden="true">*</span></label>
+            <input type="text" class="profile-form-input" id="editProfFullName" value="">
           </div>
-
           <div class="profile-form-row">
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">Giá»›i tÃ­nh</label>
+              <label class="profile-form-label" for="editProfGender">Giới tính</label>
               <div class="profile-select-wrap">
                 <select class="profile-form-select" id="editProfGender">
                   <option value="Nam" selected>Nam</option>
-                  <option value="Ná»¯">Ná»¯</option>
+                  <option value="Nữ">Nữ</option>
                 </select>
-                <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
+                <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9" /></svg>
               </div>
             </div>
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">NgÃ y sinh</label>
+              <label class="profile-form-label" for="editProfDob">Ngày sinh (DD / MM / YYYY)</label>
               <div class="profile-input-with-icon">
-                <input type="text" class="profile-form-input" id="editProfDob" value="10 / 11 / 2006">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
+                <input type="text" class="profile-form-input" id="editProfDob" value="" placeholder="10 / 11 / 2006">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
               </div>
             </div>
           </div>
-
           <div class="profile-form-group">
-            <label class="profile-form-label">CCCD</label>
-            <div class="profile-select-wrap">
-              <input type="text" class="profile-form-input" id="editProfCccd" value="abc">
-              <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </div>
+            <label class="profile-form-label" for="editProfCccd">CCCD (9 hoặc 12 chữ số)</label>
+            <input type="text" class="profile-form-input" id="editProfCccd" value="" placeholder="079206000001">
           </div>
-
-          <div class="profile-section-heading" style="margin-top: 14px;">Pháº§n thÃ´ng tin liÃªn há»‡ &amp; nhÃ³m quyá»n</div>
-
+          <div class="profile-section-heading" style="margin-top: 14px;">Phần thông tin liên hệ &amp; nhóm quyền</div>
           <div class="profile-form-group">
-            <label class="profile-form-label">Äá»‹a chá»‰</label>
-            <input type="text" class="profile-form-input" id="editProfAddress" value="O17, Ap 4, My An, Tay Ninh">
+            <label class="profile-form-label" for="editProfAddress">Địa chỉ</label>
+            <input type="text" class="profile-form-input" id="editProfAddress" value="" placeholder="Số nhà, đường, quận/huyện...">
           </div>
-
           <div class="profile-form-row">
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">SÄT</label>
-              <input type="text" class="profile-form-input" id="editProfPhone" value="0363894957">
+              <label class="profile-form-label" for="editProfPhone">SĐT</label>
+              <input type="tel" class="profile-form-input" id="editProfPhone" value="" placeholder="09xxxxxxxx">
             </div>
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">Email</label>
-              <input type="text" class="profile-form-input" id="editProfEmail" value="luutannin@gmail.com">
+              <label class="profile-form-label" for="editProfEmail">Email</label>
+              <input type="email" class="profile-form-input" id="editProfEmail" value="" placeholder="email@domain.com">
             </div>
           </div>
-
+          <div id="editProfileError" class="field-error-text" role="alert" style="display: none;"></div>
         </div>
-
-        <!-- Cá»™t pháº£i: áº¢NH CÃ NHÃ‚N & MÃ£ tÃ i khoáº£n & 2 nÃºt LÆ¯U, THOÃT -->
         <div class="user-modal-right">
           <div class="profile-avatar-frame" id="editProfAvatarFrame">
-            <img id="editProfAvatarImg" src="" alt="áº¢nh cÃ¡ nhÃ¢n" style="display:none;">
+            <img id="editProfAvatarImg" src="" alt="Ảnh cá nhân" style="display:none;">
             <div class="profile-avatar-placeholder" id="editProfAvatarPlaceholder">
-              <span>áº¢NH CÃ NHÃ‚N</span>
+              <span>ẢNH CÁ NHÂN</span>
             </div>
           </div>
-
           <div class="profile-code-group">
-            <div class="profile-code-label">MÃ£ nhÃ¢n viÃªn (mÃ£ tÃ i khoáº£n)</div>
-            <div class="profile-code-value" id="editProfCodeValue">123456</div>
+            <div class="profile-code-label">Mã bạn đọc (mã tài khoản)</div>
+            <div class="profile-code-value" id="editProfCodeValue">220260004</div>
           </div>
-
           <div class="profile-actions-stack">
-            <button type="button" class="btn-profile-primary" id="btnSaveEditProfile">LÆ¯U</button>
-            <button type="button" class="btn-profile-gray" id="btnCancelEditProfile">THOÃT</button>
+            <button type="button" class="btn-profile-primary" id="btnSaveEditProfile">LƯU</button>
+            <button type="button" class="btn-profile-gray" id="btnCancelEditProfile">THOÁT</button>
           </div>
         </div>
-
       </div>
     </div>
   </div>
 
-  <!-- ===== MODAL THáºº THÆ¯ VIá»†N (CHUáº¨N áº¢NH 1) ===== -->
+  <!-- ===== MODAL THẺ THƯ VIỆN ===== -->
   <div class="modal-overlay" id="modalLibraryCard">
     <div class="library-card-modal-container">
       <div class="library-card-modal-header">
-        <div class="library-card-modal-title">THáºº THÆ¯ VIá»†N</div>
-        <button type="button" class="library-card-modal-close" id="btnCloseLibraryCardModal" title="ÄÃ³ng">âœ•</button>
+        <div class="library-card-modal-title">THẺ THƯ VIỆN</div>
+        <button type="button" class="library-card-modal-close" id="btnCloseLibraryCardModal" title="Đóng" aria-label="Đóng">✕</button>
       </div>
       <div class="library-card-white-panel">
         <div class="card-watermark" aria-hidden="true">
@@ -268,20 +288,20 @@
           </svg>
         </div>
         <div class="lib-card-field-group">
-          <div class="lib-card-label">MÃƒ THáºº</div>
-          <div class="lib-card-code" id="libCardCode">220260003</div>
+          <div class="lib-card-label">MÃ THẺ</div>
+          <div class="lib-card-code" id="libCardCode">220260004</div>
         </div>
         <div class="lib-card-field-group">
-          <div class="lib-card-label">Há»Œ &amp; TÃŠN</div>
-          <div class="lib-card-name" id="libCardName">LUU TAN NIN</div>
+          <div class="lib-card-label">HỌ &amp; TÊN</div>
+          <div class="lib-card-name" id="libCardName">LƯU TẤN NIN</div>
         </div>
         <div class="lib-card-row">
           <div class="lib-card-field-group">
-            <div class="lib-card-label">Äá»I TÆ¯á»¢NG</div>
-            <div class="lib-card-val" id="libCardRole">Sinh viÃªn</div>
+            <div class="lib-card-label">ĐỐI TƯỢNG</div>
+            <div class="lib-card-val" id="libCardRole">Sinh viên</div>
           </div>
           <div class="lib-card-field-group text-right">
-            <div class="lib-card-label">Háº N Sá»¬ Dá»¤NG</div>
+            <div class="lib-card-label">HẠN SỬ DỤNG</div>
             <div class="lib-card-val" id="libCardExpire">28 / 02 / 2027</div>
           </div>
         </div>
@@ -346,9 +366,9 @@
             <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
             <rect x="6" y="14" width="12" height="8"/>
           </svg>
-          <span>In tháº»</span>
+          <span>In thẻ</span>
         </button>
-        <button type="button" class="btn-lib-card-close" id="btnExitLibraryCard">âœ• ÄÃ³ng</button>
+        <button type="button" class="btn-lib-card-close" id="btnExitLibraryCard">✕ Đóng</button>
       </div>
     </div>
   </div>

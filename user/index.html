@@ -142,7 +142,7 @@
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                 <path d="M13.73 21a2 2 0 0 1-3.46 0" />
               </svg>
-              <span class="topbar-badge badge-red" id="notifBadge">2</span>
+              <span class="topbar-badge badge-red" id="notifBadge" style="display: none;">0</span>
             </button>
           </div>
         </div>
@@ -196,7 +196,8 @@
                 <b>Xem chi tiết sách <span aria-hidden="true">→</span></b>
               </div>
               <div class="fbook-meta">
-                <div class="fbook-title">Lập trình sạch</div>
+                <div class="fbook-title">Clean Code</div>
+                <div class="fbook-sub">Robert C. Martin - Prentice Hall</div>
               </div>
             </a>
 
@@ -307,30 +308,25 @@
           </div>
 
           <div class="profile-form-group">
-            <label class="profile-form-label">CCCD</label>
-            <div class="profile-select-wrap">
-              <input type="text" class="profile-form-input" id="profCccd" value="abc" readonly>
-              <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </div>
+            <label class="profile-form-label" for="profCccd">CCCD</label>
+            <input type="text" class="profile-form-input" id="profCccd" value="" readonly>
           </div>
 
           <div class="profile-section-heading" style="margin-top: 14px;">Phần thông tin liên hệ &amp; nhóm quyền</div>
 
           <div class="profile-form-group">
-            <label class="profile-form-label">Địa chỉ</label>
-            <input type="text" class="profile-form-input" id="profAddress" value="Ô 17, Ấp 4, Mỹ An, Tây Ninh" readonly>
+            <label class="profile-form-label" for="profAddress">Địa chỉ</label>
+            <input type="text" class="profile-form-input" id="profAddress" value="" readonly>
           </div>
 
           <div class="profile-form-row">
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">SĐT</label>
-              <input type="text" class="profile-form-input" id="profPhone" value="0363894957" readonly>
+              <label class="profile-form-label" for="profPhone">SĐT</label>
+              <input type="text" class="profile-form-input" id="profPhone" value="" readonly>
             </div>
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">Email</label>
-              <input type="text" class="profile-form-input" id="profEmail" value="luutannin@gmail.com" readonly>
+              <label class="profile-form-label" for="profEmail">Email</label>
+              <input type="text" class="profile-form-input" id="profEmail" value="" readonly>
             </div>
           </div>
 
@@ -346,8 +342,8 @@
           </div>
 
           <div class="profile-code-group">
-            <div class="profile-code-label">Mã nhân viên (mã tài khoản)</div>
-            <div class="profile-code-value" id="profCodeValue">123456</div>
+            <div class="profile-code-label">Mã bạn đọc (mã tài khoản)</div>
+            <div class="profile-code-value" id="profCodeValue">220260004</div>
           </div>
 
           <div class="profile-actions-stack">
@@ -408,32 +404,28 @@
           </div>
 
           <div class="profile-form-group">
-            <label class="profile-form-label">CCCD</label>
-            <div class="profile-select-wrap">
-              <input type="text" class="profile-form-input" id="editProfCccd" value="abc">
-              <svg class="select-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </div>
+            <label class="profile-form-label" for="editProfCccd">CCCD (9 hoặc 12 chữ số)</label>
+            <input type="text" class="profile-form-input" id="editProfCccd" value="" placeholder="079206000001">
           </div>
 
           <div class="profile-section-heading" style="margin-top: 14px;">Phần thông tin liên hệ &amp; nhóm quyền</div>
 
           <div class="profile-form-group">
-            <label class="profile-form-label">Địa chỉ</label>
-            <input type="text" class="profile-form-input" id="editProfAddress" value="O17, Ap 4, My An, Tay Ninh">
+            <label class="profile-form-label" for="editProfAddress">Địa chỉ</label>
+            <input type="text" class="profile-form-input" id="editProfAddress" value="" placeholder="Số nhà, đường, quận/huyện...">
           </div>
 
           <div class="profile-form-row">
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">SĐT</label>
-              <input type="text" class="profile-form-input" id="editProfPhone" value="0363894957">
+              <label class="profile-form-label" for="editProfPhone">SĐT</label>
+              <input type="tel" class="profile-form-input" id="editProfPhone" value="" placeholder="09xxxxxxxx">
             </div>
             <div class="profile-form-group col-half">
-              <label class="profile-form-label">Email</label>
-              <input type="text" class="profile-form-input" id="editProfEmail" value="luutannin@gmail.com">
+              <label class="profile-form-label" for="editProfEmail">Email</label>
+              <input type="email" class="profile-form-input" id="editProfEmail" value="" placeholder="email@domain.com">
             </div>
           </div>
+          <div id="editProfileError" class="field-error-text" role="alert" style="display: none;"></div>
 
         </div>
 
@@ -447,8 +439,8 @@
           </div>
 
           <div class="profile-code-group">
-            <div class="profile-code-label">Mã nhân viên (mã tài khoản)</div>
-            <div class="profile-code-value" id="editProfCodeValue">123456</div>
+            <div class="profile-code-label">Mã bạn đọc (mã tài khoản)</div>
+            <div class="profile-code-value" id="editProfCodeValue">220260004</div>
           </div>
 
           <div class="profile-actions-stack">
@@ -477,7 +469,7 @@
         </div>
         <div class="lib-card-field-group">
           <div class="lib-card-label">MÃ THẺ</div>
-          <div class="lib-card-code" id="libCardCode">220260003</div>
+          <div class="lib-card-code" id="libCardCode">220260004</div>
         </div>
         <div class="lib-card-field-group">
           <div class="lib-card-label">HỌ &amp; TÊN</div>

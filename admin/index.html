@@ -179,7 +179,7 @@
         <div class="tab-content-panel" id="tabRegulations">
           <div class="rules-toolbar">
             <div class="rules-status-left">
-              <span class="rules-status-text" id="rulesStatusInfo">Cập nhật lần cuối: 21 / 02 / 2026 bởi Trần Giang Tuấn Kiệt</span>
+              <span class="rules-status-text" id="rulesStatusInfo">Đang tải thông tin cập nhật...</span>
               <span class="rules-feedback-badge" id="rulesFeedbackBadge"></span>
             </div>
             <div class="rules-actions-right">
@@ -615,11 +615,19 @@
               </select>
             </div>
             <div class="form-grid-row">
-              <label class="form-field-label">Tài khoản</label>
+              <label class="form-field-label" for="editAccountStatus">Tài khoản</label>
               <select class="form-select-control" id="editAccountStatus">
                 <option value="Active">Active (Đã cấp tài khoản)</option>
                 <option value="Hồ sơ">Hồ sơ (Chưa cấp TK)</option>
                 <option value="Khóa">Đã khóa</option>
+              </select>
+            </div>
+            <div class="form-grid-row">
+              <label class="form-field-label" for="editWorkingStatus">Trạng thái làm việc</label>
+              <select class="form-select-control" id="editWorkingStatus">
+                <option value="DANG_LAM_VIEC">Đang làm việc</option>
+                <option value="TAM_NGHI">Tạm nghỉ</option>
+                <option value="DA_NGHI">Đã nghỉ</option>
               </select>
             </div>
 

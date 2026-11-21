@@ -35,19 +35,19 @@ ON CONFLICT (manhanvien) DO NOTHING;
 -- 3. Seed demo loans for reader 220260003
 INSERT INTO phieumuon (maphieumuon, mabandoc, manhanvien, macuonsach, ngaymuon, ngayhentra, ngaytrathucte, trangthai)
 SELECT 
-  'PM-2026-001', '220260003', '12026001', 'SEED0001-01', NOW() - INTERVAL '10 days', NOW() + INTERVAL '10 days', NULL, 'Đang mượn'
-WHERE EXISTS (SELECT 1 FROM cuonsach WHERE macuonsach = 'SEED0001-01')
+  'PM001', '220260003', '12026001', 'CS001', NOW() - INTERVAL '10 days', NOW() + INTERVAL '10 days', NULL, 'Đang mượn'
+WHERE EXISTS (SELECT 1 FROM cuonsach WHERE macuonsach = 'CS001')
 ON CONFLICT (maphieumuon) DO NOTHING;
 
 INSERT INTO phieumuon (maphieumuon, mabandoc, manhanvien, macuonsach, ngaymuon, ngayhentra, ngaytrathucte, trangthai)
 SELECT 
-  'PM-2026-002', '220260003', '12026001', 'SEED0002-01', NOW() - INTERVAL '30 days', NOW() - INTERVAL '10 days', NOW() - INTERVAL '10 days', 'Đã trả'
-WHERE EXISTS (SELECT 1 FROM cuonsach WHERE macuonsach = 'SEED0002-01')
+  'PM002', '220260003', '12026001', 'CS006', NOW() - INTERVAL '30 days', NOW() - INTERVAL '10 days', NOW() - INTERVAL '10 days', 'Đã trả'
+WHERE EXISTS (SELECT 1 FROM cuonsach WHERE macuonsach = 'CS006')
 ON CONFLICT (maphieumuon) DO NOTHING;
 
 -- 4. Seed demo unpaid fine for reader 220260003
 INSERT INTO phieuphat (maphieuphat, maphieumuon, mabandoc, manhanvien, loaivipham, sotien, trangthaithanhtoan)
 SELECT 
-  'FINE-2026-001', 'PM-2026-002', '220260003', '12026001', 'Phí trễ hạn trả sách (Giáo trình Giải tích Tập 2)', 50000, 'CHƯA THANH TOÁN'
-WHERE EXISTS (SELECT 1 FROM phieumuon WHERE maphieumuon = 'PM-2026-002')
+  'FINE-2026-001', 'PM002', '220260003', '12026001', 'Phí trễ hạn trả sách (Giáo trình Giải tích Tập 2)', 50000, 'CHƯA THANH TOÁN'
+WHERE EXISTS (SELECT 1 FROM phieumuon WHERE maphieumuon = 'PM002')
 ON CONFLICT (maphieuphat) DO NOTHING;

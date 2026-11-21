@@ -1,24 +1,19 @@
-const CURRENT_DATA_VERSION = 'v6_postgresql_source_of_truth';
+const CURRENT_DATA_VERSION = 'v7_normalized_ds_cs_pm_ids';
 
 const defaultEmployees = [];
 const defaultLogs = [];
+const defaultCategories = [
+  { id: 'DM01', name: 'Công nghệ thông tin' },
+  { id: 'DM02', name: 'Kinh tế' },
+  { id: 'DM03', name: 'Kỹ năng sống' },
+  { id: 'DM04', name: 'Ngoại ngữ' },
+  { id: 'DM05', name: 'Văn học' },
+  { id: 'DM06', name: 'Toán học' },
+  { id: 'DM07', name: 'Triết học' }
+];
 const defaultBookTitles = [
   {
-    id: 'DSIT0001',
-    title: 'MANAGING INFORMATION TECHNOLOGY',
-    authors: 'Francisco Castillo, Korina Monoso',
-    author: 'Francisco Castillo, Korina Monoso',
-    publisher: 'Springer',
-    category: 'Công nghệ thông tin',
-    genre: 'Công nghệ thông tin',
-    subject: 'Quản trị công nghệ thông tin',
-    total: 30,
-    available: 25,
-    isbn: '3031390156, 978-3031390159',
-    coverUrl: ''
-  },
-  {
-    id: 'SEED0001',
+    id: 'DS001',
     title: 'Clean Code: A Handbook of Agile Software Craftsmanship',
     authors: 'Robert C. Martin',
     author: 'Robert C. Martin',
@@ -31,7 +26,7 @@ const defaultBookTitles = [
     coverUrl: '../assets/images/cleancode.webp'
   },
   {
-    id: 'SEED0002',
+    id: 'DS002',
     title: 'Giáo trình Giải tích Tập 2',
     authors: 'Trần Đức Long - ĐHQG HN',
     author: 'Trần Đức Long - ĐHQG HN',
@@ -44,7 +39,7 @@ const defaultBookTitles = [
     coverUrl: '../assets/images/giatich.webp'
   },
   {
-    id: 'SEED0003',
+    id: 'DS003',
     title: 'Triết học',
     authors: 'Edward Craig',
     author: 'Edward Craig',
@@ -57,7 +52,7 @@ const defaultBookTitles = [
     coverUrl: '../assets/images/triethoc.jpg'
   },
   {
-    id: 'SEED0004',
+    id: 'DS004',
     title: 'Lịch sử Văn minh Thế giới',
     authors: 'Đào Tuấn Thành (Chủ biên)',
     author: 'Đào Tuấn Thành (Chủ biên)',
@@ -70,7 +65,7 @@ const defaultBookTitles = [
     coverUrl: '../assets/images/lichsuvanminhthegioi.jpg'
   },
   {
-    id: 'SEED0005',
+    id: 'DS005',
     title: 'Cây cam ngọt của tôi',
     authors: 'José Mauro de Vasconcelos',
     author: 'José Mauro de Vasconcelos',
@@ -83,7 +78,7 @@ const defaultBookTitles = [
     coverUrl: '../assets/images/caycamngotcuatoi.jpg'
   },
   {
-    id: 'SEED0006',
+    id: 'DS006',
     title: 'Chiếc lá cuối cùng',
     authors: 'O. Henry',
     author: 'O. Henry',
@@ -96,7 +91,7 @@ const defaultBookTitles = [
     coverUrl: '../assets/images/chieclacuoicung.jpg'
   },
   {
-    id: 'SEED0007',
+    id: 'DS007',
     title: 'Dế Mèn phiêu lưu ký',
     authors: 'Tô Hoài',
     author: 'Tô Hoài',
@@ -109,7 +104,7 @@ const defaultBookTitles = [
     coverUrl: '../assets/images/demenphieuluuky.jpg'
   },
   {
-    id: 'SEED0008',
+    id: 'DS008',
     title: 'Làm đĩ',
     authors: 'Vũ Trọng Phụng',
     author: 'Vũ Trọng Phụng',
@@ -122,7 +117,7 @@ const defaultBookTitles = [
     coverUrl: '../assets/images/lamdi.jpg'
   },
   {
-    id: 'SEED0009',
+    id: 'DS009',
     title: 'Đọc sách cộng hưởng',
     authors: 'Watanabe Yasuhiro',
     author: 'Watanabe Yasuhiro',
@@ -135,7 +130,7 @@ const defaultBookTitles = [
     coverUrl: '../assets/images/sachconghuon.jpg'
   },
   {
-    id: 'SEED0010',
+    id: 'DS010',
     title: 'Suối ấm mặt trời',
     authors: 'José Mauro de Vasconcelos',
     author: 'José Mauro de Vasconcelos',
@@ -147,7 +142,7 @@ const defaultBookTitles = [
     coverUrl: '../assets/images/suoiammattroi.jpg'
   },
   {
-    id: 'SEED0011',
+    id: 'DS011',
     title: 'Số đỏ',
     authors: 'Vũ Trọng Phụng',
     author: 'Vũ Trọng Phụng',
@@ -158,15 +153,158 @@ const defaultBookTitles = [
     total: 5,
     available: 5,
     coverUrl: '../assets/images/sodo.jpg'
+  },
+  {
+    id: 'DS012',
+    title: 'MANAGING INFORMATION TECHNOLOGY',
+    authors: 'Francisco Castillo, Korina Monoso',
+    author: 'Francisco Castillo, Korina Monoso',
+    publisher: 'Springer',
+    category: 'Công nghệ thông tin',
+    genre: 'Công nghệ thông tin',
+    subject: 'Quản trị công nghệ thông tin',
+    total: 5,
+    available: 5,
+    isbn: '3031390156, 978-3031390159',
+    coverUrl: '../assets/images/cleancode.webp'
+  },
+  {
+    id: 'DS013',
+    title: 'Lập trình C++ căn bản và nâng cao',
+    authors: 'GS. Phạm Văn Ất',
+    author: 'GS. Phạm Văn Ất',
+    publisher: 'NXB Khoa học & Kỹ thuật',
+    category: 'Công nghệ thông tin',
+    genre: 'Lập trình',
+    subject: 'Ngôn ngữ C++',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/cleancode.webp'
+  },
+  {
+    id: 'DS014',
+    title: 'Giáo trình Toán cao cấp - Giải tích 1',
+    authors: 'Nguyễn Đình Trí (Chủ biên)',
+    author: 'Nguyễn Đình Trí (Chủ biên)',
+    publisher: 'NXB Giáo Dục',
+    category: 'Toán học',
+    genre: 'Giải tích',
+    subject: 'Toán học',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/giatich.webp'
+  },
+  {
+    id: 'DS015',
+    title: 'Lịch sử Triết học phương Tây',
+    authors: 'Bertrand Russell',
+    author: 'Bertrand Russell',
+    publisher: 'NXB Thế Giới',
+    category: 'Triết học',
+    genre: 'Triết học',
+    subject: 'Triết học phương Tây',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/triethoc.jpg'
+  },
+  {
+    id: 'DS016',
+    title: 'Lịch sử Nền văn minh Ả Rập',
+    authors: 'Will Durant',
+    author: 'Will Durant',
+    publisher: 'NXB Hồng Đức',
+    category: 'Lịch sử',
+    genre: 'Lịch sử',
+    subject: 'Lịch sử thế giới',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/lichsuvanminhthegioi.jpg'
+  },
+  {
+    id: 'DS017',
+    title: 'Tôi thấy hoa vàng trên cỏ xanh',
+    authors: 'Nguyễn Nhật Ánh',
+    author: 'Nguyễn Nhật Ánh',
+    publisher: 'NXB Trẻ',
+    category: 'Văn học',
+    genre: 'Truyện dài',
+    subject: 'Văn học Việt Nam',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/caycamngotcuatoi.jpg'
+  },
+  {
+    id: 'DS018',
+    title: 'Mắt biếc',
+    authors: 'Nguyễn Nhật Ánh',
+    author: 'Nguyễn Nhật Ánh',
+    publisher: 'NXB Trẻ',
+    category: 'Văn học',
+    genre: 'Truyện dài',
+    subject: 'Văn học Việt Nam',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/demenphieuluuky.jpg'
+  },
+  {
+    id: 'DS019',
+    title: 'Tắt đèn',
+    authors: 'Ngô Tất Tố',
+    author: 'Ngô Tất Tố',
+    publisher: 'NXB Văn học',
+    category: 'Văn học',
+    genre: 'Tiểu thuyết hiện thực',
+    subject: 'Văn học Việt Nam',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/lamdi.jpg'
+  },
+  {
+    id: 'DS020',
+    title: 'Bỉ vỏ',
+    authors: 'Nguyên Hồng',
+    author: 'Nguyên Hồng',
+    publisher: 'NXB Văn học',
+    category: 'Văn học',
+    genre: 'Tiểu thuyết',
+    subject: 'Văn học Việt Nam',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/sodo.jpg'
+  },
+  {
+    id: 'DS021',
+    title: 'Tuổi thơ dữ dội',
+    authors: 'Phùng Quán',
+    author: 'Phùng Quán',
+    publisher: 'NXB Kim Đồng',
+    category: 'Văn học',
+    genre: 'Tiểu thuyết chiến tranh',
+    subject: 'Văn học Việt Nam',
+    total: 5,
+    available: 5,
+    coverUrl: '../assets/images/chieclacuoicung.jpg'
   }
 ];
-const defaultBookCopies = defaultBookTitles.flatMap(b => [
-  { id: `${b.id}-01`, bookId: b.id, bookTitleId: b.id, bookTitle: b.title, barcode: `${b.id}-01`, physicalStatus: 'TỐT', circulationStatus: 'SẴN SÀNG', status: 'SẴN SÀNG', location: 'A1 - Ngăn 1', coverUrl: b.coverUrl },
-  { id: `${b.id}-02`, bookId: b.id, bookTitleId: b.id, bookTitle: b.title, barcode: `${b.id}-02`, physicalStatus: 'TỐT', circulationStatus: 'SẴN SÀNG', status: 'SẴN SÀNG', location: 'A1 - Ngăn 2', coverUrl: b.coverUrl },
-  { id: `${b.id}-03`, bookId: b.id, bookTitleId: b.id, bookTitle: b.title, barcode: `${b.id}-03`, physicalStatus: 'TỐT', circulationStatus: 'SẴN SÀNG', status: 'SẴN SÀNG', location: 'B1 - Ngăn 1', coverUrl: b.coverUrl },
-  { id: `${b.id}-04`, bookId: b.id, bookTitleId: b.id, bookTitle: b.title, barcode: `${b.id}-04`, physicalStatus: 'TỐT', circulationStatus: 'SẴN SÀNG', status: 'SẴN SÀNG', location: 'B1 - Ngăn 2', coverUrl: b.coverUrl },
-  { id: `${b.id}-05`, bookId: b.id, bookTitleId: b.id, bookTitle: b.title, barcode: `${b.id}-05`, physicalStatus: 'TỐT', circulationStatus: 'SẴN SÀNG', status: 'SẴN SÀNG', location: 'B2 - Ngăn 1', coverUrl: b.coverUrl }
-]);
+let _seedCopySeq = 0;
+const defaultBookCopies = defaultBookTitles.flatMap(b =>
+  ['A1 - Ngăn 1', 'A1 - Ngăn 2', 'B1 - Ngăn 1', 'B1 - Ngăn 2', 'B2 - Ngăn 1'].map(location => {
+    _seedCopySeq += 1;
+    const copyId = `CS${String(_seedCopySeq).padStart(3, '0')}`;
+    return {
+      id: copyId,
+      bookId: b.id,
+      bookTitleId: b.id,
+      bookTitle: b.title,
+      barcode: copyId,
+      physicalStatus: 'TỐT',
+      circulationStatus: 'SẴN SÀNG',
+      status: 'SẴN SÀNG',
+      location,
+      coverUrl: b.coverUrl
+    };
+  })
+);
 const defaultImportReceipts = [];
 const defaultSuppliers = [];
 const defaultPublishers = [];
@@ -185,34 +323,90 @@ const defaultReaders = [
     address: 'Ô 17, Ấp 4, Mỹ An, Tây Ninh',
     gender: 'Nam',
     dob: '10 / 01 / 2006'
-  },
-  {
-    id: '123456',
-    name: 'Lưu Tấn Nin',
-    fullName: 'Lưu Tấn Nin',
-    readerType: 'Sinh viên',
-    issueDate: '15 / 11 / 2026',
-    expiryDate: '15 / 11 / 2027',
-    status: 'HỢP LỆ',
-    phone: '0363894957',
-    email: 'luutannin@gmail.com',
-    cccd: '072202001234',
-    address: 'Ô 17, Ấp 4, Mỹ An, Tây Ninh',
-    gender: 'Nam',
-    dob: '10 / 01 / 2006'
   }
 ];
 const defaultReaderHistory = [
   {
-    id: 'PM260001',
-    loanId: 'PM260001',
+    id: 'PM001',
+    loanId: 'PM001',
     readerId: '220260004',
     readerName: 'Lưu Tấn Nin',
-    copyId: 'DSIT0001-01',
-    bookTitle: 'MANAGING INFORMATION TECHNOLOGY',
+    copyId: 'CS001',
+    bookTitle: 'Clean Code: A Handbook of Agile Software Craftsmanship',
     borrowDate: '10/11/2026',
     dueDate: '24/11/2026',
     status: 'Đang mượn'
+  }
+];
+
+const defaultSuggestions = [
+  {
+    id: 'DX-2026-0001',
+    readerId: '220260004',
+    readerName: 'Lưu Tấn Nin',
+    title: 'Thiết kế kiến trúc hệ thống phân tán (Distributed Systems)',
+    author: 'Martin Kleppmann',
+    publisher: 'NXB Thông tin & Truyền thông',
+    year: '2024',
+    quantity: '5 bản',
+    edition: 'Lần 2',
+    isbn: '978-604-80-4567-8',
+    reason: 'Phục vụ học phần Kiến trúc phần mềm và Hệ phân tán nâng cao.',
+    status: 'Chờ duyệt',
+    type: 'Sách chuyên ngành',
+    createdAt: '12/11/2026'
+  },
+  {
+    id: 'DX-2026-0002',
+    readerId: '220260004',
+    readerName: 'Lưu Tấn Nin',
+    title: 'Clean Architecture: Cấu trúc và Thiết kế Phần mềm',
+    author: 'Robert C. Martin',
+    publisher: 'NXB Khoa học & Kỹ thuật',
+    year: '2023',
+    quantity: '10 bản',
+    edition: 'Lần 1',
+    isbn: '978-604-67-1234-5',
+    reason: 'Tài liệu tham khảo bắt buộc cho đồ án tốt nghiệp công nghệ phần mềm.',
+    status: 'Đã duyệt',
+    type: 'Sách giáo trình',
+    createdAt: '05/11/2026'
+  },
+  {
+    id: 'DX-2026-0003',
+    readerId: '220260004',
+    readerName: 'Lưu Tấn Nin',
+    title: 'Machine Learning cơ bản và ứng dụng thực tế',
+    author: 'Vũ Hữu Tiệp',
+    publisher: 'NXB Đại học Quốc gia',
+    year: '2022',
+    quantity: '3 bản',
+    edition: 'Lần 1',
+    isbn: '978-604-58-9876-1',
+    reason: 'Nghiên cứu về các mô hình học máy cơ bản.',
+    status: 'Từ chối',
+    type: 'Sách tham khảo',
+    createdAt: '28/10/2026'
+  }
+];
+
+const defaultFines = [
+  {
+    id: 'PH0001',
+    readerId: '220260004',
+    violation: 'Phí trễ hạn mượn sách',
+    bookTitle: 'Clean Code: A Handbook of Agile Software Craftsmanship',
+    amount: 100000,
+    paymentStatus: 'Chưa thanh toán',
+    date: '15/11/2026'
+  },
+  {
+    id: 'PH0002',
+    readerId: '220260004',
+    violation: 'Phí làm lại thẻ thư viện',
+    amount: 100000,
+    paymentStatus: 'Chưa thanh toán',
+    date: '15/11/2026'
   }
 ];
 
@@ -387,6 +581,7 @@ const DataService = {
     READER_HISTORY: 'ixs_library_reader_history',
     FINES: 'ixs_library_fines',
     SUGGESTIONS: 'ixs_library_suggestions',
+    CATEGORIES: 'ixs_library_categories',
     RULES: 'ixs_library_rules'
   },
 
@@ -403,8 +598,9 @@ const DataService = {
       [this.KEYS.PUBLISHERS]: defaultPublishers,
       [this.KEYS.READERS]: defaultReaders,
       [this.KEYS.READER_HISTORY]: defaultReaderHistory,
-      [this.KEYS.FINES]: [],
-      [this.KEYS.SUGGESTIONS]: [],
+      [this.KEYS.FINES]: defaultFines,
+      [this.KEYS.SUGGESTIONS]: defaultSuggestions,
+      [this.KEYS.CATEGORIES]: defaultCategories,
       [this.KEYS.RULES]: defaultLibraryRules
     };
 
@@ -448,6 +644,7 @@ const DataService = {
       [this.KEYS.READER_HISTORY]: 'readerHistory',
       [this.KEYS.FINES]: 'fines',
       [this.KEYS.SUGGESTIONS]: 'suggestions',
+      [this.KEYS.CATEGORIES]: 'categories',
       [this.KEYS.RULES]: 'config:library_rules'
     }[key] || null;
   },
@@ -561,9 +758,7 @@ const DataService = {
     }
     const before = Array.isArray(this._snapshots[key]) ? this._snapshots[key] : [];
     const next = Array.isArray(data) ? data : [];
-    const unsupportedFields = [...new Set(next.flatMap(item => this.erdUnsupportedFields(resource, item)))];
-    if (unsupportedFields.length) window.dispatchEvent(new CustomEvent('ixs:erd-unsupported', { detail: { resource, fields: unsupportedFields } }));
-    const persistedNext = next.map(item => this.toErdRecord(resource, item));
+    const persistedNext = next.map(item => this.clone(item));
     const oldById = new Map(before.filter(item => item?.id != null).map(item => [String(item.id), item]));
     const newById = new Map(persistedNext.filter(item => item?.id != null).map(item => [String(item.id), item]));
     for (const item of persistedNext) {
@@ -596,25 +791,6 @@ const DataService = {
     this._cache[key] = current;
     this._snapshots[key] = this.clone(current);
     return current;
-  },
-
-  toErdRecord(resource, item) {
-    if (!item || typeof item !== 'object' || Array.isArray(item)) return item;
-    const record = this.clone(item);
-    this.erdUnsupportedFields(resource, item).forEach(field => delete record[field]);
-    return record;
-  },
-
-  erdUnsupportedFields(resource, item) {
-    if (!item || typeof item !== 'object' || Array.isArray(item)) return [];
-    const fieldsByResource = {
-      readers: [],
-      employees: [],
-      bookTitles: [],
-      bookCopies: [],
-      importReceipts: []
-    };
-    return (fieldsByResource[resource] || []).filter(field => item[field] !== undefined && item[field] !== null && item[field] !== '');
   },
 
   clone(value) {
@@ -654,8 +830,11 @@ const DataService = {
     list.forEach(item => {
       const rawId = item && item[idField] ? String(item[idField]) : '';
       if (rawId.startsWith(prefix)) {
-        const numPart = parseInt(rawId.slice(prefix.length), 10);
-        if (!isNaN(numPart) && numPart > maxNum) maxNum = numPart;
+        const suffix = rawId.slice(prefix.length);
+        if (/^\d+$/.test(suffix)) {
+          const numPart = parseInt(suffix, 10);
+          if (numPart > maxNum) maxNum = numPart;
+        }
       }
     });
     return prefix + String(maxNum + 1).padStart(padLength, '0');
@@ -779,7 +958,7 @@ function saveReaderHistory(list) {
 }
 
 function getFines() {
-  return DataService.getAll(DataService.KEYS.FINES, []);
+  return DataService.getAll(DataService.KEYS.FINES, defaultFines);
 }
 
 function saveFines(list) {
@@ -787,11 +966,19 @@ function saveFines(list) {
 }
 
 function getBookSuggestions() {
-  return DataService.getAll(DataService.KEYS.SUGGESTIONS, []);
+  return DataService.getAll(DataService.KEYS.SUGGESTIONS, defaultSuggestions);
 }
 
 function saveBookSuggestions(list) {
   return DataService.saveAll(DataService.KEYS.SUGGESTIONS, list);
+}
+
+function getCategories() {
+  return DataService.getAll(DataService.KEYS.CATEGORIES, defaultCategories);
+}
+
+function saveCategories(list) {
+  return DataService.saveAll(DataService.KEYS.CATEGORIES, list);
 }
 
 function getLibraryRules() {

@@ -3,7 +3,7 @@ INSERT INTO cuonsach (
   vitriluutru, gia, anhbia
 )
 SELECT
-  d.madausach || '-' || lpad(copy_number::text, 2, '0'),
+  'CS' || lpad((COALESCE((SELECT MAX(substring(macuonsach FROM '^CS([0-9]+)$')::int) FROM cuonsach WHERE macuonsach ~ '^CS[0-9]+$'), 0) + row_number() OVER (ORDER BY d.madausach, copy_number))::text, 3, '0'),
   d.madausach,
   NULL,
   'TỐT',
@@ -13,10 +13,10 @@ SELECT
   d.anhbia
 FROM dausach d
 CROSS JOIN LATERAL generate_series(1, GREATEST(COALESCE(d.soluongtong, 0), 0)) AS copies(copy_number)
-WHERE d.madausach LIKE 'SEED%'
+WHERE d.madausach ~ '^DS[0-9]{3,}$'
   AND NOT EXISTS (
     SELECT 1 FROM cuonsach existing
-    WHERE existing.macuonsach = d.madausach || '-' || lpad(copy_number::text, 2, '0')
+    WHERE existing.madausach = d.madausach
   )
 ON CONFLICT (macuonsach) DO NOTHING;
 
