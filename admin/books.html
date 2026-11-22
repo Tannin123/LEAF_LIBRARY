@@ -91,7 +91,7 @@
             <button type="button" class="subtab-item" data-tab="tabBookCopies">Danh sách cuốn sách</button>
             <button type="button" class="subtab-item" data-tab="tabCategories">Danh mục tài liệu</button>
             <button type="button" class="subtab-item" data-tab="tabImportBooks">Nhập sách mới</button>
-            <button type="button" class="subtab-item" data-tab="tabSuppliers" style="display: none;">Đối tác cung cấp</button>
+            <button type="button" class="subtab-item" data-tab="tabSuppliers">Đối tác cung cấp</button>
             <button type="button" class="subtab-item" data-tab="tabSuggestions">Xử lý đề xuất sách</button>
           </div>
           <div class="subtabs-line"></div>
@@ -251,18 +251,18 @@
           <div class="pagination-wrapper" id="impPagination"></div>
         </div>
 
-        <div class="tab-content-panel" id="tabSuppliers" style="display: none;">
+        <div class="tab-content-panel" id="tabSuppliers">
           <div class="toolbar-container">
             <div class="toolbar-left-group">
               <div class="search-box book-search">
-                <input type="text" id="searchSupplierInput" class="book-search" placeholder="Tìm theo Mã NCC, tên đối tác, SĐT...">
+                <input type="search" id="searchSupplierInput" class="book-search" aria-label="Tìm nhà cung cấp" placeholder="Tìm mã NCC, tên, số điện thoại, email...">
                 <span class="search-icon">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 </span>
               </div>
 
               <div class="filter-box">
-                <select id="filterSupplierStatus">
+                <select id="filterSupplierStatus" aria-label="Lọc trạng thái nhà cung cấp">
                   <option value="all">Tất cả trạng thái</option>
                   <option value="HOẠT ĐỘNG">Hoạt động</option>
                   <option value="NGỪNG GD">Ngừng GD</option>
@@ -274,9 +274,12 @@
             </div>
 
             <div class="toolbar-right-group">
-              <button type="button" class="btn-add" id="btnAddPublisher">
+              <button type="button" class="btn-add" id="btnExportSuppliers">
+                <span>Xuất CSV</span>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4"/></svg>
+              </button>
+              <button type="button" class="btn-add" id="btnAddPublisher" hidden>
                 <span>Thêm NXB</span>
-                <span style="font-size: 16px; font-weight: 600;">+</span>
               </button>
               <button type="button" class="btn-add" id="btnAddSupplier">
                 <span>Thêm nhà cung cấp</span>
@@ -285,7 +288,8 @@
             </div>
           </div>
 
-          <div class="table-responsive">
+          <p class="supplier-list-summary" id="supplierListSummary" role="status" aria-live="polite"></p>
+          <div class="table-responsive" role="region" aria-label="Danh sách nhà cung cấp" tabindex="0">
             <div class="supplier-table-header">
               <div>Mã NCC</div>
               <div>Tên đối tác / Đơn vị</div>
@@ -623,52 +627,49 @@
   </div>
 
   <div class="modal-overlay" id="modalSupplier">
-    <div class="modal-box modal-box-md">
+    <div class="modal-box modal-box-md supplier-dialog" role="dialog" aria-modal="true" aria-labelledby="modalSupplierHeader" tabindex="-1">
       <div class="modal-header">
         <div class="modal-title" id="modalSupplierHeader">LEAF LIBRARY - THÊM NHÀ CUNG CẤP MỚI</div>
-        <button type="button" class="modal-close-btn" data-close="modalSupplier">✕</button>
+        <button type="button" class="modal-close-btn" data-close="modalSupplier" aria-label="Đóng thông tin nhà cung cấp">✕</button>
       </div>
       <div class="modal-body">
-        <div class="supplier-form-stack">
-          <div class="supplier-row-2col">
-            <div class="supplier-field-block">
-              <label class="supplier-label-italic">Mã nhà cung cấp</label>
-              <div class="supplier-code-readonly" id="supIdDisplay">NCC260004</div>
-            </div>
-            <div class="supplier-field-block">
-              <label class="supplier-label-italic">Tên đối tác / đơn vị</label>
-              <input type="text" class="form-input-text" id="supNameInput" placeholder="Ví dụ: NXB Đại học Quốc Gia">
-            </div>
-          </div>
-
+        <form class="supplier-form-stack" id="formSupplier" novalidate>
           <div class="supplier-field-block">
-            <label class="supplier-label-italic">Người liên hệ (đại diện)</label>
-            <input type="text" class="form-input-text" id="supContactInput" placeholder="Họ và tên người phụ trách hợp đồng...">
+            <label class="supplier-label-italic" for="supIdDisplay">Mã nhà cung cấp</label>
+            <input class="supplier-code-readonly" id="supIdDisplay" readonly aria-readonly="true">
           </div>
-
-          <div class="supplier-row-equal">
-            <div class="supplier-field-block">
-              <label class="supplier-label-italic">Số điện thoại</label>
-              <input type="text" class="form-input-text" id="supPhoneInput" placeholder="09xxxxxxxx">
-            </div>
-            <div class="supplier-field-block">
-              <label class="supplier-label-italic">Email liên hệ</label>
-              <input type="text" class="form-input-text" id="supEmailInput" placeholder="email@domain.com">
-            </div>
-          </div>
-
           <div class="supplier-field-block">
-            <label class="supplier-label-italic">Địa chỉ trụ sở</label>
-            <textarea class="form-textarea" id="supAddressInput" placeholder="Quận 1, TP.HCM"></textarea>
+            <label class="supplier-label-italic" for="supNameInput">Tên đối tác / đơn vị <span aria-hidden="true">*</span></label>
+            <input type="text" class="form-input-text" id="supNameInput" placeholder="Ví dụ: Công ty CP Phát hành Sách Fahasa" required maxlength="255" autocomplete="organization">
           </div>
-
-          <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
-            <button type="button" class="btn-action-blue" id="btnSaveSupplier" style="width: auto; padding: 0 20px;">
-              <span>LƯU THÔNG TIN</span>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            </button>
+          <div class="supplier-status-row">
+            <div class="supplier-field-block">
+              <label class="supplier-label-italic" for="supPhoneInput">Số điện thoại</label>
+              <input type="tel" class="form-input-text" id="supPhoneInput" placeholder="028 3822 5678" maxlength="30" autocomplete="tel">
+            </div>
+            <div class="supplier-field-block">
+              <label class="supplier-label-italic" for="supStatusSelect">Trạng thái</label>
+              <select class="form-select-control" id="supStatusSelect"><option value="HOẠT ĐỘNG">HOẠT ĐỘNG</option><option value="NGỪNG GD">NGỪNG GIAO DỊCH</option></select>
+            </div>
           </div>
-        </div>
+          <div class="supplier-field-block">
+            <label class="supplier-label-italic" for="supEmailInput">Email liên hệ</label>
+            <input type="email" class="form-input-text" id="supEmailInput" placeholder="contact@donvi.vn" maxlength="255" autocomplete="email">
+          </div>
+          <div class="supplier-field-block">
+            <label class="supplier-label-italic" for="supContactInput">Người liên hệ <span class="supplier-optional">(không bắt buộc)</span></label>
+            <input type="text" class="form-input-text" id="supContactInput" placeholder="Họ tên người phụ trách" maxlength="255" autocomplete="name">
+          </div>
+          <div class="supplier-field-block">
+            <label class="supplier-label-italic" for="supAddressInput">Địa chỉ trụ sở</label>
+            <textarea class="form-textarea" id="supAddressInput" placeholder="Số nhà, đường, phường/xã, tỉnh/thành phố" maxlength="2000" autocomplete="street-address" rows="2"></textarea>
+          </div>
+          <p class="supplier-form-error" id="supplierFormError" role="alert" hidden></p>
+        </form>
+      </div>
+      <div class="supplier-dialog-footer">
+        <button type="button" class="btn-action-gray" data-close="modalSupplier">HỦY BỎ</button>
+        <button type="submit" class="btn-action-blue" id="btnSaveSupplier" form="formSupplier">LƯU THÔNG TIN</button>
       </div>
     </div>
   </div>

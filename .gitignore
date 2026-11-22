@@ -3,3 +3,4 @@ backend/dist/
 backend/.env
 .env
 npm-debug.log*
+.local-backups/

@@ -1,127 +1,151 @@
-# IXS LIBRARY - HỆ THỐNG QUẢN LÝ THƯ VIỆN
+# LEAF LIBRARY
 
-Đồ án môn học xây dựng giao diện Web cho **Hệ thống Quản lý Thư viện IXS (IXS Library Management System)** bằng **HTML5, CSS3 và JavaScript thuần**. Hệ thống được thiết kế tối ưu trải nghiệm UI/UX, phân định rõ ràng 2 phân hệ riêng biệt cho **Bạn đọc** và **Quản trị viên / Thủ thư**.
+Đồ án quản lý thư viện gồm giao diện bạn đọc, giao diện quản trị/thủ thư và REST API TypeScript kết nối PostgreSQL.
 
----
+## Công nghệ
 
-## 🛠️ Công nghệ sử dụng
+- Frontend: HTML, CSS và JavaScript thuần.
+- Backend: Node.js 22, TypeScript, Express và `pg`.
+- Database: PostgreSQL 17 trong Docker; pgAdmin hỗ trợ xem dữ liệu.
+- Giao diện dùng Inter, Playfair Display và icon SVG.
 
-- **Frontend:** HTML5, CSS3 (Flexbox/Grid, CSS Variables), JavaScript Vanilla (ES6+ Modules).
-- **Lưu trữ dữ liệu:** PostgreSQL qua REST API TypeScript trong Docker. `localStorage` chỉ giữ phiên đăng nhập và tùy chọn giao diện; dữ liệu nghiệp vụ không lưu ở đó.
-- **Thiết kế UI:** Khung bo tròn (Border Radius), hệ màu Badge vai trò/trạng thái chuẩn Figma.
-- **Fonts & Icons:** Playfair Display (Chữ chào hỏi), Inter/Roboto (Nội dung), SVG Icons.
-- **Công cụ chạy:** Live Server (Extension trên VS Code).
+Dữ liệu nghiệp vụ được lưu qua API vào PostgreSQL. Frontend giữ cache trong bộ nhớ trang; storage của trình duyệt dùng cho phiên đăng nhập và tùy chọn giao diện.
 
----
-
-## 📁 Cấu trúc thư mục dự án
+## Cấu trúc project
 
 ```text
-ixs-library/
-│
-├── login.html               # Màn hình Đăng nhập cho Bạn đọc
-├── register.html            # Màn hình Đăng ký tài khoản Bạn đọc
-│
-├── user/                    # 1. GIAO DIỆN BẠN ĐỌC 
-│   ├── index.html           # Trang chủ / Tổng quan bạn đọc (Dashboard)
-│   ├── catalog.html         # Tra cứu sách, xem vị trí kho & Gửi đề xuất sách
-│   ├── bookshelf.html       # Tủ sách cá nhân (Lưu/Xóa sách)
-│   ├── history.html         # Lịch sử mượn trả, Nút Gia hạn & Đăng ký chờ
-│   ├── penalties.html       # Phạt 
-│   └── profile.html         # Xem & Cập nhật thông tin cá nhân
-│
-├── admin/                   # 2. GIAO DIỆN ADMIN & THỦ THƯ 
-│   ├── index.html           # Quản lý hệ thống (Danh sách nhân viên, Cấp TK, Lọc vai trò)
-│   ├── books.html           # Quản lý danh mục, Đầu sách, Mã cuốn & Nhập kho
-│   ├── readers.html         # Quản lý bạn đọc (Thêm / Khóa / Mở tài khoản)
-│   ├── circulation.html     # Quản lý mượn - trả sách, Quét mã & Lập phiếu phạt
-│   └── reports.html         # Báo cáo, thống kê tổng quan
-│
-├── css/                     # CHỨA CÁC FILE CSS STYLING
-│   ├── style.css            # CSS chung (Variables màu sắc, Reset, Font, Modal Popup)
-│   ├── user.css             # CSS riêng giao diện Bạn đọc (Cards, Banner nhắc nhở)
-│   └── admin.css            # CSS riêng giao diện Admin (Sidebar, Data Tables, Badges)
-│
-├── js/                      # CHỨA CÁC FILE LOGIC JAVASCRIPT
-│   ├── data.js              # Repository frontend gọi REST API, cache trong bộ nhớ phiên
-│   ├── auth.js              # Logic kiểm tra Đăng nhập & Chuyển hướng theo Role
-│   ├── user.js              # Logic tương tác UI các trang Bạn đọc
-│   └── admin.js             # Logic tương tác UI các trang Admin
-│
-└── assets/                  # TÀI NGUYÊN TĨNH
-    ├── images/              # Logo IXS Library, Avatar, Bìa sách
-    └── icons/               # Icons SVG
+LEAF_LIBRARY/
+├── admin/                  # Nhân viên, độc giả, kho, lưu thông, báo cáo
+├── user/                   # Tra cứu, tủ sách, lịch sử, phạt, đề xuất
+├── js/
+│   ├── data.js             # Gọi API, phiên, cache và hàng đợi ghi dữ liệu
+│   ├── auth.js             # Đăng nhập, đăng ký và đặt lại mật khẩu
+│   ├── admin.js            # Tương tác giao diện quản trị/thủ thư
+│   └── user.js             # Tương tác giao diện bạn đọc
+├── css/                    # Style chung, admin và user
+├── assets/images/          # Logo, ảnh nền, bìa sách
+├── backend/
+│   ├── src/
+│   │   ├── server.ts       # Endpoint và nghiệp vụ
+│   │   ├── auth.ts         # Phiên, vai trò, quyền và quyền sở hữu dữ liệu
+│   │   ├── db.ts           # PostgreSQL connection pool
+│   │   ├── migrations.ts   # Chạy migration chưa áp dụng
+│   │   └── sms.ts          # Kết nối nhà cung cấp OTP tùy chọn
+│   ├── migrations/         # Lịch sử cập nhật schema/dữ liệu có phiên bản
+│   ├── Dockerfile
+│   └── package.json
+├── database/
+│   ├── library_db.sql      # Schema khởi tạo
+│   └── reconcile_inventory.sql # Công cụ đối soát tồn kho có chủ đích
+├── qa-results/             # Một báo cáo kiểm thử tổng hợp
+├── .env.example            # Mẫu cấu hình Docker
+├── docker-compose.yml
+├── login.html              # Đăng nhập; form đăng ký nằm trong trang này
+├── index.html              # Điều hướng vào ứng dụng
+└── serve.js                # Static server local, thay cho Live Server
 ```
 
-## 📋 Danh sách 10 chức năng chính
+## Khởi chạy
 
-1. **Đăng ký & Đăng nhập tài khoản:** Xác thực tài khoản bạn đọc (`login.html`) và admin (`admin/index.html`), phân quyền truy cập thích hợp.
-2. **Quản lý tài khoản bạn đọc:** Hỗ trợ Admin/Thủ thư xem, tìm kiếm, thêm mới và khóa/mở khóa tài khoản bạn đọc.
-3. **Quản lý nhân viên:** Quản lý danh sách nhân viên, chức vụ, trạng thái làm việc, cấp tài khoản và phân quyền (Admin, Thủ thư kho, Thủ thư quầy).
-4. **Quản lý danh mục tài liệu:** Phân loại tài liệu theo thể loại, chủ đề, khoa hoặc chuyên ngành.
-5. **Quản lý sách và kho:** Quản lý thông tin đầu sách, mã cuốn sách vật lý riêng, vị trí lưu trữ trên kệ và lập/xác nhận phiếu nhập kho.
-6. **Quản lý tủ sách cá nhân:** Bạn đọc có thể lưu tài liệu yêu thích vào tủ sách cá nhân, xem lại hoặc xóa khỏi danh sách.
-7. **Tìm kiếm & Đề xuất sách:** Tra cứu sách theo tên, tác giả, ISBN (hiển thị vị trí & số lượng sẵn có trong kho); gửi đề xuất bổ sung sách mới.
-8. **Mượn, Trả, Gia hạn & Đăng ký chờ:** Xử lý giao dịch mượn/trả, kiểm tra hạn trả, hỗ trợ bấm nút "Gia hạn ngay" và xếp vị trí hàng chờ khi hết sách.
-9. **Khoản phạt & Đền bù:** Ghi nhận vi phạm (trả quá hạn, làm hỏng/mất sách), tính phí đền bù và theo dõi tình trạng thanh toán.
-10. **Báo cáo & Thống kê:** Tổng hợp dữ liệu số lượng đầu sách, tồn kho, tình hình mượn trả, sách quá hạn/hư hỏng và doanh thu phí phạt.
+### PostgreSQL và API
 
-## 🚀 Hướng dẫn chạy dự án
+Mở Docker Desktop. Tạo `.env` từ `.env.example` và cấu hình `DB_PASSWORD`, sau đó chạy tại thư mục gốc:
 
-### Backend TypeScript + PostgreSQL bằng Docker
+```powershell
+docker compose up -d --build
+```
 
-1. Cài và mở Docker Desktop.
-2. Tạo file `.env` từ `.env.example`, rồi đặt `DB_PASSWORD` thành mật khẩu riêng của bạn.
-3. Chạy ở thư mục gốc project:
+| Thành phần | Địa chỉ mặc định |
+|---|---|
+| API | `http://localhost:3000/api` |
+| Kiểm tra kết nối DB | `http://localhost:3000/api/health` |
+| PostgreSQL từ máy host | `localhost:5434` |
+| pgAdmin | `http://localhost:5050` |
 
-   ```bash
-   docker compose up --build
-   ```
+Tên database và user PostgreSQL nằm trong `docker-compose.yml`. Container API kết nối tới service `db:5432`; cổng `5434` dùng cho công cụ chạy trên máy host.
 
-4. Kiểm tra API và database tại `http://localhost:3000/api/health`.
-5. Mở frontend bằng Live Server như hướng dẫn bên dưới; `js/data.js` tải và ghi dữ liệu nghiệp vụ qua API tại `http://localhost:3000/api`. Dữ liệu chỉ cache trong bộ nhớ khi trang đang mở, không ghi vào `localStorage`.
-6. Kết nối PostgreSQL từ công cụ trên máy host bằng `localhost:5434` (container dùng cổng nội bộ `5432`).
+### Frontend
 
-Các bảng PostgreSQL được khởi tạo từ `database/library_db.sql` ở lần chạy đầu tiên. Nếu thay đổi schema sau khi volume đã tạo, chạy `docker compose down -v` rồi `docker compose up --build` để tạo lại database (lệnh này xóa dữ liệu hiện tại).
+Chọn một trong hai cách:
 
-1. **Tải / Clone mã nguồn** về máy tính.
-2. Mở thư mục `ixs-library/` bằng trình soạn thảo **VS Code**.
-3. Cài đặt Extension **Live Server** trong VS Code (nếu chưa có).
-4. **Mở ứng dụng:**
-   - **Giao diện Bạn đọc:** Click chuột phải vào file `login.html` → chọn `Open with Live Server` (đường dẫn: `http://127.0.0.1:5500/login.html`).
-   - **Giao diện Admin:** Mở đường dẫn `http://127.0.0.1:5500/admin/index.html` (hoặc `http://127.0.0.1:5500/admin`).
+- Chạy `node serve.js` ở thư mục gốc.
+- Mở `login.html` bằng Live Server, cấu hình cổng `5500`.
 
-## 🔑 Tài khoản trải nghiệm mẫu (dữ liệu thử nghiệm)
+Truy cập `http://127.0.0.1:5500/login.html`. API quyết định quyền truy cập; giao diện chuyển hướng theo tài khoản đã đăng nhập.
 
-| Vai trò | Tên đăng nhập | Mật khẩu | Màn hình chuyển hướng |
-|---|---|---|---|
-| Quản trị viên | `admin` | `123456` | `admin/index.html` |
-| Thủ thư | `thuthu` | `123456` | `admin/index.html` |
-| Bạn đọc | `tannin` | `123456` | `user/index.html` |
+### Tài khoản được tạo bởi migrations
 
-## phân công công việc
-team 1 - frontend: hong cuc, huy phat, thanh dat, tan nin
-team 2 - backend: tan nin, xuan ly, minh tuan
+| Vai trò | Tên đăng nhập | Mật khẩu khởi tạo |
+|---|---|---|
+| Quản trị viên | `admin` | `admin123` |
+| Bạn đọc | `tannin` | `Nin10112006` |
 
-## Quy chuẩn đặt tên các thành phần giao diện
-CÁC BẠN Nên sử dụng tiền tố để phân biệt các thành phần, tránh đặt tên chung chung hoặc trùng nhau giữa giao diện độc giả và quản trị viên.
-T ví dụ
-Thanh điều hướng	navbar
-Thanh bên độc giả	user-sidebar
-Thanh bên quản trị	admin-sidebar
-Thẻ thống kê	stat-card
-Bảng sách	books-table
-Biểu mẫu đăng nhập	login-form
-Nút thêm sách	btn-add-book
-Huy hiệu trạng thái	status-badge
-Hộp thoại xác nhận	confirm-modal
-Ô tìm kiếm sách	book-search
+Đây là giá trị cho DB khởi tạo mới. Với DB đã sử dụng, mật khẩu là giá trị đã được thay đổi trong hệ thống. Tài khoản khác được đăng ký hoặc cấp qua giao diện.
 
+Phiên do server cấp có thời hạn 12 giờ và mất hiệu lực khi API khởi động lại; đăng nhập lại sau khi cập nhật/restart API.
 
-## Database migrations
+## Migrations và dữ liệu
 
-Versioned SQL migrations live in `backend/migrations/`. The API applies unapplied migration files in filename order and records them in `ixs_schema_migrations` before it starts listening. Add a new numbered file for each schema change; do not modify a migration that has already run. The initial `database/library_db.sql` file is still used to create a fresh PostgreSQL volume.
+- `database/library_db.sql` được PostgreSQL chạy khi khởi tạo volume mới.
+- Trước khi mở cổng, API chạy các file chưa áp dụng trong `backend/migrations/` theo thứ tự tên và ghi vào `ixs_schema_migrations`.
+- Thay đổi schema cần một migration đánh số mới. Giữ nguyên các migration đã chạy và kiểm tra cả DB hiện có lẫn DB khởi tạo mới.
+- Giữ volume hiện có khi cập nhật code. Lệnh `docker compose up -d --build api` cập nhật API và chạy migration mới; không cần xóa volume để nâng cấp schema.
+- `database/reconcile_inventory.sql` là công cụ bảo trì riêng: sao lưu, đọc danh sách mâu thuẫn và kiểm tra trên bản sao trước khi áp dụng vào DB chính. Script này không nằm trong chuỗi migration tự chạy.
 
-## Password reset SMS
+Mặc định quyền truy cập và quy định thư viện trong `js/data.js` phục vụ cấu hình giao diện/reset cấu hình. Sách, cuốn sách, độc giả và giao dịch lấy từ PostgreSQL, không có danh sách mẫu thay thế khi API lỗi.
 
-Password reset codes use eOTP's SMS API. Create and approve an eOTP project, then put its API key and secret in the untracked `.env` file as `EOTP_API_KEY` and `EOTP_API_SECRET`. Configure the project for numeric six-digit OTPs and the SMS channel. The API stores eOTP's `request_id` and asks eOTP to verify the code; OTP values are never sent to the browser by this app. Restart with `docker compose up -d --build api` after editing `.env`.
+## Chức năng
+
+- Đăng ký, đăng nhập, quản lý phiên và phân quyền.
+- Quản lý hồ sơ nhân viên, cấp tài khoản, khóa/mở khóa và reset mật khẩu bởi admin.
+- Duyệt đăng ký độc giả, quản lý hồ sơ và thẻ thư viện.
+- Quản lý đầu sách, cuốn sách, danh mục, nhà cung cấp và nhập kho.
+- Đăng ký mượn, duyệt/lập phiếu, trả sách, gia hạn và danh sách chờ.
+- Tủ sách cá nhân, ghi chú và tiến độ đọc.
+- Đề xuất mua sách, ghi nhận vi phạm và theo dõi thanh toán phạt.
+- Báo cáo thống kê và xuất CSV.
+
+Hồ sơ cá nhân và thẻ được mở bằng modal trong giao diện, không có trang `profile.html` hoặc `register.html` riêng. ISBN chưa phải cột của bảng đầu sách.
+
+## Kiểm tra khi phát triển
+
+Backend có các script:
+
+```powershell
+cd backend
+npm ci
+npm run typecheck
+npm run build
+```
+
+TypeScript bật kiểm tra biến/tham số không sử dụng. Frontend có thể kiểm tra cú pháp từ thư mục gốc:
+
+```powershell
+node --check js/data.js
+node --check js/auth.js
+node --check js/admin.js
+node --check js/user.js
+```
+
+Báo cáo tổng hợp: `qa-results/bao-cao-kiem-thu-toan-dien.html`. Kiểm thử CRUD dùng DB sao chép; backup và kết quả tạm được giữ ngoài source chia sẻ, trong `.local-backups/` đã được Git bỏ qua.
+
+## Giới hạn khi clean và bảo trì
+
+1. Lưu mốc source trước khi sửa; giữ các thay đổi chưa commit của thành viên khác.
+2. Giữ nguyên schema, migration đã chạy, đường dẫn API, tên field, ID HTML và thứ tự nạp script khi chỉ clean code.
+3. Chỉ xóa code đã chứng minh không được dùng hoặc không thể chạy. Chức năng đang ẩn, tích hợp tùy chọn và tài nguyên được DB/migration tham chiếu vẫn được giữ.
+4. Không đổi layout, CSS, quy tắc nghiệp vụ hoặc dependency chỉ để chỉnh cách trình bày code.
+5. Giữ cấu hình mặc định đang phục vụ giao diện; dữ liệu nghiệp vụ phải đọc/ghi qua API.
+6. Sau thay đổi ở code dùng chung, chạy kiểm tra cú pháp/typecheck và hồi quy các luồng liên quan. Lỗi mới phải được xử lý hoặc hoàn tác trước khi tiếp tục.
+7. Không chạy bài test tạo/sửa/xóa vào DB chính; không xóa volume dữ liệu để làm sạch môi trường.
+
+## OTP qua SMS
+
+Tích hợp eOTP được giữ dưới dạng tùy chọn trong `backend/src/sms.ts`. Đặt `EOTP_API_KEY` và `EOTP_API_SECRET` trong `.env` sau khi có project được nhà cung cấp phê duyệt; cập nhật API sau khi đổi cấu hình. Khả năng gửi SMS thật phụ thuộc cấu hình dịch vụ và không nằm trong phạm vi kiểm thử gửi thật của báo cáo hiện tại.
+
+## Phân công
+
+- Team frontend: hong cuc, huy phat, thanh dat, tan nin.
+- Team backend: tan nin, xuan ly, minh tuan.
+
+Quy ước tên thành phần đang dùng: `navbar`, `user-sidebar`, `admin-sidebar`, `stat-card`, `books-table`, `login-form`, `btn-add-book`, `status-badge`, `confirm-modal`, `book-search`.

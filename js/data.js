@@ -1,415 +1,4 @@
-const CURRENT_DATA_VERSION = 'v7_normalized_ds_cs_pm_ids';
-
-const defaultEmployees = [];
-const defaultLogs = [];
-const defaultCategories = [
-  { id: 'DM01', name: 'Công nghệ thông tin' },
-  { id: 'DM02', name: 'Kinh tế' },
-  { id: 'DM03', name: 'Kỹ năng sống' },
-  { id: 'DM04', name: 'Ngoại ngữ' },
-  { id: 'DM05', name: 'Văn học' },
-  { id: 'DM06', name: 'Toán học' },
-  { id: 'DM07', name: 'Triết học' }
-];
-const defaultBookTitles = [
-  {
-    id: 'DS001',
-    title: 'Clean Code: A Handbook of Agile Software Craftsmanship',
-    authors: 'Robert C. Martin',
-    author: 'Robert C. Martin',
-    publisher: 'Prentice Hall',
-    category: 'Công nghệ thông tin',
-    genre: 'Lập trình',
-    subject: 'Phát triển phần mềm',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/cleancode.webp'
-  },
-  {
-    id: 'DS002',
-    title: 'Giáo trình Giải tích Tập 2',
-    authors: 'Trần Đức Long - ĐHQG HN',
-    author: 'Trần Đức Long - ĐHQG HN',
-    publisher: 'Đại học Quốc gia Hà Nội',
-    category: 'Toán học',
-    genre: 'Giải tích',
-    subject: 'Toán học',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/giatich.webp'
-  },
-  {
-    id: 'DS003',
-    title: 'Triết học',
-    authors: 'Edward Craig',
-    author: 'Edward Craig',
-    publisher: 'NXB Tri Thức',
-    category: 'Triết học',
-    genre: 'Triết học',
-    subject: 'Triết học nhập môn',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/triethoc.jpg'
-  },
-  {
-    id: 'DS004',
-    title: 'Lịch sử Văn minh Thế giới',
-    authors: 'Đào Tuấn Thành (Chủ biên)',
-    author: 'Đào Tuấn Thành (Chủ biên)',
-    publisher: 'NXB Đại học Sư phạm',
-    category: 'Lịch sử',
-    genre: 'Lịch sử',
-    subject: 'Văn minh thế giới',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/lichsuvanminhthegioi.jpg'
-  },
-  {
-    id: 'DS005',
-    title: 'Cây cam ngọt của tôi',
-    authors: 'José Mauro de Vasconcelos',
-    author: 'José Mauro de Vasconcelos',
-    publisher: 'Nhã Nam',
-    category: 'Văn học',
-    genre: 'Tiểu thuyết',
-    subject: 'Văn học nước ngoài',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/caycamngotcuatoi.jpg'
-  },
-  {
-    id: 'DS006',
-    title: 'Chiếc lá cuối cùng',
-    authors: 'O. Henry',
-    author: 'O. Henry',
-    publisher: 'NXB Văn học',
-    category: 'Văn học',
-    genre: 'Truyện ngắn',
-    subject: 'Văn học nước ngoài',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/chieclacuoicung.jpg'
-  },
-  {
-    id: 'DS007',
-    title: 'Dế Mèn phiêu lưu ký',
-    authors: 'Tô Hoài',
-    author: 'Tô Hoài',
-    publisher: 'NXB Kim Đồng',
-    category: 'Văn học',
-    genre: 'Văn học thiếu nhi',
-    subject: 'Văn học Việt Nam',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/demenphieuluuky.jpg'
-  },
-  {
-    id: 'DS008',
-    title: 'Làm đĩ',
-    authors: 'Vũ Trọng Phụng',
-    author: 'Vũ Trọng Phụng',
-    publisher: 'NXB Văn học',
-    category: 'Văn học',
-    genre: 'Tiểu thuyết',
-    subject: 'Văn học Việt Nam',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/lamdi.jpg'
-  },
-  {
-    id: 'DS009',
-    title: 'Đọc sách cộng hưởng',
-    authors: 'Watanabe Yasuhiro',
-    author: 'Watanabe Yasuhiro',
-    publisher: 'NXB Lao Động',
-    category: 'Kỹ năng đọc',
-    genre: 'Kỹ năng đọc',
-    subject: 'Phương pháp đọc sách',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/sachconghuon.jpg'
-  },
-  {
-    id: 'DS010',
-    title: 'Suối ấm mặt trời',
-    authors: 'José Mauro de Vasconcelos',
-    author: 'José Mauro de Vasconcelos',
-    category: 'Văn học',
-    genre: 'Tiểu thuyết',
-    subject: 'Văn học nước ngoài',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/suoiammattroi.jpg'
-  },
-  {
-    id: 'DS011',
-    title: 'Số đỏ',
-    authors: 'Vũ Trọng Phụng',
-    author: 'Vũ Trọng Phụng',
-    publisher: 'Lê Cường',
-    category: 'Văn học',
-    genre: 'Tiểu thuyết trào phúng',
-    subject: 'Văn học Việt Nam',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/sodo.jpg'
-  },
-  {
-    id: 'DS012',
-    title: 'MANAGING INFORMATION TECHNOLOGY',
-    authors: 'Francisco Castillo, Korina Monoso',
-    author: 'Francisco Castillo, Korina Monoso',
-    publisher: 'Springer',
-    category: 'Công nghệ thông tin',
-    genre: 'Công nghệ thông tin',
-    subject: 'Quản trị công nghệ thông tin',
-    total: 5,
-    available: 5,
-    isbn: '3031390156, 978-3031390159',
-    coverUrl: '../assets/images/cleancode.webp'
-  },
-  {
-    id: 'DS013',
-    title: 'Lập trình C++ căn bản và nâng cao',
-    authors: 'GS. Phạm Văn Ất',
-    author: 'GS. Phạm Văn Ất',
-    publisher: 'NXB Khoa học & Kỹ thuật',
-    category: 'Công nghệ thông tin',
-    genre: 'Lập trình',
-    subject: 'Ngôn ngữ C++',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/cleancode.webp'
-  },
-  {
-    id: 'DS014',
-    title: 'Giáo trình Toán cao cấp - Giải tích 1',
-    authors: 'Nguyễn Đình Trí (Chủ biên)',
-    author: 'Nguyễn Đình Trí (Chủ biên)',
-    publisher: 'NXB Giáo Dục',
-    category: 'Toán học',
-    genre: 'Giải tích',
-    subject: 'Toán học',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/giatich.webp'
-  },
-  {
-    id: 'DS015',
-    title: 'Lịch sử Triết học phương Tây',
-    authors: 'Bertrand Russell',
-    author: 'Bertrand Russell',
-    publisher: 'NXB Thế Giới',
-    category: 'Triết học',
-    genre: 'Triết học',
-    subject: 'Triết học phương Tây',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/triethoc.jpg'
-  },
-  {
-    id: 'DS016',
-    title: 'Lịch sử Nền văn minh Ả Rập',
-    authors: 'Will Durant',
-    author: 'Will Durant',
-    publisher: 'NXB Hồng Đức',
-    category: 'Lịch sử',
-    genre: 'Lịch sử',
-    subject: 'Lịch sử thế giới',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/lichsuvanminhthegioi.jpg'
-  },
-  {
-    id: 'DS017',
-    title: 'Tôi thấy hoa vàng trên cỏ xanh',
-    authors: 'Nguyễn Nhật Ánh',
-    author: 'Nguyễn Nhật Ánh',
-    publisher: 'NXB Trẻ',
-    category: 'Văn học',
-    genre: 'Truyện dài',
-    subject: 'Văn học Việt Nam',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/caycamngotcuatoi.jpg'
-  },
-  {
-    id: 'DS018',
-    title: 'Mắt biếc',
-    authors: 'Nguyễn Nhật Ánh',
-    author: 'Nguyễn Nhật Ánh',
-    publisher: 'NXB Trẻ',
-    category: 'Văn học',
-    genre: 'Truyện dài',
-    subject: 'Văn học Việt Nam',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/demenphieuluuky.jpg'
-  },
-  {
-    id: 'DS019',
-    title: 'Tắt đèn',
-    authors: 'Ngô Tất Tố',
-    author: 'Ngô Tất Tố',
-    publisher: 'NXB Văn học',
-    category: 'Văn học',
-    genre: 'Tiểu thuyết hiện thực',
-    subject: 'Văn học Việt Nam',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/lamdi.jpg'
-  },
-  {
-    id: 'DS020',
-    title: 'Bỉ vỏ',
-    authors: 'Nguyên Hồng',
-    author: 'Nguyên Hồng',
-    publisher: 'NXB Văn học',
-    category: 'Văn học',
-    genre: 'Tiểu thuyết',
-    subject: 'Văn học Việt Nam',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/sodo.jpg'
-  },
-  {
-    id: 'DS021',
-    title: 'Tuổi thơ dữ dội',
-    authors: 'Phùng Quán',
-    author: 'Phùng Quán',
-    publisher: 'NXB Kim Đồng',
-    category: 'Văn học',
-    genre: 'Tiểu thuyết chiến tranh',
-    subject: 'Văn học Việt Nam',
-    total: 5,
-    available: 5,
-    coverUrl: '../assets/images/chieclacuoicung.jpg'
-  }
-];
-let _seedCopySeq = 0;
-const defaultBookCopies = defaultBookTitles.flatMap(b =>
-  ['A1 - Ngăn 1', 'A1 - Ngăn 2', 'B1 - Ngăn 1', 'B1 - Ngăn 2', 'B2 - Ngăn 1'].map(location => {
-    _seedCopySeq += 1;
-    const copyId = `CS${String(_seedCopySeq).padStart(3, '0')}`;
-    return {
-      id: copyId,
-      bookId: b.id,
-      bookTitleId: b.id,
-      bookTitle: b.title,
-      barcode: copyId,
-      physicalStatus: 'TỐT',
-      circulationStatus: 'SẴN SÀNG',
-      status: 'SẴN SÀNG',
-      location,
-      coverUrl: b.coverUrl
-    };
-  })
-);
-const defaultImportReceipts = [];
-const defaultSuppliers = [];
-const defaultPublishers = [];
-const defaultReaders = [
-  {
-    id: '220260004',
-    name: 'Lưu Tấn Nin',
-    fullName: 'Lưu Tấn Nin',
-    readerType: 'Sinh viên',
-    issueDate: '15 / 11 / 2026',
-    expiryDate: '15 / 11 / 2027',
-    status: 'HỢP LỆ',
-    phone: '0363894957',
-    email: 'luutannin@gmail.com',
-    cccd: '072202001234',
-    address: 'Ô 17, Ấp 4, Mỹ An, Tây Ninh',
-    gender: 'Nam',
-    dob: '10 / 01 / 2006'
-  }
-];
-const defaultReaderHistory = [
-  {
-    id: 'PM001',
-    loanId: 'PM001',
-    readerId: '220260004',
-    readerName: 'Lưu Tấn Nin',
-    copyId: 'CS001',
-    bookTitle: 'Clean Code: A Handbook of Agile Software Craftsmanship',
-    borrowDate: '10/11/2026',
-    dueDate: '24/11/2026',
-    status: 'Đang mượn'
-  }
-];
-
-const defaultSuggestions = [
-  {
-    id: 'DX-2026-0001',
-    readerId: '220260004',
-    readerName: 'Lưu Tấn Nin',
-    title: 'Thiết kế kiến trúc hệ thống phân tán (Distributed Systems)',
-    author: 'Martin Kleppmann',
-    publisher: 'NXB Thông tin & Truyền thông',
-    year: '2024',
-    quantity: '5 bản',
-    edition: 'Lần 2',
-    isbn: '978-604-80-4567-8',
-    reason: 'Phục vụ học phần Kiến trúc phần mềm và Hệ phân tán nâng cao.',
-    status: 'Chờ duyệt',
-    type: 'Sách chuyên ngành',
-    createdAt: '12/11/2026'
-  },
-  {
-    id: 'DX-2026-0002',
-    readerId: '220260004',
-    readerName: 'Lưu Tấn Nin',
-    title: 'Clean Architecture: Cấu trúc và Thiết kế Phần mềm',
-    author: 'Robert C. Martin',
-    publisher: 'NXB Khoa học & Kỹ thuật',
-    year: '2023',
-    quantity: '10 bản',
-    edition: 'Lần 1',
-    isbn: '978-604-67-1234-5',
-    reason: 'Tài liệu tham khảo bắt buộc cho đồ án tốt nghiệp công nghệ phần mềm.',
-    status: 'Đã duyệt',
-    type: 'Sách giáo trình',
-    createdAt: '05/11/2026'
-  },
-  {
-    id: 'DX-2026-0003',
-    readerId: '220260004',
-    readerName: 'Lưu Tấn Nin',
-    title: 'Machine Learning cơ bản và ứng dụng thực tế',
-    author: 'Vũ Hữu Tiệp',
-    publisher: 'NXB Đại học Quốc gia',
-    year: '2022',
-    quantity: '3 bản',
-    edition: 'Lần 1',
-    isbn: '978-604-58-9876-1',
-    reason: 'Nghiên cứu về các mô hình học máy cơ bản.',
-    status: 'Từ chối',
-    type: 'Sách tham khảo',
-    createdAt: '28/10/2026'
-  }
-];
-
-const defaultFines = [
-  {
-    id: 'PH0001',
-    readerId: '220260004',
-    violation: 'Phí trễ hạn mượn sách',
-    bookTitle: 'Clean Code: A Handbook of Agile Software Craftsmanship',
-    amount: 100000,
-    paymentStatus: 'Chưa thanh toán',
-    date: '15/11/2026'
-  },
-  {
-    id: 'PH0002',
-    readerId: '220260004',
-    violation: 'Phí làm lại thẻ thư viện',
-    amount: 100000,
-    paymentStatus: 'Chưa thanh toán',
-    date: '15/11/2026'
-  }
-];
-
+// Business data comes from PostgreSQL. Only editable configuration has local defaults.
 const defaultPermissions = {
   'QUẢN TRỊ VIÊN': [
     {
@@ -563,7 +152,7 @@ const defaultLibraryRules = {
 };
 
 /**
- * DataService / Repository Pattern chuẩn bị kết nối RESTful API / Backend
+ * Repository frontend: authenticated REST requests, in-memory cache and queued writes.
  */
 const DataService = {
   API_BASE_URL: 'http://localhost:3000/api',
@@ -585,48 +174,43 @@ const DataService = {
     RULES: 'ixs_library_rules'
   },
 
+  session() {
+    try { return JSON.parse(sessionStorage.getItem('ixs_library_session') || localStorage.getItem('ixs_library_session') || '{}'); } catch (_) { return {}; }
+  },
+  async logout() {
+    try { await this.request('POST', '/auth/logout', {}); } catch (_) {}
+    this.clearSession();
+  },
+  clearSession() {
+    for (const storage of [sessionStorage, localStorage]) for (const key of ['ixs_library_session','ixs_library_current_user']) storage.removeItem(key);
+    this._cache = {}; this._snapshots = {};
+  },
   init() {
     this._cache = {};
     const defaultData = {
-      [this.KEYS.EMPLOYEES]: defaultEmployees,
       [this.KEYS.PERMISSIONS]: defaultPermissions,
-      [this.KEYS.LOGS]: defaultLogs,
-      [this.KEYS.BOOK_TITLES]: defaultBookTitles,
-      [this.KEYS.BOOK_COPIES]: defaultBookCopies,
-      [this.KEYS.IMPORT_RECEIPTS]: defaultImportReceipts,
-      [this.KEYS.SUPPLIERS]: defaultSuppliers,
-      [this.KEYS.PUBLISHERS]: defaultPublishers,
-      [this.KEYS.READERS]: defaultReaders,
-      [this.KEYS.READER_HISTORY]: defaultReaderHistory,
-      [this.KEYS.FINES]: defaultFines,
-      [this.KEYS.SUGGESTIONS]: defaultSuggestions,
-      [this.KEYS.CATEGORIES]: defaultCategories,
       [this.KEYS.RULES]: defaultLibraryRules
     };
 
-    Object.entries(this.KEYS).forEach(([name, key]) => {
-      let stored = null;
-      try {
-        const raw = localStorage.getItem(key);
-        if (raw) stored = JSON.parse(raw);
-      } catch (_) {}
-
+    Object.values(this.KEYS).forEach(key => {
       const fallback = defaultData[key] || [];
-      if (stored && Array.isArray(stored) && stored.length > 0) {
-        this._cache[key] = stored;
-      } else if (stored && typeof stored === 'object' && !Array.isArray(stored)) {
-        this._cache[key] = stored;
-      } else {
-        this._cache[key] = fallback;
-      }
+      this._cache[key] = Array.isArray(fallback) ? [] : fallback;
     });
 
     this._snapshots = {};
     this._writes = {};
     this._writeErrors = {};
-    const resources = Object.entries(this.KEYS)
-      .map(([name, key]) => ({ key, resource: this.resourceForKey(key), fallback: defaultData[key] || [] }))
-      .filter(item => item.resource);
+    const resources = Object.values(this.KEYS)
+      .map(key => ({ key, resource: this.resourceForKey(key), fallback: defaultData[key] || [] }))
+      .filter(item => {
+        if (!item.resource) return false;
+        if (['bookTitles','bookCopies','categories','config:library_rules'].includes(item.resource)) return true;
+        const session = this.session();
+        if (!session.token) return false;
+        if (session.accountType === 'employee') return ['config:permissions','employees'].includes(item.resource)
+          ? /quản trị|admin/i.test(session.role || '') : true;
+        return ['readers','readerHistory','fines','suggestions'].includes(item.resource);
+      });
     this.ready = Promise.all(resources.map(item => this.hydrate(item.key, item.resource, item.fallback).catch(() => this._cache[item.key])));
   },
 
@@ -652,7 +236,7 @@ const DataService = {
   request(method, path, body) {
     return fetch(`${this.API_BASE_URL}${path}`, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(this.session().token ? { Authorization: 'Bearer ' + this.session().token } : {}) },
       ...(body === undefined ? {} : { body: JSON.stringify(body) })
     }).then(async response => {
       if (!response.ok) {
@@ -660,6 +244,10 @@ const DataService = {
         try { payload = await response.json(); } catch (_) {}
         const error = new Error(payload.error || `API ${method} ${path} failed (${response.status})`);
         error.status = response.status;
+        if (response.status === 401 && path !== '/auth/login') {
+          this.clearSession();
+          if (/\/(admin|user)\//.test(location.pathname) && !location.pathname.endsWith('/catalog.html')) location.replace('../login.html');
+        }
         throw error;
       }
       return response.status === 204 ? null : response.json();
@@ -670,7 +258,7 @@ const DataService = {
   },
 
   getAll(key, fallback = []) {
-    return this._cache?.[key] ?? fallback;
+    return this._cache?.[key] ?? (Array.isArray(fallback) ? [] : fallback);
   },
 
   async hydrate(key, resource, fallback = []) {
@@ -846,7 +434,7 @@ function initAdminData() {
 }
 
 function getEmployees() {
-  return DataService.getAll(DataService.KEYS.EMPLOYEES, defaultEmployees);
+  return DataService.getAll(DataService.KEYS.EMPLOYEES);
 }
 
 function saveEmployees(list) {
@@ -862,7 +450,7 @@ function savePermissions(perms) {
 }
 
 function getLogs() {
-  return DataService.getAll(DataService.KEYS.LOGS, defaultLogs);
+  return DataService.getAll(DataService.KEYS.LOGS);
 }
 
 function addLog(action, target, detail) {
@@ -902,7 +490,7 @@ function addLog(action, target, detail) {
 }
 
 function getBookTitles() {
-  return DataService.getAll(DataService.KEYS.BOOK_TITLES, defaultBookTitles);
+  return DataService.getAll(DataService.KEYS.BOOK_TITLES);
 }
 
 function saveBookTitles(list) {
@@ -910,7 +498,7 @@ function saveBookTitles(list) {
 }
 
 function getBookCopies() {
-  return DataService.getAll(DataService.KEYS.BOOK_COPIES, defaultBookCopies);
+  return DataService.getAll(DataService.KEYS.BOOK_COPIES);
 }
 
 function saveBookCopies(list) {
@@ -918,7 +506,7 @@ function saveBookCopies(list) {
 }
 
 function getImportReceipts() {
-  return DataService.getAll(DataService.KEYS.IMPORT_RECEIPTS, defaultImportReceipts);
+  return DataService.getAll(DataService.KEYS.IMPORT_RECEIPTS);
 }
 
 function saveImportReceipts(list) {
@@ -926,7 +514,7 @@ function saveImportReceipts(list) {
 }
 
 function getSuppliers() {
-  return DataService.getAll(DataService.KEYS.SUPPLIERS, defaultSuppliers);
+  return DataService.getAll(DataService.KEYS.SUPPLIERS);
 }
 
 function saveSuppliers(list) {
@@ -934,7 +522,7 @@ function saveSuppliers(list) {
 }
 
 function getPublishers() {
-  return DataService.getAll(DataService.KEYS.PUBLISHERS, defaultPublishers);
+  return DataService.getAll(DataService.KEYS.PUBLISHERS);
 }
 
 function savePublishers(list) {
@@ -942,7 +530,7 @@ function savePublishers(list) {
 }
 
 function getReaders() {
-  return DataService.getAll(DataService.KEYS.READERS, defaultReaders);
+  return DataService.getAll(DataService.KEYS.READERS);
 }
 
 function saveReaders(list) {
@@ -950,7 +538,7 @@ function saveReaders(list) {
 }
 
 function getReaderHistory() {
-  return DataService.getAll(DataService.KEYS.READER_HISTORY, defaultReaderHistory);
+  return DataService.getAll(DataService.KEYS.READER_HISTORY);
 }
 
 function saveReaderHistory(list) {
@@ -958,7 +546,7 @@ function saveReaderHistory(list) {
 }
 
 function getFines() {
-  return DataService.getAll(DataService.KEYS.FINES, defaultFines);
+  return DataService.getAll(DataService.KEYS.FINES);
 }
 
 function saveFines(list) {
@@ -966,7 +554,7 @@ function saveFines(list) {
 }
 
 function getBookSuggestions() {
-  return DataService.getAll(DataService.KEYS.SUGGESTIONS, defaultSuggestions);
+  return DataService.getAll(DataService.KEYS.SUGGESTIONS);
 }
 
 function saveBookSuggestions(list) {
@@ -974,7 +562,7 @@ function saveBookSuggestions(list) {
 }
 
 function getCategories() {
-  return DataService.getAll(DataService.KEYS.CATEGORIES, defaultCategories);
+  return DataService.getAll(DataService.KEYS.CATEGORIES);
 }
 
 function saveCategories(list) {

@@ -96,9 +96,7 @@ function setButtonLoading(btnId, isLoading, loadingText) {
 
 /**
  * Xử lý đăng nhập hệ thống & Phân quyền chuyển hướng theo đúng đối tượng (Admin / Thủ thư -> admin/, Bạn đọc -> user/)
- * Hỗ trợ linh hoạt:
- * 1. Khi có Backend PostgreSQL API (http://localhost:3000): Xác thực dữ liệu thực tế từ Database.
- * 2. Khi chạy Offline / Live Server: Tự động kích hoạt cơ chế tài khoản trải nghiệm mẫu (admin, thuthu, tannin).
+ * Backend PostgreSQL xác thực tài khoản và cấp phiên; frontend chuyển hướng theo vai trò.
  */
 async function handleLogin() {
   clearFieldErrors();
@@ -128,6 +126,7 @@ async function handleLogin() {
 
   let user = null;
   let apiConnected = false;
+  let resultToken = null;
   setButtonLoading('btn-login-submit', true, 'Đang đăng nhập...');
 
   try {
@@ -136,6 +135,7 @@ async function handleLogin() {
       if (typeof DataService !== 'undefined' && typeof DataService.request === 'function') {
         const result = await DataService.request('POST', '/auth/login', { username, password });
         user = result && result.user;
+        resultToken = result && result.token;
         apiConnected = true;
       }
     } catch (err) {
@@ -157,6 +157,7 @@ async function handleLogin() {
         (user.role && (user.role.toLowerCase().includes('độc giả') || user.role.toLowerCase().includes('bạn đọc') || user.role.toLowerCase().includes('sinh viên')));
 
       const session = {
+        token: resultToken,
         id: String(user.id),
         username: String(user.username || username),
         fullName: String(user.fullName || user.name || (isReader ? 'Bạn đọc' : 'Quản trị viên')),
@@ -191,101 +192,11 @@ async function handleLogin() {
       return;
     }
 
-    // 3. Cơ chế dự phòng trải nghiệm mẫu (Offline / Seed Accounts Fallback)
-    const q = username.toLowerCase();
-    let mockUser = null;
-
-    if (q === 'admin' || q === 'admin@leaflibrary.vn') {
-      mockUser = {
-        id: '12026001',
-        username: 'admin',
-        fullName: 'Quản trị viên',
-        name: 'Quản trị viên',
-        role: 'QUẢN TRỊ VIÊN',
-        accountType: 'employee',
-        email: 'admin@leaflibrary.vn',
-        phone: '0906.789.982',
-        password: 'admin123'
-      };
-    } else if (q === 'thuthu' || q === 'thuthu@leaflibrary.vn') {
-      mockUser = {
-        id: '12026002',
-        username: 'thuthu',
-        fullName: 'Thủ thư quầy',
-        name: 'Thủ thư quầy',
-        role: 'THỦ THƯ QUẦY',
-        accountType: 'employee',
-        email: 'thuthu@leaflibrary.vn',
-        phone: '0909.123.456',
-        password: '123456'
-      };
-    } else if (q === 'tannin' || q === 'tanin' || q === 'luutannin@gmail.com' || q === 'tannin@gmail.com' || q === '220260004') {
-      mockUser = {
-        id: '220260004',
-        readerId: '220260004',
-        username: 'tanin',
-        fullName: 'Lưu Tấn Nin',
-        name: 'Lưu Tấn Nin',
-        role: 'Sinh viên',
-        accountType: 'reader',
-        email: 'luutannin@gmail.com',
-        phone: '0363894957',
-        cccd: '080206008896',
-        password: 'Nin10112006'
-      };
-    }
-
-    if (mockUser) {
-      if (password !== (mockUser.password || '123456')) {
-        if (error) {
-          error.innerText = 'Mật khẩu không chính xác. Vui lòng kiểm tra lại.';
-          error.style.display = 'block';
-        }
-        return;
-      }
-
-      const isReader = mockUser.accountType === 'reader';
-      const session = {
-        id: mockUser.id,
-        username: mockUser.username,
-        fullName: mockUser.fullName,
-        name: mockUser.name,
-        role: mockUser.role,
-        accountType: mockUser.accountType,
-        userType: isReader ? 'READER' : 'EMPLOYEE',
-        readerType: isReader ? mockUser.role : undefined,
-        email: mockUser.email || '',
-        phone: mockUser.phone || '',
-        cccd: mockUser.cccd || '',
-        dob: '10 / 11 / 2006',
-        gender: 'Nam',
-        address: 'Thành phố Hồ Chí Minh',
-        avatarUrl: ''
-      };
-
-      localStorage.setItem('ixs_library_session', JSON.stringify(session));
-      localStorage.setItem('ixs_library_current_user', JSON.stringify(session));
-      sessionStorage.setItem('ixs_library_session', JSON.stringify(session));
-      sessionStorage.setItem('ixs_library_current_user', JSON.stringify(session));
-
-      try {
-        if (typeof addLog === 'function') {
-          addLog('ĐĂNG NHẬP', session.id, `Người dùng <strong>${session.name}</strong> (${session.role}) đăng nhập thành công.`);
-        }
-      } catch (e) {
-        console.warn('Logging skipped:', e);
-      }
-
-      window.location.href = isReader ? 'user/index.html' : 'admin/index.html';
-      return;
-    }
-
-    // 4. Nếu không khớp cả Backend lẫn Mock
     if (error) {
       if (apiConnected) {
         error.innerText = 'Tên đăng nhập hoặc mật khẩu không chính xác!';
       } else {
-        error.innerText = 'Không thể kết nối máy chủ Backend. Bạn có thể trải nghiệm bằng tài khoản mẫu: admin / thuthu / tannin.';
+        error.innerText = 'Không thể kết nối máy chủ. Vui lòng kiểm tra kết nối rồi thử lại.';
       }
       error.style.display = 'block';
     }
@@ -330,7 +241,7 @@ async function validateRegister() {
   const username = identifier.toLowerCase();
   setButtonLoading('btn-register-submit', true, 'Đang tạo tài khoản...');
   try {
-    await DataService.request('POST', '/auth/register', {
+    const result = await DataService.request('POST', '/auth/register', {
       name, username, email: username.includes('@') ? username : '', phone, cccd, password, accountType: 'reader'
     });
     document.getElementById('reg-name').value = '';
@@ -343,7 +254,7 @@ async function validateRegister() {
     const loginInput = document.getElementById('demo-login-email');
     if (loginInput) loginInput.value = username;
     switchForm('form-login');
-    showBannerMessage('login-success', 'Đăng ký tài khoản bạn đọc thành công! Bạn có thể đăng nhập ngay.');
+    showBannerMessage('login-success', result?.message || 'Đăng ký thành công. Vui lòng chờ thư viện xét duyệt trước khi đăng nhập.');
   } catch (err) {
     error.innerText = err.status === 409
       ? (err.message || 'Tên đăng nhập, email, số điện thoại hoặc CCCD đã tồn tại trong hệ thống.')

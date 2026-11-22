@@ -650,8 +650,11 @@
       </div>
       <div class="modal-body">
         <div class="confirm-text-message">
-          Mật khẩu của tài khoản <span id="resetAccountCode" style="color: #B91C1C; font-weight: 700;">12026001</span> sau khi được reset sẽ được gửi qua gmail của tài khoản. Xin vui lòng kiểm tra cả hộp thư spam.
+          Đặt mật khẩu mới cho tài khoản <span id="resetAccountCode" style="color: #B91C1C; font-weight: 700;">12026001</span>. Sau khi lưu, hãy chuyển mật khẩu cho nhân viên qua kênh riêng.
         </div>
+        <label class="form-label" for="resetEmployeePassword">Mật khẩu mới (8–128 ký tự)</label>
+        <input class="form-input-text" type="password" id="resetEmployeePassword" minlength="8" maxlength="128" autocomplete="new-password">
+        <p id="resetEmployeePasswordError" role="alert" style="color:#B91C1C;" hidden></p>
         <div class="confirm-buttons-row">
           <button type="button" class="btn-action-gray" data-close="modalResetPassword">QUAY LẠI</button>
           <button type="button" class="btn-action-blue" id="btnConfirmResetPassword">XÁC NHẬN RESET</button>
@@ -704,7 +707,15 @@
       </div>
       <div class="modal-body">
         <div class="confirm-text-message">
-          Xác nhận cấp tài khoản cho nhân viên có mã nhân viên <span id="grantEmployeeCode" style="font-weight: 700;">NV2026001</span>. Mật khẩu sẽ được gửi về gmail của nhân viên bên cạnh đó chọn nhóm quyền cho nhân viên dưới đây.
+          Cấp tài khoản cho nhân viên <span id="grantEmployeeCode" style="font-weight: 700;">NV2026001</span>. Hãy đặt mật khẩu khởi tạo và chuyển thông tin đăng nhập cho nhân viên.
+        </div>
+        <div class="form-grid-row" style="margin-top: 14px;">
+          <label class="form-field-label" for="grantUsernameInput">Tên đăng nhập</label>
+          <input class="form-input-text" id="grantUsernameInput" readonly>
+        </div>
+        <div class="form-grid-row" style="margin-top: 14px;">
+          <label class="form-field-label" for="grantPasswordInput">Mật khẩu khởi tạo</label>
+          <input class="form-input-text" id="grantPasswordInput" type="password" minlength="8" autocomplete="new-password">
         </div>
         <div class="form-grid-row" style="margin-top: 14px;">
           <label class="form-field-label">Nhóm quyền</label>

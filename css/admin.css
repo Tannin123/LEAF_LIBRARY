@@ -1714,9 +1714,22 @@ td {
 
 .issue-form-row {
   display: grid;
-  grid-template-columns: 125px 1fr;
+  grid-template-columns: 125px minmax(0, 1fr);
   align-items: center;
   gap: 12px;
+}
+
+#tabIssueCard .issue-form-row > *,
+#tabIssueCard .issue-demographics > *,
+#tabIssueCard .sub-field-group,
+#tabIssueCard .log-filter-input-wrap { min-width: 0; }
+.issue-demographics { display: grid; grid-template-columns: 155px minmax(0, 1fr); gap: 18px; align-items: center; }
+#tabIssueCard input, #tabIssueCard select { width: 100%; min-width: 0; max-width: 100%; }
+@media (max-width: 600px) {
+  #tabIssueCard .issue-form-row, #tabIssueCard .issue-demographics { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  #tabIssueCard .sub-field-group { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  #tabIssueCard .issue-form-card { padding: 14px; }
+  #tabIssueCard .issue-form-row label { white-space: normal; }
 }
 
 .issue-form-divider {
@@ -2635,6 +2648,52 @@ td {
   font-size: 14px;
   font-weight: 700;
   color: var(--primary-navy);
+}
+
+/* Supplier surface: use the same controls and navy palette as the stock pages. */
+#tabSuppliers .supplier-table-header,
+#tabSuppliers .supplier-table-row {
+  grid-template-columns: 120px minmax(220px, 1.6fr) minmax(150px, 1fr) 135px minmax(190px, 1.2fr) 135px 100px;
+  min-width: 1150px;
+}
+
+#tabSuppliers .table-frame { min-width: 1150px; }
+#tabSuppliers .supplier-table-row > div { min-width: 0; max-width: none; overflow-wrap: anywhere; white-space: normal; }
+#tabSuppliers .supplier-table-row > div:nth-child(2) { min-width: 0; }
+#tabSuppliers .supplier-table-row .action-icon { background: transparent; border: 0; padding: 4px; }
+#tabSuppliers .supplier-table-row .action-icon svg { width: 20px; height: 20px; }
+#tabSuppliers [hidden], #modalSupplier [hidden] { display: none !important; }
+.supplier-list-summary { margin: 4px 0 0; color: var(--text-muted, #64748b); font-size: 13px; }
+#modalSupplier .supplier-dialog { width: 540px; max-width: 100%; }
+#modalSupplier .modal-title { letter-spacing: 0; line-height: 1.5; }
+#modalSupplier .modal-close-btn { width: 32px; height: 32px; flex-shrink: 0; }
+#modalSupplier .modal-body { padding: 20px 24px; min-height: 0; }
+#modalSupplier .supplier-code-readonly { width: 100%; text-align: center; font-family: inherit; }
+#modalSupplier .supplier-field-block { min-width: 0; }
+#modalSupplier .form-input-text,
+#modalSupplier .form-select-control,
+#modalSupplier .form-textarea { width: 100%; min-width: 0; font-size: 14px; }
+#modalSupplier .form-textarea { min-height: 70px; resize: vertical; }
+.supplier-status-row { display: grid; grid-template-columns: 1fr 1.2fr; gap: 16px; }
+.supplier-optional { color: #64748b; font-weight: 400; font-size: 12px; }
+.supplier-dialog-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; background: var(--bg-body); border-top: 1px solid var(--border-color); flex-shrink: 0; }
+.supplier-dialog-footer button { min-width: 140px; }
+.supplier-form-error { margin: 0; color: #b42318; font-size: 13px; line-height: 1.5; }
+#modalSupplier [aria-invalid="true"] { border-color: #b42318; }
+#modalSupplier :focus-visible, #tabSuppliers :focus-visible { outline: 2px solid var(--primary-navy); outline-offset: 3px; }
+#modalSupplier button:disabled, #modalDeleteSupplier button:disabled { opacity: .65; cursor: wait; }
+
+@media (max-width: 600px) {
+  #tabSuppliers .toolbar-left-group { min-width: 0; width: 100%; }
+  #tabSuppliers .toolbar-right-group { width: 100%; }
+  #tabSuppliers .search-box { max-width: none; }
+  #modalSupplier .modal-body { padding: 18px; }
+  #modalSupplier .modal-header { padding: 12px 18px; }
+  #modalSupplier .modal-title { font-size: 13px; }
+  #modalSupplier .supplier-label-italic { white-space: normal; }
+  .supplier-status-row { grid-template-columns: 1fr; gap: 14px; }
+  .supplier-dialog-footer { padding: 14px 18px; gap: 10px; }
+  .supplier-dialog-footer button { min-width: 0; flex: 1; }
 }
 
 .receipt-items-table {

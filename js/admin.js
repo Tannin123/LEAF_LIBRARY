@@ -8,7 +8,10 @@ var ICON_REFRESH = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 var ICON_PHONE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`;
 var ICON_MAIL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`;
 
+function getActiveUserSession() { return DataService.session(); }
+
 document.addEventListener('DOMContentLoaded', async () => {
+  if (!DataService.session().token && !location.pathname.endsWith('/catalog.html')) { location.replace('../login.html'); return; }
   // Kiểm tra phân quyền nhân viên / quản trị
   try {
     const rawSession = localStorage.getItem('ixs_library_session') || localStorage.getItem('ixs_library_current_user');
@@ -146,14 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const key = event.detail?.key || 'Dữ liệu này';
     showToast(`${key}: ERD hiện không có bảng lưu mục này; thay đổi chỉ tồn tại trong bộ nhớ đến khi tải lại trang.`, 'warning');
   });
-  const ICON_EDIT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
-  const ICON_LOCK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
-  const ICON_DELETE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>`;
-  const ICON_PRINT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>`;
   const ICON_EYE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
-  const ICON_REFRESH = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>`;
-  const ICON_PHONE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`;
-  const ICON_MAIL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`;
 
   /**
    * Hiển thị thông báo Toast góc trên bên phải (an toàn XSS, hỗ trợ nút Hoàn tác)
@@ -418,25 +414,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     return createdIds;
   }
 
-  function getActiveUserSession() {
-    try {
-      const raw = localStorage.getItem('ixs_library_session') || localStorage.getItem('ixs_library_current_user');
-      if (raw) return JSON.parse(raw);
-    } catch (e) {}
-    const emps = getEmployees();
-    return emps[0] || {
-      id: '12026001',
-      fullName: 'Quản trị viên',
-      name: 'Quản trị viên',
-      role: 'QUẢN TRỊ VIÊN',
-      email: 'admin',
-      phone: '0906.789.982',
-      dob: '21 / 02 / 2026',
-      gender: 'Nam',
-      address: '273 An Dương Vương, Phường 3, Quận 5, TP.HCM'
-    };
-  }
-
   function syncGreetingBanner() {
     const session = getActiveUserSession();
     const greetName = session.fullName || session.name || 'Quản trị viên';
@@ -603,7 +580,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const btnSaveSelf = document.getElementById('btnSaveSelfProfile');
     if (btnSaveSelf) {
-      btnSaveSelf.addEventListener('click', () => {
+      btnSaveSelf.addEventListener('click', async () => {
         const current = getActiveUserSession();
         const newName = document.getElementById('selfProfileName').value.trim() || current.name || 'Quản trị viên';
         const newPhone = document.getElementById('selfProfilePhone').value.trim();
@@ -616,18 +593,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         current.email = newEmail;
         current.address = newAddress;
 
-        localStorage.setItem('ixs_library_session', JSON.stringify(current));
-        localStorage.setItem('ixs_library_current_user', JSON.stringify(current));
-
         const emps = getEmployees();
         const emp = emps.find(item => item.id === current.id);
-        if (emp) {
-          emp.name = newName;
-          emp.phone = newPhone;
-          emp.email = newEmail;
-          emp.address = newAddress;
-          saveEmployees(emps);
+        if (!emp) {
+          showToast('Không tìm thấy hồ sơ nhân viên trong cơ sở dữ liệu.', 'error');
+          return;
         }
+        emp.name = newName;
+        emp.phone = newPhone;
+        emp.email = newEmail;
+        emp.address = newAddress;
+        saveEmployees(emps);
+        if (!await DataService.waitForWrites([DataService.KEYS.EMPLOYEES])) {
+          showToast('Không lưu được hồ sơ nhân viên vào cơ sở dữ liệu.', 'error');
+          return;
+        }
+        localStorage.setItem('ixs_library_session', JSON.stringify(current));
+        localStorage.setItem('ixs_library_current_user', JSON.stringify(current));
 
         syncGreetingBanner();
         closeModal('modalSelfProfileGlobal');
@@ -701,8 +683,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!ok) return;
         const current = getActiveUserSession();
         addLog('ĐĂNG NHẬP', current.id || '12026001', `Nhân viên <strong>${escapeAdminHtml(current.name || 'Quản trị viên')}</strong> đã đăng xuất khỏi hệ thống.`);
-        localStorage.removeItem('ixs_library_session');
-        localStorage.removeItem('ixs_library_current_user');
+        await DataService.logout();
         window.location.href = '../login.html';
       });
     }
@@ -921,8 +902,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           ? 'LEAF LIBRARY - THÊM NHÂN VIÊN MỚI'
           : 'LEAF LIBRARY - CHỈNH SỬA THÔNG TIN NHÂN VIÊN';
       }
-      document.getElementById('editFirstName').value = emp.firstName || '';
-      document.getElementById('editLastName').value = emp.lastName || '';
+      const nameParts = String(emp.name || emp.fullName || '').trim().split(/\s+/);
+      document.getElementById('editFirstName').value = emp.firstName || nameParts.slice(0, -1).join(' ');
+      document.getElementById('editLastName').value = emp.lastName || nameParts.slice(-1).join(' ');
       document.getElementById('editGender').value = emp.gender || 'Nam';
       document.getElementById('editDob').value = emp.dob || '';
       document.getElementById('editEthnicity').value = emp.ethnicity || 'Kinh';
@@ -934,7 +916,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         : '';
       document.getElementById('editRole').value = emp.role || 'NHÂN VIÊN';
       const workEl = document.getElementById('editWorkingStatus');
-      if (workEl) workEl.value = emp.workingStatus || 'DANG_LAM_VIEC';
+      if (workEl) {
+        const working = emp.employmentStatus || emp.workingStatus || 'DANG_LAM_VIEC';
+        workEl.value = ['DANG_LAM_VIEC','TAM_NGHI','DA_NGHI_VIEC'].includes(working) ? working : 'DANG_LAM_VIEC';
+      }
       const accStatusEl = document.getElementById('editAccountStatus');
       if (accStatusEl) {
         if (!emp.hasAccount || emp.status === 'Hồ sơ') {
@@ -969,6 +954,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else if (action === 'grant') {
         document.getElementById('grantEmployeeCode').textContent = emp.id;
         document.getElementById('grantRoleSelect').value = emp.role || 'NHÂN VIÊN';
+        document.getElementById('grantUsernameInput').value = emp.username || `profile_${String(emp.id).toLowerCase()}`;
+        document.getElementById('grantPasswordInput').value = '';
         openModal('modalGrantAccount');
       } else if (action === 'delete') {
         document.getElementById('deleteEmployeeCode').textContent = emp.id;
@@ -1012,16 +999,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('btnViewResetPassword').addEventListener('click', () => {
       closeModal('modalViewEmployee');
       document.getElementById('resetAccountCode').textContent = selectedEmpId || '12026001';
+      document.getElementById('resetEmployeePassword').value = '';
+      document.getElementById('resetEmployeePasswordError').hidden = true;
       openModal('modalResetPassword');
     });
 
     document.getElementById('btnEditResetPassword').addEventListener('click', () => {
       closeModal('modalEditEmployee');
       document.getElementById('resetAccountCode').textContent = selectedEmpId || '12026001';
+      document.getElementById('resetEmployeePassword').value = '';
+      document.getElementById('resetEmployeePasswordError').hidden = true;
       openModal('modalResetPassword');
     });
 
-    document.getElementById('btnSaveEmployeeInfo').addEventListener('click', () => {
+    document.getElementById('btnSaveEmployeeInfo').addEventListener('click', async () => {
       const employees = getEmployees();
       const fName = document.getElementById('editFirstName').value.trim();
       const lName = document.getElementById('editLastName').value.trim();
@@ -1078,6 +1069,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       const hasAccountFlag = selectedAccStatus !== 'Hồ sơ';
       const avatarVal = empUploadWidget.getValue();
 
+      if (isCreatingEmp && hasAccountFlag) {
+        showToast('Tạo hồ sơ nhân viên trước, sau đó dùng chức năng Cấp tài khoản để đặt mật khẩu khởi tạo.', 'error');
+        return;
+      }
+
       if (isCreatingEmp) {
         employees.push({
           id: selectedEmpId,
@@ -1092,12 +1088,16 @@ document.addEventListener('DOMContentLoaded', async () => {
           phone: formattedPhone,
           email: normalizedEmail,
           role: newRole,
-          workingStatus: workingStatusVal,
+          employmentStatus: workingStatusVal,
           status: selectedAccStatus,
           hasAccount: hasAccountFlag,
           avatarUrl: avatarVal
         });
         saveEmployees(employees);
+        if (!await DataService.waitForWrites([DataService.KEYS.EMPLOYEES])) {
+          showToast('Không lưu được hồ sơ nhân viên vào cơ sở dữ liệu.', 'error');
+          return;
+        }
         addLog('TẠO MỚI', selectedEmpId, `Tạo mới hồ sơ nhân viên <strong>${escapeAdminHtml(fullName)}</strong> (${escapeAdminHtml(selectedEmpId)}) - Trạng thái: ${escapeAdminHtml(selectedAccStatus)}`);
         showToast(`Đã thêm nhân viên ${fullName} (${selectedEmpId})!`);
       } else {
@@ -1114,11 +1114,15 @@ document.addEventListener('DOMContentLoaded', async () => {
           emp.phone = formattedPhone;
           emp.email = normalizedEmail;
           emp.role = newRole;
-          emp.workingStatus = workingStatusVal;
+          emp.employmentStatus = workingStatusVal;
           emp.status = selectedAccStatus;
           emp.hasAccount = hasAccountFlag;
           emp.avatarUrl = avatarVal;
           saveEmployees(employees);
+          if (!await DataService.waitForWrites([DataService.KEYS.EMPLOYEES])) {
+            showToast('Không lưu được hồ sơ nhân viên vào cơ sở dữ liệu.', 'error');
+            return;
+          }
           addLog('CẬP NHẬT', emp.id, `Cập nhật hồ sơ nhân viên <strong>${escapeAdminHtml(emp.name)}</strong> - Nhóm quyền: ${escapeAdminHtml(newRole)}`);
           showToast(`Đã lưu thông tin nhân viên ${emp.name}!`);
         }
@@ -1129,23 +1133,36 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderAuditLogs();
     });
 
-    document.getElementById('btnConfirmResetPassword').addEventListener('click', () => {
-      if (selectedEmpId) {
-        addLog('RESET MẬT KHẨU', selectedEmpId, `Reset mật khẩu tài khoản <strong>${selectedEmpId}</strong> và gửi qua Gmail.`);
+    document.getElementById('btnConfirmResetPassword').addEventListener('click', async e => {
+      const button = e.currentTarget, error = document.getElementById('resetEmployeePasswordError');
+      const newPassword = document.getElementById('resetEmployeePassword').value;
+      error.hidden = true;
+      if (newPassword.length < 8 || newPassword.length > 128) { error.textContent = 'Mật khẩu cần từ 8 đến 128 ký tự.'; error.hidden = false; return; }
+      if (button.disabled || !selectedEmpId) return;
+      button.disabled = true;
+      try {
+        await DataService.request('POST', '/auth/admin-reset-password', { employeeId: selectedEmpId, newPassword });
+        addLog('RESET MẬT KHẨU', selectedEmpId, 'Quản trị viên đặt lại mật khẩu nhân viên.');
+        document.getElementById('resetEmployeePassword').value = '';
+        closeModal('modalResetPassword');
+        showToast('Đã đặt lại mật khẩu. Hãy chuyển mật khẩu mới cho nhân viên.');
         renderAuditLogs();
-        showToast(`Đã reset mật khẩu cho tài khoản ${selectedEmpId}!`);
-      }
-      closeModal('modalResetPassword');
+      } catch (err) { error.textContent = err.message; error.hidden = false; }
+      finally { button.disabled = false; }
     });
 
     const btnConfirmLockEmp = document.getElementById('btnConfirmLockEmployee');
     if (btnConfirmLockEmp) {
-      btnConfirmLockEmp.addEventListener('click', () => {
+      btnConfirmLockEmp.addEventListener('click', async () => {
         const employees = getEmployees();
         const emp = employees.find(item => item.id === selectedEmpId);
         if (emp) {
           emp.status = emp.status === 'Active' ? 'Khóa' : 'Active';
           saveEmployees(employees);
+          if (!await DataService.waitForWrites([DataService.KEYS.EMPLOYEES])) {
+            showToast('Không lưu được trạng thái tài khoản vào cơ sở dữ liệu.', 'error');
+            return;
+          }
           addLog(
             'KHÓA TÀI KHOẢN',
             emp.id,
@@ -1159,7 +1176,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     }
 
-    document.getElementById('btnConfirmDeleteEmployee').addEventListener('click', () => {
+    document.getElementById('btnConfirmDeleteEmployee').addEventListener('click', async () => {
       let employees = getEmployees();
       const target = employees.find(item => item.id === selectedEmpId);
       if (target) {
@@ -1178,6 +1195,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         employees = employees.filter(item => item.id !== selectedEmpId);
         saveEmployees(employees);
+        if (!await DataService.waitForWrites([DataService.KEYS.EMPLOYEES])) {
+          showToast('Không thể xóa hồ sơ nhân viên khỏi cơ sở dữ liệu.', 'error');
+          return;
+        }
         addLog('XÓA DỮ LIỆU', target.id, `Xóa nhân viên <strong>${escapeAdminHtml(target.name)}</strong> (Trạng thái 0: Đã nghỉ việc)`);
         renderEmployeeTable();
         renderAuditLogs();
@@ -1186,22 +1207,34 @@ document.addEventListener('DOMContentLoaded', async () => {
       closeModal('modalDeleteEmployee');
     });
 
-    document.getElementById('btnConfirmGrantAccount').addEventListener('click', () => {
+    document.getElementById('btnConfirmGrantAccount').addEventListener('click', async () => {
       const employees = getEmployees();
       const emp = employees.find(item => item.id === selectedEmpId);
       const selectedRole = document.getElementById('grantRoleSelect').value;
+      const initialPassword = document.getElementById('grantPasswordInput').value;
+      if (!initialPassword || initialPassword.length < 8) {
+        showToast('Mật khẩu khởi tạo phải có tối thiểu 8 ký tự.', 'error');
+        document.getElementById('grantPasswordInput')?.focus();
+        return;
+      }
       if (emp) {
         emp.hasAccount = true;
         emp.status = 'Active';
         emp.role = selectedRole;
+        emp.password = initialPassword;
         if (!emp.email) {
           emp.email = emp.id.toLowerCase();
         }
         saveEmployees(employees);
+        if (!await DataService.waitForWrites([DataService.KEYS.EMPLOYEES])) {
+          showToast('Không cấp được tài khoản trong cơ sở dữ liệu.', 'error');
+          return;
+        }
         addLog('CẤP TÀI KHOẢN', emp.id, `Cấp tài khoản cho nhân viên <strong>${emp.name}</strong> với nhóm quyền ${selectedRole}`);
+        document.getElementById('grantPasswordInput').value = '';
         renderEmployeeTable();
         renderAuditLogs();
-        showToast(`Đã cấp tài khoản thành công cho ${emp.name}!`);
+        showToast(`Đã cấp tài khoản ${emp.username || `profile_${String(emp.id).toLowerCase()}`} cho ${emp.name}. Hãy chuyển mật khẩu khởi tạo cho nhân viên.`);
       }
       closeModal('modalGrantAccount');
     });
@@ -1550,8 +1583,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const matchQ = !q ||
           b.id.toLowerCase().includes(q) ||
           b.title.toLowerCase().includes(q) ||
-          b.authors.toLowerCase().includes(q) ||
-          b.isbn.toLowerCase().includes(q);
+          String(b.authors || b.author || '').toLowerCase().includes(q) ||
+          String(b.isbn || '').toLowerCase().includes(q);
         return matchCat && matchQ;
       });
 
@@ -1598,7 +1631,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="book-card-row-2col">
                   <div>
                     <div class="book-meta-label">Nhà xuất bản</div>
-                    <div class="book-meta-value">${b.publisher}</div>
+                    <div class="book-meta-value">${escapeAdminHtml(b.publisher || 'Chưa cập nhật')}</div>
                   </div>
                   <div style="text-align: right;">
                     <div class="book-meta-label">Thể loại</div>
@@ -1944,8 +1977,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             publisher: pubVal,
             publisherCode: valOf('btPubCode'),
             category: catVal,
-            topic: topicVal,
-            department: deptVal,
+            subject: topicVal,
+            faculty: deptVal,
             edition: valOf('btEdition') || '1',
             price: priceVal,
             total: 0,
@@ -1969,8 +2002,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             b.authors = authorVal;
             b.publisher = pubVal;
             b.category = catVal;
-            b.topic = topicVal;
-            b.department = deptVal;
+            b.subject = topicVal;
+            b.faculty = deptVal;
             b.publishYear = pubYearVal || b.publishYear || '';
             b.price = priceVal;
             b.coverUrl = coverVal;
@@ -2444,7 +2477,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const qtyEl = tr.querySelector('.imp-row-qty');
         const priceEl = tr.querySelector('.imp-row-price');
         const subEl = tr.querySelector('.imp-row-subtotal');
-        const qty = Math.max(1, parseInt(qtyEl ? qtyEl.value : 1, 10) || 1);
+        const qty = Math.max(0, parseInt(qtyEl ? qtyEl.value : 0, 10) || 0);
         const price = Math.max(0, parseInt(priceEl ? priceEl.value : 0, 10) || 0);
         const sub = qty * price;
         grandTotal += sub;
@@ -2752,22 +2785,82 @@ document.addEventListener('DOMContentLoaded', async () => {
     const suppliersTableContent = document.getElementById('suppliersTableContent');
     const searchSupplierInput = document.getElementById('searchSupplierInput');
     const filterSupplierStatus = document.getElementById('filterSupplierStatus');
+    const supplierModal = document.getElementById('modalSupplier');
+    const supplierForm = document.getElementById('formSupplier');
+    const supplierFormError = document.getElementById('supplierFormError');
+    let supplierBusy = false;
+    let supplierOpener = null;
+
+    function supplierError(message = '', fieldId) {
+      supplierFormError.textContent = message;
+      supplierFormError.hidden = !message;
+      supplierForm.querySelectorAll('[aria-invalid]').forEach(el => el.removeAttribute('aria-invalid'));
+      if (fieldId) {
+        const field = document.getElementById(fieldId);
+        field.setAttribute('aria-invalid', 'true');
+        field.setAttribute('aria-describedby', 'supplierFormError');
+        field.focus();
+      }
+    }
+
+    function setSupplierBusy(busy) {
+      supplierBusy = busy;
+      supplierModal.setAttribute('aria-busy', String(busy));
+      supplierModal.querySelectorAll('input, select, textarea, button').forEach(el => { el.disabled = busy; });
+      document.getElementById('btnSaveSupplier').disabled = busy;
+      document.getElementById('btnSaveSupplier').textContent = busy ? 'ĐANG LƯU...' : (isCreatingSupplier ? 'THÊM NHÀ CUNG CẤP' : 'LƯU THAY ĐỔI');
+    }
+
+    function openSupplierForm(supplier) {
+      supplierOpener = document.activeElement;
+      isCreatingSupplier = !supplier;
+      selectedSupplierId = supplier?.id || DataService.generateNextId(DataService.KEYS.SUPPLIERS, 'NCC26', 4);
+      document.getElementById('modalSupplierHeader').textContent = `LEAF LIBRARY - ${supplier ? 'THÔNG TIN NHÀ CUNG CẤP' : 'THÊM NHÀ CUNG CẤP'}`;
+      document.getElementById('supIdDisplay').value = selectedSupplierId;
+      for (const [field, prop] of [['supNameInput', 'name'], ['supContactInput', 'contact'], ['supPhoneInput', 'phone'], ['supEmailInput', 'email'], ['supAddressInput', 'address']]) {
+        document.getElementById(field).value = supplier?.[prop] || '';
+      }
+      document.getElementById('supStatusSelect').value = supplier?.status === 'NGỪNG GD' ? 'NGỪNG GD' : 'HOẠT ĐỘNG';
+      supplierError();
+      setSupplierBusy(false);
+      openModal('modalSupplier');
+      document.getElementById('supNameInput').focus();
+    }
+
+    // Keep focus inside this form and prevent closing while a write is in progress.
+    document.addEventListener('keydown', e => {
+      if (!supplierModal.classList.contains('active')) return;
+      if (e.key === 'Escape') {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        if (!supplierBusy) { closeModal('modalSupplier'); supplierOpener?.focus(); }
+      } else if (e.key === 'Tab') {
+        const controls = Array.from(supplierModal.querySelectorAll('button, input, select, textarea')).filter(el => !el.disabled && el.getClientRects().length);
+        const first = controls[0], last = controls[controls.length - 1];
+        if (!controls.length) { e.preventDefault(); return; }
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }, true);
+    supplierModal.addEventListener('click', e => {
+      if (e.target === supplierModal || e.target.closest('[data-close="modalSupplier"]')) {
+        e.stopImmediatePropagation();
+        if (!supplierBusy) { closeModal('modalSupplier'); supplierOpener?.focus(); }
+      }
+    }, true);
+
+    function filteredSuppliers() {
+      const q = searchSupplierInput.value.trim().toLocaleLowerCase();
+      return getSuppliers().filter(s =>
+        (filterSupplierStatus.value === 'all' || s.status === filterSupplierStatus.value) &&
+        (!q || [s.id, s.name, s.contact, s.phone, s.email].some(v => String(v ?? '').toLocaleLowerCase().includes(q)))
+      );
+    }
 
     function renderSuppliersTable() {
-      const suppliers = getSuppliers();
-      const q = (searchSupplierInput.value || '').trim().toLowerCase();
-      const st = filterSupplierStatus.value;
-      const isFiltered = Boolean(q) || st !== 'all';
-
-      const filtered = suppliers.filter(s => {
-        const matchSt = st === 'all' || s.status === st;
-        const matchQ = !q ||
-          s.id.toLowerCase().includes(q) ||
-          s.name.toLowerCase().includes(q) ||
-          s.contact.toLowerCase().includes(q) ||
-          s.phone.toLowerCase().includes(q);
-        return matchSt && matchQ;
-      });
+      const isFiltered = Boolean(searchSupplierInput.value.trim()) || filterSupplierStatus.value !== 'all';
+      const filtered = filteredSuppliers();
+      document.getElementById('supplierListSummary').textContent = `${filtered.length} nhà cung cấp${isFiltered ? ' phù hợp' : ''}`;
 
       const totalPages = Math.max(1, Math.ceil(filtered.length / SUP_PAGE_SIZE));
       if (supPage > totalPages) supPage = totalPages;
@@ -2784,17 +2877,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             : `<span class="badge-supplier-inactive status-badge">NGỪNG GD</span>`;
 
           html += `
-            <div class="supplier-table-row" data-id="${s.id}">
-              <div style="font-weight: 600;">${s.id}</div>
-              <div>${s.name}</div>
-              <div>${s.contact}</div>
-              <div>${s.phone}</div>
-              <div>${s.email}</div>
+            <div class="supplier-table-row" data-id="${escapeAdminHtml(s.id)}">
+              <div style="font-weight: 600;">${escapeAdminHtml(s.id)}</div>
+              <div>${escapeAdminHtml(s.name)}</div>
+              <div>${escapeAdminHtml(s.contact || '—')}</div>
+              <div>${escapeAdminHtml(s.phone || '—')}</div>
+              <div>${escapeAdminHtml(s.email || '—')}</div>
               <div>${badge}</div>
               <div>
                 <div class="actions-group">
-                  <span class="action-icon" title="Chỉnh sửa nhà cung cấp" data-action="edit-supplier" data-id="${s.id}">${ICON_EDIT}</span>
-                  <span class="action-icon" title="Xóa đối tác" data-action="delete-supplier" data-id="${s.id}">${ICON_DELETE}</span>
+                  <button type="button" class="action-icon" title="Chỉnh sửa nhà cung cấp" aria-label="Chỉnh sửa ${escapeAdminHtml(s.name)}" data-action="edit-supplier" data-id="${escapeAdminHtml(s.id)}">${ICON_EDIT}</button>
+                  <button type="button" class="action-icon" title="Xóa đối tác" aria-label="Xóa ${escapeAdminHtml(s.name)}" data-action="delete-supplier" data-id="${escapeAdminHtml(s.id)}">${ICON_DELETE}</button>
                 </div>
               </div>
             </div>
@@ -2818,17 +2911,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderSuppliersTable();
     });
 
-    document.getElementById('btnAddSupplier').addEventListener('click', () => {
-      isCreatingSupplier = true;
-      selectedSupplierId = DataService.generateNextId(DataService.KEYS.SUPPLIERS, 'NCC26', 4);
-      document.getElementById('modalSupplierHeader').textContent = 'LEAF LIBRARY - THÊM NHÀ CUNG CẤP MỚI';
-      document.getElementById('supIdDisplay').textContent = selectedSupplierId;
-      document.getElementById('supNameInput').value = '';
-      document.getElementById('supContactInput').value = '';
-      document.getElementById('supPhoneInput').value = '';
-      document.getElementById('supEmailInput').value = '';
-      document.getElementById('supAddressInput').value = '';
-      openModal('modalSupplier');
+    document.getElementById('btnAddSupplier').addEventListener('click', () => openSupplierForm());
+
+    document.getElementById('btnExportSuppliers').addEventListener('click', () => {
+      const suppliers = filteredSuppliers();
+      if (!suppliers.length) { showToast('Không có nhà cung cấp để xuất.', 'warning'); return; }
+      const cell = value => {
+        let text = String(value ?? '');
+        if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+        return `"${text.replace(/"/g, '""')}"`;
+      };
+      const rows = [['Mã NCC', 'Tên đối tác / Đơn vị', 'Người liên hệ', 'Số điện thoại', 'Email', 'Địa chỉ', 'Trạng thái'], ...suppliers.map(s => [s.id, s.name, s.contact, s.phone, s.email, s.address, s.status])];
+      const url = URL.createObjectURL(new Blob(['\uFEFF' + rows.map(row => row.map(cell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `nha-cung-cap-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     });
 
     suppliersTableContent.addEventListener('click', (e) => {
@@ -2843,83 +2942,74 @@ document.addEventListener('DOMContentLoaded', async () => {
       selectedSupplierId = id;
 
       if (action === 'edit-supplier') {
-        isCreatingSupplier = false;
-        document.getElementById('modalSupplierHeader').textContent = 'LEAF LIBRARY - CẬP NHẬT NHÀ CUNG CẤP';
-        document.getElementById('supIdDisplay').textContent = sup.id;
-        document.getElementById('supNameInput').value = sup.name;
-        document.getElementById('supContactInput').value = sup.contact;
-        document.getElementById('supPhoneInput').value = sup.phone;
-        document.getElementById('supEmailInput').value = sup.email;
-        document.getElementById('supAddressInput').value = sup.address || '';
-        openModal('modalSupplier');
+        openSupplierForm(sup);
       } else if (action === 'delete-supplier') {
         document.getElementById('deleteSupplierCode').textContent = `${sup.id} (${sup.name})`;
         openModal('modalDeleteSupplier');
       }
     });
 
-    document.getElementById('btnSaveSupplier').addEventListener('click', () => {
-      const suppliers = getSuppliers();
+    supplierForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (supplierBusy) return;
+      supplierError();
+      const suppliers = getSuppliers().map(s => ({ ...s }));
       const nameVal = document.getElementById('supNameInput').value.trim();
       if (!nameVal) {
-        showToast('Vui lòng nhập Tên đối tác / Đơn vị cung cấp!', 'error');
-        document.getElementById('supNameInput')?.focus();
+        supplierError('Vui lòng nhập tên đối tác / đơn vị cung cấp.', 'supNameInput');
         return;
       }
-      const contactVal = document.getElementById('supContactInput').value.trim() || 'Đại diện kinh doanh';
+      const contactVal = document.getElementById('supContactInput').value.trim();
       const phoneVal = document.getElementById('supPhoneInput').value.trim();
-      const phoneDigits = phoneVal.replace(/[\s.-]/g, '');
-      if (phoneVal && !/^(\+84|0)\d{8,10}$/.test(phoneDigits)) {
-        showToast('Số điện thoại nhà cung cấp không hợp lệ!', 'error');
-        document.getElementById('supPhoneInput')?.focus();
+      const phoneDigits = phoneVal.replace(/[\s.-]/g, '').replace(/^\+84/, '0');
+      if (phoneVal && !/^0\d{9,10}$/.test(phoneDigits)) {
+        supplierError('Số điện thoại cần 10–11 chữ số, bắt đầu bằng 0 hoặc +84.', 'supPhoneInput');
         return;
       }
       const emailVal = document.getElementById('supEmailInput').value.trim();
       if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
-        showToast('Email nhà cung cấp không hợp lệ!', 'error');
-        document.getElementById('supEmailInput')?.focus();
+        supplierError('Email không hợp lệ. Ví dụ: contact@donvi.vn.', 'supEmailInput');
         return;
       }
-      const addrVal = document.getElementById('supAddressInput').value.trim() || 'TP.HCM';
-
-      if (isCreatingSupplier) {
-        suppliers.push({
-          id: selectedSupplierId,
-          name: nameVal,
-          contact: contactVal,
-          phone: phoneVal || '0909123456',
-          email: emailVal || 'contact@partner.vn',
-          address: addrVal,
-          status: 'HOẠT ĐỘNG'
-        });
-        saveSuppliers(suppliers);
-        addLog('TẠO MỚI', selectedSupplierId, `Thêm đối tác cung cấp mới <strong>${escapeAdminHtml(nameVal)}</strong>`);
-        showToast(`Đã thêm nhà cung cấp ${nameVal}!`);
-      } else {
-        const sup = suppliers.find(s => s.id === selectedSupplierId);
-        if (sup) {
-          sup.name = nameVal;
-          sup.contact = contactVal;
-          sup.phone = phoneVal || sup.phone;
-          sup.email = emailVal || sup.email;
-          sup.address = addrVal;
-          saveSuppliers(suppliers);
-          addLog('CẬP NHẬT', sup.id, `Cập nhật thông tin đối tác cung cấp <strong>${escapeAdminHtml(sup.name)}</strong>`);
-          showToast(`Đã lưu thông tin nhà cung cấp ${sup.name}!`);
-        }
+      const payload = { id: selectedSupplierId, name: nameVal, contact: contactVal, phone: phoneDigits, email: emailVal, address: document.getElementById('supAddressInput').value.trim(), status: document.getElementById('supStatusSelect').value };
+      if (isCreatingSupplier) suppliers.push(payload);
+      else {
+        const index = suppliers.findIndex(s => s.id === selectedSupplierId);
+        if (index < 0) { supplierError('Nhà cung cấp không còn tồn tại. Hãy tải lại danh sách.'); return; }
+        suppliers[index] = payload;
       }
-
-      closeModal('modalSupplier');
-      renderSuppliersTable();
+      setSupplierBusy(true);
+      try {
+        saveSuppliers(suppliers);
+        if (!await DataService.waitForWrites([DataService.KEYS.SUPPLIERS])) {
+          supplierError('Chưa lưu được vào máy chủ. Kiểm tra kết nối và thử lại; nội dung form vẫn được giữ.');
+          renderSuppliersTable();
+          return;
+        }
+        addLog(isCreatingSupplier ? 'TẠO MỚI' : 'CẬP NHẬT', selectedSupplierId, `${isCreatingSupplier ? 'Thêm' : 'Cập nhật'} đối tác cung cấp <strong>${escapeAdminHtml(nameVal)}</strong>`);
+        searchSupplierInput.value = '';
+        filterSupplierStatus.value = 'all';
+        supPage = Math.floor(getSuppliers().findIndex(s => s.id === selectedSupplierId) / SUP_PAGE_SIZE) + 1;
+        renderSuppliersTable();
+        closeModal('modalSupplier');
+        supplierOpener?.focus();
+        showToast(`Đã ${isCreatingSupplier ? 'thêm' : 'cập nhật'} nhà cung cấp ${nameVal}!`);
+      } finally { setSupplierBusy(false); }
     });
 
-    document.getElementById('btnConfirmDeleteSupplier').addEventListener('click', () => {
+    document.getElementById('btnConfirmDeleteSupplier').addEventListener('click', async e => {
+      if (e.currentTarget.disabled) return;
+      const button = e.currentTarget;
       let suppliers = getSuppliers();
       const target = suppliers.find(s => s.id === selectedSupplierId);
       if (target) {
         suppliers = suppliers.filter(s => s.id !== selectedSupplierId);
+        button.disabled = true;
         saveSuppliers(suppliers);
-        addLog('XÓA DỮ LIỆU', target.id, `Xóa đối tác cung cấp <strong>${target.name}</strong>`);
+        const saved = await DataService.waitForWrites([DataService.KEYS.SUPPLIERS]);
+        button.disabled = false;
+        if (!saved) { renderSuppliersTable(); return; }
+        addLog('XÓA DỮ LIỆU', target.id, `Xóa đối tác cung cấp <strong>${escapeAdminHtml(target.name)}</strong>`);
         renderSuppliersTable();
         showToast(`Đã xóa đối tác ${target.name}!`);
       }
@@ -3158,12 +3248,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     const filterReaderStatus = document.getElementById('filterReaderStatus');
 
     function getReaderStatusBadge(status) {
-      if (status === 'HỢP LỆ') return `<span class="badge-reader-valid status-badge">HỢP LỆ</span>`;
-      if (status === 'HẾT HẠN') return `<span class="badge-reader-expired status-badge">HẾT HẠN</span>`;
+      const normalized = String(status || '').toUpperCase();
+      if (normalized.includes('PENDING') || normalized.includes('CHỜ DUYỆT') || normalized.includes('CHO DUYET')) return `<span class="badge status-badge" style="background:#FEF3C7;color:#92400E;border-color:#FCD34D;">CHỜ DUYỆT</span>`;
+      if (normalized.includes('REJECTED') || normalized.includes('TỪ CHỐI') || normalized.includes('TU CHOI')) return `<span class="badge status-badge badge-reader-locked">TỪ CHỐI</span>`;
+      if (normalized.includes('ACTIVE') || normalized.includes('HỢP LỆ') || normalized.includes('HOẠT ĐỘNG') || normalized.includes('HOAT DONG')) return `<span class="badge-reader-valid status-badge">HỢP LỆ</span>`;
+      if (normalized.includes('HẾT HẠN')) return `<span class="badge-reader-expired status-badge">HẾT HẠN</span>`;
       return `<span class="badge-reader-locked status-badge">BỊ KHÓA</span>`;
     }
 
     function renderReaderActions(reader) {
+      const pending = ['PENDING', 'CHO DUYET', 'CHỜ DUYỆT'].includes(String(reader.status || '').trim().toUpperCase());
+      if (pending) return `
+        <div class="actions-group">
+          <button type="button" class="btn-action-blue" data-action="approve-registration" data-id="${reader.id}" style="padding:5px 8px;background:#16A34A;color:#fff;border:0;border-radius:4px;cursor:pointer;">Duyệt</button>
+          <button type="button" class="btn-action-gray" data-action="reject-registration" data-id="${reader.id}" style="padding:5px 8px;background:#EF4444;color:#fff;border:0;border-radius:4px;cursor:pointer;">Từ chối</button>
+        </div>`;
       return `
         <div class="actions-group">
           <span class="action-icon" title="Xem / In thẻ thư viện" data-action="print-card" data-id="${reader.id}">${ICON_PRINT}</span>
@@ -3182,7 +3281,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       const isFiltered = Boolean(q) || st !== 'all';
 
       const filtered = readers.filter(r => {
-        const matchSt = st === 'all' || r.status === st;
+        const normalizedStatus = String(r.status || '').toUpperCase();
+        const matchSt = st === 'all' || (st === 'PENDING'
+          ? ['PENDING', 'CHO DUYET', 'CHỜ DUYỆT'].includes(normalizedStatus)
+          : st === 'HỢP LỆ' ? normalizedStatus.includes('ACTIVE') || normalizedStatus.includes('HỢP LỆ')
+            : st === 'BỊ KHÓA' ? !normalizedStatus.includes('ACTIVE') && !normalizedStatus.includes('HỢP LỆ') && !normalizedStatus.includes('HẾT HẠN') && !['PENDING', 'CHO DUYET', 'CHỜ DUYỆT'].includes(normalizedStatus)
+              : normalizedStatus === st);
         const matchQ = !q ||
           r.id.toLowerCase().includes(q) ||
           r.name.toLowerCase().includes(q) ||
@@ -3205,9 +3309,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="readers-table-row" data-id="${r.id}">
               <div style="font-weight: 600;">${r.id}</div>
               <div>${r.name}</div>
-              <div>${r.readerType}</div>
-              <div>${r.issueDate}</div>
-              <div>${r.expiryDate}</div>
+              <div>${escapeAdminHtml(r.readerType || '—')}</div>
+              <div>${escapeAdminHtml(r.issueDate || '—')}</div>
+              <div>${escapeAdminHtml(r.expiryDate || '—')}</div>
               <div>${getReaderStatusBadge(r.status)}</div>
               <div>${renderReaderActions(r)}</div>
             </div>
@@ -3241,7 +3345,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     }
 
-    readersTableContent.addEventListener('click', (e) => {
+    readersTableContent.addEventListener('click', async (e) => {
       const btn = e.target.closest('[data-action]');
       if (!btn) return;
       const action = btn.getAttribute('data-action');
@@ -3250,13 +3354,25 @@ document.addEventListener('DOMContentLoaded', async () => {
       const reader = readers.find(r => r.id === id);
       if (!reader) return;
 
+      if (action === 'approve-registration' || action === 'reject-registration') {
+        try {
+          await DataService.request('POST', `/readerRegistrations/${encodeURIComponent(id)}/${action === 'approve-registration' ? 'approve' : 'reject'}`, {});
+          await DataService.hydrate(DataService.KEYS.READERS, 'readers', []);
+          renderReadersTable();
+          showToast(action === 'approve-registration' ? `Đã duyệt đăng ký của ${reader.name}.` : `Đã từ chối đăng ký của ${reader.name}.`, 'success');
+        } catch (err) {
+          showToast(err.message || 'Không thể cập nhật trạng thái đăng ký.', 'error');
+        }
+        return;
+      }
+
       selectedReaderId = id;
 
       if (action === 'print-card') {
         document.getElementById('popupCardId').textContent = reader.id;
         document.getElementById('popupCardName').textContent = reader.name.toUpperCase();
         document.getElementById('popupCardType').textContent = reader.readerType;
-        document.getElementById('popupCardExpiry').textContent = reader.expiryDate;
+        document.getElementById('popupCardExpiry').textContent = reader.expiryDate || '—';
         openModal('modalPrintCard');
       } else if (action === 'edit-reader') {
         document.getElementById('rdCodeDisplay').textContent = reader.id;
@@ -3281,7 +3397,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('renewReaderId').textContent = reader.id;
         document.getElementById('renewReaderName').textContent = reader.name;
         document.getElementById('renewReaderType').textContent = reader.readerType;
-        document.getElementById('renewOldExpiry').textContent = reader.expiryDate;
+        document.getElementById('renewOldExpiry').textContent = reader.expiryDate || '—';
 
         const durSelect = document.getElementById('renewDurationSelect');
         if (durSelect) {
@@ -3306,7 +3422,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     }
 
-    document.getElementById('btnSaveReaderInfo').addEventListener('click', () => {
+    document.getElementById('btnSaveReaderInfo').addEventListener('click', async () => {
       const readers = getReaders();
       const reader = readers.find(r => r.id === selectedReaderId);
       if (reader) {
@@ -3377,6 +3493,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         reader.avatarUrl = rdUploadWidget.getValue();
 
         saveReaders(readers);
+        if (!await DataService.waitForWrites([DataService.KEYS.READERS])) {
+          showToast('Không lưu được hồ sơ độc giả vào cơ sở dữ liệu. Kiểm tra kết nối rồi thử lại.', 'error');
+          return;
+        }
         addLog('CẬP NHẬT', reader.id, `Chỉnh sửa thông tin hồ sơ độc giả <strong>${escapeAdminHtml(reader.name)}</strong> (${escapeAdminHtml(reader.id)})`);
         renderReadersTable();
         showToast(`Đã cập nhật hồ sơ độc giả ${reader.name}!`);
@@ -3392,7 +3512,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     }
 
-    document.getElementById('btnConfirmRenewCard').addEventListener('click', () => {
+    document.getElementById('btnConfirmRenewCard').addEventListener('click', async () => {
       const readers = getReaders();
       const reader = readers.find(r => r.id === selectedReaderId);
       if (reader) {
@@ -3401,6 +3521,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         reader.expiryDate = newExp;
         reader.status = 'HỢP LỆ';
         saveReaders(readers);
+        if (!await DataService.waitForWrites([DataService.KEYS.READERS])) {
+          showToast('Không lưu được ngày gia hạn thẻ vào cơ sở dữ liệu.', 'error');
+          return;
+        }
         addLog('GIA HẠN', reader.id, `${reason} cho độc giả <strong>${reader.name}</strong> đến ngày ${newExp}`);
         renderReadersTable();
         showToast(`Đã gia hạn thẻ cho độc giả ${reader.name} đến ${newExp}!`);
@@ -3408,12 +3532,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       closeModal('modalRenewCard');
     });
 
-    document.getElementById('btnConfirmLockReader').addEventListener('click', () => {
+    document.getElementById('btnConfirmLockReader').addEventListener('click', async () => {
       const readers = getReaders();
       const reader = readers.find(r => r.id === selectedReaderId);
       if (reader) {
         reader.status = reader.status === 'BỊ KHÓA' ? 'HỢP LỆ' : 'BỊ KHÓA';
         saveReaders(readers);
+        if (!await DataService.waitForWrites([DataService.KEYS.READERS])) {
+          showToast('Không lưu được trạng thái thẻ vào cơ sở dữ liệu.', 'error');
+          return;
+        }
         addLog('CẬP NHẬT', reader.id, `${reader.status === 'BỊ KHÓA' ? 'Khóa' : 'Mở khóa'} thẻ thư viện của độc giả <strong>${reader.name}</strong>`);
         renderReadersTable();
         showToast(`Đã ${reader.status === 'BỊ KHÓA' ? 'khóa' : 'mở khóa'} thẻ của độc giả ${reader.name}!`);
@@ -3421,7 +3549,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       closeModal('modalLockReader');
     });
 
-    document.getElementById('btnConfirmDeleteReader').addEventListener('click', () => {
+    document.getElementById('btnConfirmDeleteReader').addEventListener('click', async () => {
       let readers = getReaders();
       const target = readers.find(r => r.id === selectedReaderId);
       if (target) {
@@ -3444,6 +3572,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         readers = readers.filter(r => r.id !== selectedReaderId);
         saveReaders(readers);
+        if (!await DataService.waitForWrites([DataService.KEYS.READERS])) {
+          showToast('Không xóa được hồ sơ khỏi cơ sở dữ liệu.', 'error');
+          return;
+        }
         addLog('XÓA DỮ LIỆU', target.id, `Xóa hồ sơ độc giả <strong>${escapeAdminHtml(target.name)}</strong> khỏi hệ thống`);
         renderReadersTable();
         showToast(`Đã xóa hồ sơ độc giả ${target.name}!`);
@@ -3536,7 +3668,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('btnCancelIssueCard').addEventListener('click', resetIssueCardForm);
 
-    document.getElementById('btnSubmitIssueCard').addEventListener('click', () => {
+    document.getElementById('btnSubmitIssueCard').addEventListener('click', async () => {
       const readers = getReaders();
       const nameVal = issueReaderName.value.trim();
       const usernameVal = issueReaderUsername.value.trim();
@@ -3635,6 +3767,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       readers.unshift(newReader);
       saveReaders(readers);
+      if (!await DataService.waitForWrites([DataService.KEYS.READERS])) {
+        showToast('Không lưu được hồ sơ/thẻ độc giả vào cơ sở dữ liệu. Kiểm tra kết nối rồi thử lại.', 'error');
+        return;
+      }
       addLog('TẠO MỚI', newId, `Cấp thẻ thư viện mới cho độc giả <strong>${escapeAdminHtml(nameVal)}</strong> (${escapeAdminHtml(newId)} - ${escapeAdminHtml(rType)})`);
 
       resetIssueCardForm();
@@ -3967,11 +4103,14 @@ document.addEventListener('DOMContentLoaded', function () {
         violationTableBody.innerHTML = paged.map(f => {
           const stText = String(f.paymentStatus || f.status || '');
           const isPaid = stText.toLowerCase().includes('đã thanh toán') || stText.toLowerCase().includes('da thanh toan');
+          const paymentRequested = stText.toLowerCase().includes('chờ đối soát') || stText.toLowerCase().includes('chờ thu tại quầy') || stText.toLowerCase().includes('cho doi soat') || stText.toLowerCase().includes('cho thu tai quay');
           const badge = isPaid
             ? `<span class="badge status-badge badge-reader-valid">Đã thanh toán</span>`
-            : `<span class="badge status-badge badge-reader-locked">Chưa thanh toán</span>`;
+            : paymentRequested
+              ? `<span class="badge status-badge" style="background:#FEF3C7;color:#92400E;border-color:#FCD34D;">Chờ xác nhận</span>`
+              : `<span class="badge status-badge badge-reader-locked">Chưa thanh toán</span>`;
           const action = !isPaid
-            ? `<button type="button" class="btn-action-blue btn-pay-fine" data-id="${esc(f.id)}" style="padding: 4px 10px; font-size: 11px; height: auto;">Thu tiền</button>`
+            ? `<button type="button" class="btn-action-blue btn-pay-fine" data-id="${esc(f.id)}" style="padding: 4px 10px; font-size: 11px; height: auto;">${paymentRequested ? 'Xác nhận thanh toán' : 'Thu tiền'}</button>`
             : `<span style="color:#64748B; font-size:12px;">Đã thu</span>`;
           return `
             <tr style="border-bottom: 1px solid var(--border-color); height: 48px;">
@@ -3992,22 +4131,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function getBorrowRequests() {
       if (Array.isArray(borrowRequestsCache)) return borrowRequestsCache;
-      try {
-        const raw = localStorage.getItem('ixs_library_borrow_requests');
-        return raw ? JSON.parse(raw) : [];
-      } catch (_) {
-        return [];
-      }
+      return [];
     }
 
     async function loadBorrowRequests() {
       if (!borrowRequestsTableBody) return;
       try {
         const res = await DataService.request('GET', '/borrowRequests');
-        if (Array.isArray(res)) {
-          borrowRequestsCache = res;
-          localStorage.setItem('ixs_library_borrow_requests', JSON.stringify(res));
-        }
+        if (Array.isArray(res)) borrowRequestsCache = res;
       } catch (_) {}
       renderBorrowRequestsTable();
     }
@@ -4109,22 +4240,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function getLocalRenewals() {
       if (Array.isArray(renewalsCache)) return renewalsCache;
-      try {
-        const raw = localStorage.getItem('ixs_library_renewals');
-        return raw ? JSON.parse(raw) : [];
-      } catch (_) {
-        return [];
-      }
+      return [];
     }
 
     async function loadRenewals() {
       if (!renewalsTableBody) return;
       try {
         const res = await DataService.request('GET', '/renewals');
-        if (Array.isArray(res)) {
-          renewalsCache = res;
-          localStorage.setItem('ixs_library_renewals', JSON.stringify(res));
-        }
+        if (Array.isArray(res)) renewalsCache = res;
       } catch (_) {}
       renderRenewalsTable();
     }
@@ -4594,7 +4717,6 @@ document.addEventListener('DOMContentLoaded', function () {
       const empId = getActiveUserSession().id || document.getElementById('loanEmpInput')?.value || '12026001';
 
       let apiReturnRes = null;
-      let offlineMode = false;
       try {
         apiReturnRes = await DataService.request('POST', `/loans/${encodeURIComponent(activeReturningLoanId)}/return`, {
           physicalCondition: cond,
@@ -4605,129 +4727,34 @@ document.addEventListener('DOMContentLoaded', function () {
           maxLateDaysBeforeLock: Number(rules.maxLateDaysBeforeLock) || 30
         });
       } catch (err) {
-        if (err && err.status !== 0 && err.status !== 404) {
-          toast(err.message || 'Không thể xử lý trả sách.', 'error');
-          return;
-        }
-        offlineMode = true;
-      }
-
-      if (!offlineMode && apiReturnRes) {
-        await Promise.all([
-          DataService.hydrate(DataService.KEYS.READER_HISTORY, 'readerHistory', []).catch(() => {}),
-          DataService.hydrate(DataService.KEYS.BOOK_COPIES, 'bookCopies', []).catch(() => {}),
-          DataService.hydrate(DataService.KEYS.BOOK_TITLES, 'bookTitles', []).catch(() => {}),
-          DataService.hydrate(DataService.KEYS.FINES, 'fines', []).catch(() => {}),
-          DataService.hydrate(DataService.KEYS.READERS, 'readers', []).catch(() => {}),
-          loadWaitingList()
-        ]);
-        const fineAmt = Number(apiReturnRes.totalFee || 0);
-        if (fineAmt > 0) {
-          toast(`Đã trả sách & tự động lập phiếu phạt ${fineAmt.toLocaleString('vi-VN')} đ!`, 'warning');
-        } else if (apiReturnRes.promotedWaiterId) {
-          toast(`Đã trả sách phiếu ${activeReturningLoanId} & giữ sách cho độc giả chờ #1 (${apiReturnRes.promotedWaiterId})!`, 'success');
-        } else {
-          toast(`Đã xác nhận trả sách cho phiếu ${activeReturningLoanId}!`, 'success');
-        }
-        closeReturnModal();
-        renderLoansTable();
-        renderViolationsTable();
+        toast(err.message || 'Không thể xử lý trả sách. Kiểm tra kết nối rồi thử lại.', 'error');
         return;
       }
 
-      const lateDays = computeLateDays(loan.dueDate);
-      const lateFee = lateDays * (Number(rules.lateFeePerDay) || 5000);
-      const copies = getBookCopies();
-      const copy = copies.find(c => String(c.id) === String(loan.copyId));
-      const bookPrice = Number(String(copy?.price || '120000').replace(/[^\d]/g, '')) || 120000;
-      let condFee = 0;
-      if (cond === 'HU_HONG') condFee = Number(rules.damageFee) || 30000;
-      if (cond === 'MAT_SACH') condFee = Math.round(bookPrice * (Number(rules.lostCompensationPercent) || 150) / 100);
-      const totalFee = lateFee + condFee;
-
-      loan.status = 'Đã trả';
-      loan.actualReturnDate = formatDMY(new Date());
-      saveReaderHistory(loans);
-
-      // Cập nhật bản sao & ưu tiên danh sách chờ (Seq 2.8.4)
-      let promotedWaiter = null;
-      if (cond === 'NGUYEN_VEN' || cond === 'SON_GAY') {
-        const nextWaiter = (waitingListCache || []).find(w =>
-          String(w.bookTitleId || w.bookId) === String(loan.bookId) &&
-          String(w.status || '').toUpperCase().includes('DANG')
-        );
-        if (nextWaiter) {
-          nextWaiter.status = 'SAN SANG';
-          promotedWaiter = nextWaiter;
-          renderWaitingTable();
-        }
+      if (!apiReturnRes) {
+        toast('Máy chủ không trả kết quả xử lý trả sách.', 'error');
+        return;
       }
 
-      if (copy) {
-        if (cond === 'MAT_SACH') {
-          copy.physicalStatus = 'MẤT';
-          copy.circulationStatus = 'MẤT';
-        } else if (cond === 'HU_HONG') {
-          copy.physicalStatus = 'HƯ HỎNG';
-          copy.circulationStatus = 'HƯ HỎNG';
-        } else {
-          copy.physicalStatus = cond === 'SON_GAY' ? 'SỜN GÁY SÁCH' : 'TỐT';
-          copy.circulationStatus = promotedWaiter ? 'GIỮ CHỜ NGƯỜI CHỜ' : 'SẴN SÀNG';
-        }
-        copy.status = copy.circulationStatus;
-        saveBookCopies(copies);
-      }
-
-      if (loan.bookId && (cond === 'NGUYEN_VEN' || cond === 'SON_GAY') && !promotedWaiter) {
-        const titles = getBookTitles();
-        const title = titles.find(t => String(t.id) === String(loan.bookId));
-        if (title) {
-          title.available = Math.min(Number(title.total || 30), Number(title.available || 0) + 1);
-          saveBookTitles(titles);
-        }
-      }
-
-      // Tạo phiếu phạt tự động nếu vi phạm (Seq 2.8.2 -> 2.9.1)
-      if (totalFee > 0) {
-        const fines = getFines();
-        const reasons = [];
-        if (lateDays > 0) reasons.push(`Trễ hạn ${lateDays} ngày`);
-        if (cond === 'HU_HONG') reasons.push('Làm hỏng sách');
-        if (cond === 'MAT_SACH') reasons.push('Làm mất sách');
-        const newFine = {
-          id: `PP-${Date.now().toString().slice(-6)}`,
-          loanId: activeReturningLoanId,
-          readerId: loan.readerId,
-          employeeId: document.getElementById('loanEmpInput')?.value || '12026001',
-          ngayLap: formatDMY(new Date()),
-          date: formatDMY(new Date()),
-          violation: reasons.join(' + '),
-          lyDoPhat: reasons.join(' + '),
-          amount: totalFee,
-          soTien: totalFee,
-          paymentStatus: 'Chưa thanh toán',
-          status: 'Chưa thanh toán'
-        };
-        saveFines([newFine, ...fines]);
-        renderViolationsTable();
-
-        // Cập nhật tổng nợ và khóa thẻ nếu quá hạn nặng (State 5.1 / 5.5)
-        const readers = getReaders();
-        const rd = readers.find(r => String(r.id) === String(loan.readerId));
-        if (rd) {
-          rd.outstandingFine = Number(rd.outstandingFine || 0) + totalFee;
-          if (lateDays >= (Number(rules.maxLateDaysBeforeLock) || 30)) rd.status = 'BỊ KHÓA';
-          saveReaders(readers);
-        }
-        toast(`Đã trả sách & tự động lập phiếu phạt ${totalFee.toLocaleString('vi-VN')} đ (${reasons.join(' + ')})!`, 'warning');
-      } else if (promotedWaiter) {
-        toast(`Đã trả sách phiếu ${activeReturningLoanId} & giữ sách cho độc giả chờ #1 (${promotedWaiter.readerId})!`, 'success');
+      await Promise.all([
+        DataService.hydrate(DataService.KEYS.READER_HISTORY, 'readerHistory', []).catch(() => {}),
+        DataService.hydrate(DataService.KEYS.BOOK_COPIES, 'bookCopies', []).catch(() => {}),
+        DataService.hydrate(DataService.KEYS.BOOK_TITLES, 'bookTitles', []).catch(() => {}),
+        DataService.hydrate(DataService.KEYS.FINES, 'fines', []).catch(() => {}),
+        DataService.hydrate(DataService.KEYS.READERS, 'readers', []).catch(() => {}),
+        loadWaitingList()
+      ]);
+      const fineAmt = Number(apiReturnRes.totalFee || 0);
+      if (fineAmt > 0) {
+        toast(`Đã trả sách & tự động lập phiếu phạt ${fineAmt.toLocaleString('vi-VN')} đ!`, 'warning');
+      } else if (apiReturnRes.promotedWaiterId) {
+        toast(`Đã trả sách phiếu ${activeReturningLoanId} & giữ sách cho độc giả chờ #1 (${apiReturnRes.promotedWaiterId})!`, 'success');
       } else {
         toast(`Đã xác nhận trả sách cho phiếu ${activeReturningLoanId}!`, 'success');
       }
-
       closeReturnModal();
       renderLoansTable();
+      renderViolationsTable();
     });
 
     // Modal Lập phiếu phạt thủ công (Seq 2.9.1)
@@ -4893,7 +4920,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const empId = getActiveUserSession().id || '12026001';
         const newLoanId = DataService.generateNextId(DataService.KEYS.READER_HISTORY, 'PM', 3);
 
-        let offlineFallback = false;
         try {
           await DataService.request('POST', `/borrowRequests/${encodeURIComponent(rid)}/approve`, {
             copyId: chosenCopyId,
@@ -4903,48 +4929,18 @@ document.addEventListener('DOMContentLoaded', function () {
             borrowDays
           });
         } catch (err) {
-          if (err && err.status !== 0 && err.status !== 404) {
-            toast(err.message || 'Không thể duyệt yêu cầu mượn sách.', 'error');
-            return;
-          }
-          offlineFallback = true;
+          toast(err.message || 'Không thể duyệt yêu cầu mượn sách.', 'error');
+          return;
         }
 
         reqItem.status = 'DA DUYET';
         reqItem.copyId = chosenCopyId;
-        if (Array.isArray(borrowRequestsCache)) {
-          localStorage.setItem('ixs_library_borrow_requests', JSON.stringify(list));
-        }
-
-        if (!offlineFallback) {
-          await Promise.all([
-            DataService.hydrate(DataService.KEYS.READER_HISTORY, 'readerHistory', []).catch(() => {}),
-            DataService.hydrate(DataService.KEYS.BOOK_COPIES, 'bookCopies', []).catch(() => {}),
-            DataService.hydrate(DataService.KEYS.BOOK_TITLES, 'bookTitles', []).catch(() => {}),
-            loadBorrowRequests()
-          ]);
-        } else {
-          const copies = getBookCopies();
-          const c = copies.find(x => String(x.id) === String(chosenCopyId));
-          if (c) { c.circulationStatus = 'ĐANG MƯỢN'; c.status = 'ĐANG MƯỢN'; }
-          const titles = getBookTitles();
-          const t = titles.find(x => String(x.id) === String(reqItem.bookId));
-          if (t && Number(t.available) > 0) t.available = Number(t.available) - 1;
-          const now = new Date();
-          const due = new Date(now.getTime() + borrowDays * 86400000);
-          const loans = getReaderHistory();
-          loans.unshift({
-            id: newLoanId, loanId: newLoanId, readerId: reqItem.readerId, readerName: reqItem.readerName || reqItem.readerId,
-            copyId: chosenCopyId, bookId: reqItem.bookId, bookTitle: reqItem.bookTitle || t?.title || reqItem.bookId,
-            employeeId: empId, borrowDate: formatDMY(now), dueDate: formatDMY(due), status: 'Đang mượn'
-          });
-          if (DataService._cache) {
-            DataService._cache[DataService.KEYS.READER_HISTORY] = loans;
-            DataService._cache[DataService.KEYS.BOOK_COPIES] = copies;
-            DataService._cache[DataService.KEYS.BOOK_TITLES] = titles;
-          }
-          localStorage.setItem('ixs_library_borrow_requests', JSON.stringify(list));
-        }
+        await Promise.all([
+          DataService.hydrate(DataService.KEYS.READER_HISTORY, 'readerHistory', []).catch(() => {}),
+          DataService.hydrate(DataService.KEYS.BOOK_COPIES, 'bookCopies', []).catch(() => {}),
+          DataService.hydrate(DataService.KEYS.BOOK_TITLES, 'bookTitles', []).catch(() => {}),
+          loadBorrowRequests()
+        ]);
         addLog('LẬP PHIẾU MƯỢN', newLoanId, `Duyệt yêu cầu <strong>${escapeAdminHtml(rid)}</strong> và giao cuốn <strong>${escapeAdminHtml(chosenCopyId)}</strong>`);
         toast(`Đã duyệt yêu cầu ${rid} và lập phiếu mượn ${newLoanId}!`, 'success');
         renderBorrowRequestsTable();
@@ -4967,15 +4963,13 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
           await DataService.request('POST', `/borrowRequests/${encodeURIComponent(rid)}/reject`, {});
         } catch (err) {
-          if (err && err.status !== 0 && err.status !== 404) {
-            toast(err.message || 'Không thể từ chối yêu cầu mượn.', 'error');
-            return;
-          }
+          toast(err.message || 'Không thể từ chối yêu cầu mượn.', 'error');
+          return;
         }
         const list = getBorrowRequests();
         const reqItem = list.find(r => String(r.id || r.requestId) === String(rid));
         if (reqItem) reqItem.status = 'TU CHOI';
-        localStorage.setItem('ixs_library_borrow_requests', JSON.stringify(list));
+        borrowRequestsCache = list;
         toast(`Đã từ chối yêu cầu mượn ${rid}.`, 'info');
         renderBorrowRequestsTable();
         return;
@@ -5031,14 +5025,12 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
           await DataService.request('PUT', `/renewals/${encodeURIComponent(rid)}`, { status: 'DA DUYET', maxRenewals });
         } catch (err) {
-          if (err && err.status !== 0 && err.status !== 404) {
-            toast(err.message || 'Không thể duyệt yêu cầu gia hạn.', 'error');
-            return;
-          }
+          toast(err.message || 'Không thể duyệt yêu cầu gia hạn.', 'error');
+          return;
         }
 
         item.status = 'Đã duyệt';
-        localStorage.setItem('ixs_library_renewals', JSON.stringify(list));
+        renewalsCache = list;
         if (loan) {
           loan.renewed = true;
           const d = parseFlexDate(loan.dueDate);
@@ -5069,16 +5061,14 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
           await DataService.request('PUT', `/renewals/${encodeURIComponent(rid)}`, { status: 'TU CHOI' });
         } catch (err) {
-          if (err && err.status !== 0 && err.status !== 404) {
-            toast(err.message || 'Không thể từ chối yêu cầu gia hạn.', 'error');
-            return;
-          }
+          toast(err.message || 'Không thể từ chối yêu cầu gia hạn.', 'error');
+          return;
         }
         const list = getLocalRenewals();
         const item = list.find(r => String(r.id) === String(rid));
         if (item) {
           item.status = 'Từ chối';
-          localStorage.setItem('ixs_library_renewals', JSON.stringify(list));
+          renewalsCache = list;
           toast(`Đã từ chối yêu cầu gia hạn ${rid}.`, 'info');
           renderRenewalsTable();
         }
@@ -5098,10 +5088,8 @@ document.addEventListener('DOMContentLoaded', function () {
             status: newStatus
           });
         } catch (err) {
-          if (err && err.status !== 0) {
-            toast(err.message || 'Không thể cập nhật hàng chờ.', 'error');
-            return;
-          }
+          toast(err.message || 'Không thể cập nhật hàng chờ.', 'error');
+          return;
         }
         const entry = waitingListCache.find(w => String(w.readerId) === String(readerId) && String(w.bookTitleId || w.bookId || w.id) === String(bookId));
         if (entry) entry.status = newStatus;
@@ -5208,7 +5196,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const phy = String(c.physicalStatus || '').toUpperCase();
         return st.includes('KHÓA') || st.includes('MẤT') || phy.includes('RÁCH') || phy.includes('HỎNG');
       }).length;
-      const availCount = Math.max(0, totalCopies - borrowedCount - damagedCount);
+      const availCount = titles.reduce((sum, title) => sum + Number(title.available ?? title.availableCopies ?? 0), 0);
 
       const loanCountByBook = new Map();
       loans.forEach(l => {
@@ -5222,7 +5210,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const curBorrowed = tCopies.length
           ? tCopies.filter(c => String(c.circulationStatus || c.status || '').toUpperCase().includes('MƯỢN')).length
           : Math.max(0, qty - Number(t.available || 0));
-        const remain = Math.max(0, qty - curBorrowed);
+        const remain = Number(t.available ?? t.availableCopies ?? 0);
         const times = (loanCountByBook.get(String(t.id)) || 0) + (loanCountByBook.get(String(t.title)) || 0);
         return { title: t.title, category: t.category || 'Chung', qty, curBorrowed, remain, times };
       }).sort((a, b) => b.times - a.times || b.curBorrowed - a.curBorrowed);

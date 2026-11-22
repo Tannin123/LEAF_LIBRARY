@@ -13,6 +13,7 @@ let catalogCurrentPage = 1;
 const CATALOG_PAGE_SIZE = 4;
 
 document.addEventListener('DOMContentLoaded', () => {
+  if (!DataService.session().token && !location.pathname.endsWith('/catalog.html')) { location.replace('../login.html'); return; }
   // PHÂN QUYỀN TRUY CẬP: Đảm bảo độc giả truy cập trang user
   let rawSession = null;
   try {
@@ -657,9 +658,7 @@ function initEditProfileModal() {
         cccd: cccd,
         gender: gender,
         dob: dob,
-        address: address,
-        readerType: session.readerType || session.role || 'Sinh viên',
-        status: session.status || 'HOẠT ĐỘNG'
+        address: address
       };
 
       const origText = btnSave.textContent;
@@ -668,13 +667,8 @@ function initEditProfileModal() {
       try {
         await DataService.request('PUT', `/readers/${encodeURIComponent(readerId)}`, payload);
       } catch (err) {
-        if (err && err.status !== 0) {
-          setEditProfileError(err.message || 'Không thể cập nhật hồ sơ. Vui lòng kiểm tra lại dữ liệu.');
-          btnSave.disabled = false;
-          btnSave.textContent = origText;
-          return;
-        }
-        showToast('Máy chủ tạm gián đoạn — thông tin đã được lưu cục bộ trên trình duyệt.', 'warning');
+        setEditProfileError(err.message || 'Không thể cập nhật hồ sơ. Vui lòng kiểm tra lại dữ liệu.');
+        return;
       } finally {
         btnSave.disabled = false;
         btnSave.textContent = origText;
@@ -914,16 +908,6 @@ function initGlobalSearch() {
       if (event.target.closest('[data-detail-action="add-shelf"]')) {
         const bookId = detailView.dataset.bookId;
         const reader = getBorrowReaderProfile();
-        const storageKey = 'ixs_library_personal_bookshelf';
-        let shelf = [];
-        try {
-          const raw = localStorage.getItem(storageKey);
-          shelf = raw ? JSON.parse(raw) : [];
-        } catch (_) {}
-        if (shelf.some(item => String(item.bookId) === String(bookId))) {
-          showToast('Sách đã có trong tủ sách cá nhân của bạn!', 'warning');
-          return;
-        }
         try {
           await DataService.request('POST', '/wishlist', { readerId: reader.id, bookTitleId: bookId });
         } catch (apiErr) {
@@ -931,16 +915,9 @@ function initGlobalSearch() {
             showToast('Sách đã có trong tủ sách cá nhân của bạn!', 'warning');
             return;
           }
+          showToast(apiErr.message || 'Không thể thêm sách vào tủ cá nhân.', 'error');
+          return;
         }
-        shelf.unshift({
-          bookId,
-          status: 'Chưa đọc',
-          currentPage: 0,
-          totalPages: 0,
-          addedAt: new Date().toISOString().slice(0, 10),
-          note: ''
-        });
-        localStorage.setItem(storageKey, JSON.stringify(shelf));
         showToast('Đã thêm sách vào tủ sách cá nhân!', 'success');
         return;
       }
@@ -949,20 +926,6 @@ function initGlobalSearch() {
         const reader = getBorrowReaderProfile();
         const btnWait = event.target.closest('[data-detail-action="waitlist"]');
         if (btnWait) { btnWait.disabled = true; btnWait.textContent = 'Đang đăng ký...'; }
-        const waitKey = 'ixs_library_waiting_list';
-        let localWait = [];
-        try { localWait = JSON.parse(localStorage.getItem(waitKey) || '[]'); } catch (_) {}
-        const dupLocal = localWait.some(w =>
-          String(w.readerId) === String(reader.id) &&
-          String(w.bookTitleId || w.bookId) === String(bookId) &&
-          !String(w.status || '').toUpperCase().includes('HUY') &&
-          !String(w.status || '').toUpperCase().includes('DA NHAN')
-        );
-        if (dupLocal) {
-          if (btnWait) { btnWait.disabled = false; btnWait.textContent = 'Đăng ký chờ mượn'; }
-          showToast('Bạn đã đăng ký chờ đầu sách này rồi.', 'warning');
-          return;
-        }
         const entry = {
           readerId: reader.id,
           readerName: reader.fullName,
@@ -970,20 +933,15 @@ function initGlobalSearch() {
           bookId,
           registeredAt: new Date().toISOString(),
           requestDate: new Date().toLocaleDateString('vi-VN'),
-          position: localWait.filter(w => String(w.bookTitleId || w.bookId) === String(bookId)).length + 1,
           status: 'DANG CHO'
         };
         try {
-          await DataService.request('POST', '/waitingList', entry);
-          showToast(`Đăng ký chờ thành công! Thứ tự hàng đợi của bạn: #${entry.position}.`, 'success');
+          const result = await DataService.request('POST', '/waitingList', entry);
+          showToast(`Đăng ký chờ thành công! Thứ tự hàng đợi của bạn: #${result.position || entry.position}.`, 'success');
         } catch (err) {
-          if (err && err.status !== 0) {
-            if (btnWait) { btnWait.disabled = false; btnWait.textContent = 'Đăng ký chờ mượn'; }
-            showToast(err.message || 'Không thể đăng ký chờ mượn đầu sách này.', 'error');
-            return;
-          }
-          localStorage.setItem(waitKey, JSON.stringify([entry, ...localWait]));
-          showToast(`Đã ghi nhận đăng ký chờ mượn sách (vị trí #${entry.position}).`, 'warning');
+          if (btnWait) { btnWait.disabled = false; btnWait.textContent = 'Đăng ký chờ mượn'; }
+          showToast(err.message || 'Không thể đăng ký chờ mượn đầu sách này.', 'error');
+          return;
         }
         if (btnWait) { btnWait.textContent = 'Đã đăng ký chờ'; btnWait.disabled = true; }
       }
@@ -1025,18 +983,9 @@ function renderCatalogSearch(query) {
   const selectedCategory = categoryFilter?.selectedIndex > 0 ? categoryFilter.selectedOptions[0].textContent.trim() : '';
   const searchTerms = normalizeCatalogText(query).split(/\s+/).filter(Boolean);
   const copies = DataService.getAll(DataService.KEYS.BOOK_COPIES, []);
-  const allCopies = [
-    ...copies,
-    ...defaultBookCopies.filter(c => !copies.some(dc => dc.id === c.id))
-  ];
+  const allCopies = copies;
   const databaseBooks = DataService.getAll(DataService.KEYS.BOOK_TITLES, []);
-  const books = [
-    ...databaseBooks,
-    ...defaultBookTitles.filter(sample => !databaseBooks.some(book =>
-      String(book.id) === String(sample.id) ||
-      normalizeCatalogText(book.title) === normalizeCatalogText(sample.title)
-    ))
-  ];
+  const books = databaseBooks;
 
   const results = books.filter(book => {
     const searchableText = normalizeCatalogText([
@@ -1151,13 +1100,7 @@ function openCatalogBookDetail(bookId) {
   const filtersRow = document.querySelector('.catalog-filters-row');
   const paginationRow = document.getElementById('catalogPaginationRow');
   const databaseBooks = DataService.getAll(DataService.KEYS.BOOK_TITLES, []);
-  const books = [
-    ...databaseBooks,
-    ...defaultBookTitles.filter(sample => !databaseBooks.some(book =>
-      String(book.id) === String(sample.id) ||
-      normalizeCatalogText(book.title) === normalizeCatalogText(sample.title)
-    ))
-  ];
+  const books = databaseBooks;
   const book = books.find(item => String(item.id) === String(bookId));
   if (!book || !detailView) return;
 
@@ -1309,17 +1252,6 @@ function initBorrowRegistration() {
       return;
     }
 
-    let localRequests = [];
-    try { localRequests = JSON.parse(localStorage.getItem('ixs_library_borrow_requests') || '[]'); } catch (_) {}
-    if (localRequests.some(r =>
-      String(r.readerId) === String(reader.id) &&
-      String(r.bookId) === String(book.id) &&
-      normalizeCatalogText(r.status || '').includes('cho duyet')
-    )) {
-      setBorrowErr('Bạn đã gửi yêu cầu mượn đầu sách này và đang chờ thủ thư xét duyệt.');
-      return;
-    }
-
     const now = new Date();
     const request = {
       id: `YCM-${now.getFullYear()}-${String(now.getTime()).slice(-5)}`,
@@ -1338,26 +1270,13 @@ function initBorrowRegistration() {
     confirmButton.disabled = true;
     confirmButton.textContent = 'Đang gửi yêu cầu...';
     try {
-      let offlineMode = false;
-      try {
-        await DataService.request(
-          'POST',
-          `/bookTitles/${encodeURIComponent(book.id)}/reserve`,
-          { requestId: request.id, readerId: reader.id, copyId: selectedCopyId }
-        );
-      } catch (apiErr) {
-        if (apiErr && apiErr.status !== 0) {
-          setBorrowErr(apiErr.message || 'Không thể gửi yêu cầu mượn sách này.');
-          return;
-        }
-        offlineMode = true;
-      }
+      await DataService.request(
+        'POST',
+        `/bookTitles/${encodeURIComponent(book.id)}/reserve`,
+        { requestId: request.id, readerId: reader.id, copyId: selectedCopyId }
+      );
 
       // Theo Seq 2.8.1: Bạn đọc chỉ tạo yêu cầu CHO DUYET; không tự chuyển trạng thái cuốn sách sang ĐANG MƯỢN hay tạo PHIEUMUON khi chưa qua Thủ thư
-      try {
-        localStorage.setItem('ixs_library_borrow_requests', JSON.stringify([request, ...localRequests.filter(r => r.id !== request.id)]));
-      } catch (_) {}
-
       document.getElementById('borrowSuccessCode').textContent = request.id;
       document.getElementById('borrowSuccessBookTitle').textContent = `${book.title} (Đầu sách: ${book.id}${selectedCopyId ? ` · Dự kiến cuốn: ${selectedCopyId}` : ''})`;
       document.getElementById('borrowSuccessReaderName').textContent = reader.fullName;
@@ -1372,10 +1291,7 @@ function initBorrowRegistration() {
         renderCatalogSearch(document.getElementById('globalSearchInput')?.value || book.title);
       }
       successModal.classList.add('active');
-      showToast(offlineMode
-        ? 'Máy chủ tạm gián đoạn — yêu cầu mượn (Chờ duyệt) đã được ghi nhận cục bộ.'
-        : 'Đã gửi yêu cầu mượn sách! Vui lòng chờ thủ thư duyệt và lập phiếu mượn.',
-        offlineMode ? 'warning' : 'success');
+      showToast('Đã gửi yêu cầu mượn sách! Vui lòng chờ thủ thư duyệt và lập phiếu mượn.', 'success');
     } catch (error) {
       setBorrowErr(error.message || 'Chưa thể gửi yêu cầu mượn sách này. Hãy thử lại sau.');
     } finally {
@@ -1388,10 +1304,7 @@ function initBorrowRegistration() {
 function openBorrowRegistration(bookId, preferredCopyId) {
   const modal = document.getElementById('modalBorrowRegistration');
   const databaseBooks = DataService.getAll(DataService.KEYS.BOOK_TITLES, []);
-  const book = [...databaseBooks, ...defaultBookTitles.filter(sample => !databaseBooks.some(item =>
-    String(item.id) === String(sample.id) ||
-    normalizeCatalogText(item.title) === normalizeCatalogText(sample.title)
-  ))].find(item => String(item.id) === String(bookId));
+  const book = databaseBooks.find(item => String(item.id) === String(bookId));
   if (!book || !modal) return;
 
   const reader = getBorrowReaderProfile();
@@ -1419,7 +1332,7 @@ function openBorrowRegistration(bookId, preferredCopyId) {
   if (copySelect) {
     let allCopies = [];
     try {
-      allCopies = DataService.getAll(DataService.KEYS.BOOK_COPIES, typeof defaultBookCopies !== 'undefined' ? defaultBookCopies : []);
+      allCopies = DataService.getAll(DataService.KEYS.BOOK_COPIES, []);
     } catch (_) {}
     const bookCopies = allCopies.filter(c => String(c.bookId || c.bookTitleId) === String(book.id));
     const availableCopies = bookCopies.filter(c => {
@@ -1482,20 +1395,13 @@ function getActiveBorrowBook() {
   const bookId = document.getElementById('catalogBookDetail')?.dataset.bookId;
   if (activeBorrowBook && (!bookId || String(activeBorrowBook.id) === String(bookId))) return activeBorrowBook;
   const databaseBooks = DataService.getAll(DataService.KEYS.BOOK_TITLES, []);
-  return [...databaseBooks, ...defaultBookTitles].find(book => String(book.id) === String(bookId)) || null;
+  return databaseBooks.find(book => String(book.id) === String(bookId)) || null;
 }
 
 function initBookshelfPage() {
   const list = document.getElementById('bookshelfBookList');
   if (!list) return;
 
-  const storageKey = 'ixs_library_personal_bookshelf';
-  const initialShelf = [
-    { bookId: 'DS001', status: 'Đang đọc', currentPage: 70, totalPages: 350 },
-    { bookId: 'DS002', status: 'Chưa đọc', currentPage: 0, totalPages: 280 },
-    { bookId: 'DS004', status: 'Đã đọc', currentPage: 350, totalPages: 350 },
-    { bookId: 'DS012', status: 'Đang đọc', currentPage: 240, totalPages: 320 }
-  ];
   const searchInput = document.getElementById('bookshelfSearchInput');
   const statusFilter = document.getElementById('bookshelfStatusFilter');
   const addModal = document.getElementById('modalAddToBookshelf');
@@ -1507,6 +1413,7 @@ function initBookshelfPage() {
   const editModal = document.getElementById('modalEditShelfEntry');
   const editForm = document.getElementById('formEditShelfEntry');
   let editingBookId = null;
+  let shelfCache = [];
 
   const BS_PAGE_SIZE = 4;
   let bsPage = 1;
@@ -1568,7 +1475,7 @@ function initBookshelfPage() {
 
     let copies = [];
     try {
-      copies = DataService.getAll(DataService.KEYS.BOOK_COPIES, typeof defaultBookCopies !== 'undefined' ? defaultBookCopies : []);
+      copies = DataService.getAll(DataService.KEYS.BOOK_COPIES, []);
     } catch (_) {}
     const bookCopies = copies.filter(c => String(c.bookId || c.bookTitleId) === String(bookId));
 
@@ -1600,22 +1507,12 @@ function initBookshelfPage() {
   }
 
   const getShelf = () => {
-    try {
-      const saved = localStorage.getItem(storageKey);
-      return saved === null ? initialShelf : JSON.parse(saved);
-    } catch (_) {
-      return initialShelf;
-    }
+    return shelfCache;
   };
-  const saveShelf = shelf => {
-    localStorage.setItem(storageKey, JSON.stringify(shelf));
-  };
+  const saveShelf = shelf => { shelfCache = shelf; };
   const getBooks = () => {
     const databaseBooks = DataService.getAll(DataService.KEYS.BOOK_TITLES, []);
-    return [...databaseBooks, ...defaultBookTitles.filter(sample => !databaseBooks.some(book =>
-      String(book.id) === String(sample.id) ||
-      normalizeCatalogText(book.title) === normalizeCatalogText(sample.title)
-    ))];
+    return databaseBooks;
   };
 
   function render() {
@@ -1643,7 +1540,7 @@ function initBookshelfPage() {
 
     let allCopies = [];
     try {
-      allCopies = DataService.getAll(DataService.KEYS.BOOK_COPIES, typeof defaultBookCopies !== 'undefined' ? defaultBookCopies : []);
+      allCopies = DataService.getAll(DataService.KEYS.BOOK_COPIES, []);
     } catch (_) {}
 
     list.innerHTML = pagedEntries.map(entry => {
@@ -1681,7 +1578,7 @@ function initBookshelfPage() {
             <div class="book-card-row-2col">
               <div>
                 <div class="book-meta-label">Nhà xuất bản</div>
-                <div class="book-meta-value">${escapeCatalogHtml(book.publisher || 'Springer')}</div>
+                <div class="book-meta-value">${escapeCatalogHtml(book.publisher || 'Chưa cập nhật')}</div>
               </div>
               <div style="text-align: right;">
                 <div class="book-meta-label">Thể loại</div>
@@ -1726,7 +1623,8 @@ function initBookshelfPage() {
     const book = getBooks().find(item => String(item.id) === String(bookSelect?.value));
     if (!book) return;
     if (addCover) {
-      addCover.src = book.coverUrl || '';
+      addCover.onerror = () => { addCover.onerror = null; addCover.src = '../assets/images/logo-leaf.png'; };
+      addCover.src = book.coverUrl || '../assets/images/logo-leaf.png';
       addCover.alt = `Bìa ${book.title}`;
     }
     if (addTitle) addTitle.textContent = book.title;
@@ -1778,12 +1676,14 @@ function initBookshelfPage() {
     const addedAt = document.getElementById('bookshelfAddDate')?.value || new Date().toISOString().slice(0, 10);
     const note = document.getElementById('bookshelfAddNote')?.value.trim() || '';
     try {
-      await DataService.request('POST', '/wishlist', { readerId: reader.id, bookTitleId: book.id });
+      await DataService.request('POST', '/wishlist', { readerId: reader.id, bookTitleId: book.id, note, addedAt });
     } catch (apiErr) {
       if (apiErr && apiErr.status === 409) {
         showToast('Đầu sách này đã có trong tủ sách cá nhân.', 'warning');
         return;
       }
+      showToast(apiErr.message || 'Không thể thêm sách vào tủ cá nhân.', 'error');
+      return;
     }
     saveShelf([...getShelf(), {
       bookId: book.id,
@@ -1854,27 +1754,16 @@ function initBookshelfPage() {
       try {
         await DataService.request('DELETE', `/wishlist/${encodeURIComponent(bookId)}?readerId=${encodeURIComponent(reader.id)}`);
       } catch (err) {
-        if (err && err.status !== 0 && err.status !== 404) {
-          showToast(err.message || 'Không thể xóa sách khỏi tủ cá nhân.', 'error');
-          return;
-        }
+        showToast(err.message || 'Không thể xóa sách khỏi tủ cá nhân.', 'error');
+        return;
       }
-      const previousShelf = [...shelf];
       saveShelf(shelf.filter(entry => String(entry.bookId) !== bookId));
       render();
-      showToast(`Đã xóa “${book?.title || 'sách'}” khỏi tủ cá nhân.`, 'success', {
-        label: 'Hoàn tác',
-        onClick: async () => {
-          try { await DataService.request('POST', '/wishlist', { readerId: reader.id, bookTitleId: bookId }); } catch (_) {}
-          saveShelf(previousShelf);
-          render();
-          showToast('Đã khôi phục sách về tủ cá nhân.', 'success');
-        }
-      });
+      showToast(`Đã xóa “${book?.title || 'sách'}” khỏi tủ cá nhân.`, 'success');
     }
   });
 
-  editForm?.addEventListener('submit', event => {
+  editForm?.addEventListener('submit', async event => {
     event.preventDefault();
     if (!editingBookId) return;
     const totalRaw = Number(document.getElementById('editShelfTotalPages').value);
@@ -1895,6 +1784,14 @@ function initBookshelfPage() {
     }
     if (status === 'Đã đọc' && totalPages > 0) currentPage = totalPages;
 
+    const submit = editForm.querySelector('button[type="submit"]');
+    if (submit.disabled) return;
+    submit.disabled = true;
+    try {
+      await DataService.request('PUT', `/wishlist/${encodeURIComponent(editingBookId)}`, { readerId: getBorrowReaderProfile().id, status, currentPage, totalPages });
+    } catch (error) { setShelfErr(error.message || 'Không lưu được tiến độ đọc.'); return; }
+    finally { submit.disabled = false; }
+
     saveShelf(getShelf().map(entry => String(entry.bookId) === editingBookId
       ? { ...entry, status, currentPage, totalPages }
       : entry));
@@ -1908,15 +1805,11 @@ function initBookshelfPage() {
       const reader = getBorrowReaderProfile();
       const apiWishlist = await DataService.request('GET', `/wishlist?readerId=${encodeURIComponent(reader.id)}`);
       if (Array.isArray(apiWishlist)) {
-        const local = getShelf();
-        const merged = apiWishlist.map(w => {
-          const bId = String(w.bookTitleId || w.id);
-          const existing = local.find(l => String(l.bookId) === bId);
-          return existing || { bookId: bId, status: 'Chưa đọc', currentPage: 0, totalPages: 0, addedAt: w.addedAt || new Date().toISOString().slice(0, 10), note: '' };
-        });
-        saveShelf(merged);
+        saveShelf(apiWishlist.map(w => ({ bookId: String(w.bookTitleId || w.id), status: w.status || 'Chưa đọc', currentPage: w.currentPage || 0, totalPages: w.totalPages || 0, note: w.note || '', addedAt: w.addedAt || '' })));
       }
-    } catch (_) {}
+    } catch (error) {
+      showToast(error.message || 'Không tải được tủ sách từ máy chủ.', 'error');
+    }
     render();
   });
 }
@@ -1937,24 +1830,12 @@ function initReaderHistoryPage() {
 
   const getReaderWaiting = () => {
     if (Array.isArray(waitingCache)) return waitingCache;
-    try {
-      const reader = getBorrowReaderProfile();
-      const raw = JSON.parse(localStorage.getItem('ixs_library_waiting_list') || '[]');
-      return raw.filter(w => !w.readerId || String(w.readerId) === String(reader.id));
-    } catch (_) {
-      return [];
-    }
+    return [];
   };
 
   const getReaderBorrowRequests = () => {
     if (Array.isArray(borrowReqCache)) return borrowReqCache;
-    try {
-      const reader = getBorrowReaderProfile();
-      const raw = JSON.parse(localStorage.getItem('ixs_library_borrow_requests') || '[]');
-      return raw.filter(r => !r.readerId || String(r.readerId) === String(reader.id));
-    } catch (_) {
-      return [];
-    }
+    return [];
   };
 
   async function refreshReaderWaiting() {
@@ -1970,21 +1851,16 @@ function initReaderHistoryPage() {
     try {
       const reader = getBorrowReaderProfile();
       const res = await DataService.request('GET', `/borrowRequests?readerId=${encodeURIComponent(reader.id)}`);
-      if (Array.isArray(res)) {
-        borrowReqCache = res;
-        localStorage.setItem('ixs_library_borrow_requests', JSON.stringify(res));
-      }
+      if (Array.isArray(res)) borrowReqCache = res;
     } catch (_) {}
     if (currentFilter === 'Yêu cầu mượn') render('Yêu cầu mượn');
   }
 
   async function refreshReaderRenewals() {
     try {
-      const res = await DataService.request('GET', '/renewals');
-      if (Array.isArray(res)) {
-        renewalsCache = res;
-        localStorage.setItem('ixs_library_renewals', JSON.stringify(res));
-      }
+      const reader = getBorrowReaderProfile();
+      const res = await DataService.request('GET', `/renewals?readerId=${encodeURIComponent(reader.id)}`);
+      if (Array.isArray(res)) renewalsCache = res;
     } catch (_) {}
     render(currentFilter);
   }
@@ -1999,12 +1875,7 @@ function initReaderHistoryPage() {
 
   const getPendingRenewals = () => {
     if (Array.isArray(renewalsCache)) return renewalsCache;
-    try {
-      const raw = localStorage.getItem('ixs_library_renewals');
-      return raw ? JSON.parse(raw) : [];
-    } catch (_) {
-      return [];
-    }
+    return [];
   };
 
   const renderPagination = (totalItems) => {
@@ -2027,7 +1898,7 @@ function initReaderHistoryPage() {
       currentPage = 1;
     }
     if (currentFilter === 'Yêu cầu mượn') {
-      const titles = DataService.getAll(DataService.KEYS.BOOK_TITLES, typeof defaultBookTitles !== 'undefined' ? defaultBookTitles : []);
+      const titles = DataService.getAll(DataService.KEYS.BOOK_TITLES, []);
       const q = normalizeCatalogText(searchInput?.value || '');
       const reqList = getReaderBorrowRequests().map(r => {
         const bId = r.bookId || r.bookTitleId || '';
@@ -2088,7 +1959,7 @@ function initReaderHistoryPage() {
     }
 
     if (currentFilter === 'Hàng chờ') {
-      const titles = DataService.getAll(DataService.KEYS.BOOK_TITLES, typeof defaultBookTitles !== 'undefined' ? defaultBookTitles : []);
+      const titles = DataService.getAll(DataService.KEYS.BOOK_TITLES, []);
       const q = normalizeCatalogText(searchInput?.value || '');
       const waitList = getReaderWaiting().map((w, idx) => {
         const bId = w.bookTitleId || w.bookId || w.id || '';
@@ -2286,16 +2157,10 @@ function initReaderHistoryPage() {
       try {
         await DataService.request('DELETE', `/borrowRequests/${encodeURIComponent(reqId)}`);
       } catch (err) {
-        if (err && err.status !== 0 && err.status !== 404) {
-          showToast(err.message || 'Không thể hủy yêu cầu mượn.', 'error');
-          return;
-        }
+        showToast(err.message || 'Không thể hủy yêu cầu mượn.', 'error');
+        return;
       }
       if (Array.isArray(borrowReqCache)) borrowReqCache = borrowReqCache.filter(r => String(r.id) !== String(reqId));
-      try {
-        const raw = JSON.parse(localStorage.getItem('ixs_library_borrow_requests') || '[]');
-        localStorage.setItem('ixs_library_borrow_requests', JSON.stringify(raw.filter(r => String(r.id) !== String(reqId))));
-      } catch (_) {}
       showToast(`Đã hủy yêu cầu mượn ${reqId}.`, 'info');
       render('Yêu cầu mượn');
       return;
@@ -2320,22 +2185,13 @@ function initReaderHistoryPage() {
           status: 'DA_HUY'
         });
       } catch (err) {
-        if (err && err.status !== 0) {
-          showToast(err.message || 'Không thể hủy đăng ký chờ.', 'error');
-          return;
-        }
+        showToast(err.message || 'Không thể hủy đăng ký chờ.', 'error');
+        return;
       }
       if (Array.isArray(waitingCache)) {
         const w = waitingCache.find(x => String(x.bookTitleId || x.bookId || x.id) === String(bookId));
         if (w) w.status = 'DA_HUY';
       }
-      try {
-        const raw = JSON.parse(localStorage.getItem('ixs_library_waiting_list') || '[]');
-        raw.forEach(w => {
-          if (String(w.bookTitleId || w.bookId) === String(bookId) && String(w.readerId) === String(reader.id)) w.status = 'DA_HUY';
-        });
-        localStorage.setItem('ixs_library_waiting_list', JSON.stringify(raw));
-      } catch (_) {}
       showToast(`Đã hủy đăng ký chờ đầu sách ${bookId}.`, 'info');
       render('Hàng chờ');
       return;
@@ -2381,22 +2237,14 @@ function initReaderHistoryPage() {
         status: 'CHO DUYET'
       });
       const renewals = [renItem, ...getPendingRenewals().filter(r => r.id !== renewalId)];
-      localStorage.setItem('ixs_library_renewals', JSON.stringify(renewals));
+      renewalsCache = renewals;
       window.dispatchEvent(new CustomEvent('ixs:data-changed', { detail: { key: 'ixs_library_renewals' } }));
       showToast(`Đã gửi yêu cầu gia hạn cho phiếu mượn ${loanId}. Chờ thủ thư phê duyệt!`, 'success');
       render();
     } catch (err) {
-      if (err && err.status !== 0) {
-        btn.disabled = false;
-        btn.textContent = origText;
-        showToast(err.message || `Không thể gia hạn phiếu mượn ${loanId}.`, 'error');
-        return;
-      }
-      const renewals = [renItem, ...getPendingRenewals().filter(r => r.id !== renewalId)];
-      localStorage.setItem('ixs_library_renewals', JSON.stringify(renewals));
-      window.dispatchEvent(new CustomEvent('ixs:data-changed', { detail: { key: 'ixs_library_renewals' } }));
-      showToast(`Máy chủ tạm gián đoạn — đã lưu tạm yêu cầu gia hạn phiếu ${loanId}.`, 'warning');
-      render();
+      btn.disabled = false;
+      btn.textContent = origText;
+      showToast(err.message || `Không thể gia hạn phiếu mượn ${loanId}.`, 'error');
     }
   });
 
@@ -2468,6 +2316,18 @@ function initPaymentPage() {
       const st = normalizeCatalogText(item.paymentStatus || '');
       return belongsToReader && !st.includes('da thanh toan') && !st.includes('paid');
     });
+    const paymentPending = fines.length > 0 && fines.every(item => {
+      const status = normalizeCatalogText(item.paymentStatus || '');
+      return status.includes('cho doi soat') || status.includes('cho thu tai quay');
+    });
+    const paymentBadge = document.getElementById('noticePaymentStatusBadge');
+    if (paymentBadge) {
+      paymentBadge.textContent = paymentPending
+        ? (fines.every(f => normalizeCatalogText(f.paymentStatus).includes('cho thu tai quay')) ? 'CHỜ THU TẠI QUẦY' : 'CHỜ ĐỐI SOÁT')
+        : 'CHƯA THANH TOÁN';
+      paymentBadge.style.backgroundColor = paymentPending ? '#FEF3C7' : '#FEE2E2';
+      paymentBadge.style.color = paymentPending ? '#92400E' : '#DC2626';
+    }
 
     const total = fines.reduce((sum, item) => sum + Number(item.amount || 0), 0);
     const formattedTotal = `${total.toLocaleString('vi-VN')} VND`;
@@ -2499,7 +2359,10 @@ function initPaymentPage() {
       return;
     }
 
-    if (btnGoToChooseMethod) btnGoToChooseMethod.disabled = false;
+    if (btnGoToChooseMethod) btnGoToChooseMethod.disabled = paymentPending;
+    if (paymentPending && noticeDebtItemsContainer) {
+      noticeDebtItemsContainer.innerHTML = '<div style="padding:16px;color:#92400E;font-weight:600;">Yêu cầu thanh toán đang chờ thư viện xác nhận.</div>';
+    }
     if (viewMethod?.style.display !== 'block' && viewOnline?.style.display !== 'block') {
       showView(viewNotice);
     }
@@ -2541,11 +2404,34 @@ function initPaymentPage() {
     if (modalDesk) modalDesk.classList.add('active');
   });
 
+  const submitPaymentRequest = async method => {
+    const reader = getBorrowReaderProfile();
+    const readerId = reader.id || reader.readerId || reader.maBanDoc;
+    if (!readerId) {
+      showToast('Không xác định được mã bạn đọc để gửi yêu cầu thanh toán.', 'error');
+      return false;
+    }
+    try {
+      await DataService.request('POST', '/readerPayments', { readerId, method });
+      await DataService.hydrate(DataService.KEYS.FINES, 'fines', []);
+      renderFines();
+      showToast(method === 'BANK_TRANSFER'
+        ? 'Đã gửi yêu cầu đối soát chuyển khoản. Khoản phạt sẽ được cập nhật sau khi thư viện xác nhận.'
+        : 'Đã báo thanh toán tại quầy. Thủ thư sẽ xác nhận khoản thu.', 'success');
+      return true;
+    } catch (error) {
+      showToast(error.message || 'Không thể gửi yêu cầu thanh toán.', 'error');
+      return false;
+    }
+  };
+
   // Modal bàn thủ thư
   if (modalDesk) {
     const closeDesk = () => modalDesk.classList.remove('active');
     document.getElementById('btnClosePayAtDeskModal')?.addEventListener('click', closeDesk);
-    document.getElementById('btnConfirmPayAtDesk')?.addEventListener('click', closeDesk);
+    document.getElementById('btnConfirmPayAtDesk')?.addEventListener('click', async () => {
+      if (await submitPaymentRequest('AT_DESK')) closeDesk();
+    });
     modalDesk.addEventListener('click', e => {
       if (e.target === modalDesk) closeDesk();
     });
@@ -2564,9 +2450,8 @@ function initPaymentPage() {
   if (modalNotice && btnSubmitPayment) {
     const closeQr = () => modalNotice.classList.remove('active');
     document.getElementById('btnClosePaymentNotice')?.addEventListener('click', closeQr);
-    document.getElementById('btnConfirmPaymentNotice')?.addEventListener('click', () => {
-      closeQr();
-      showToast('Yêu cầu chuyển khoản đã được ghi nhận. Thủ thư sẽ đối soát và xác nhận thanh toán!', 'success');
+    document.getElementById('btnConfirmPaymentNotice')?.addEventListener('click', async () => {
+      if (await submitPaymentRequest('BANK_TRANSFER')) closeQr();
     });
     modalNotice.addEventListener('click', e => {
       if (e.target === modalNotice) closeQr();
@@ -2900,11 +2785,8 @@ function initSuggestionsPage() {
       const ok = await DataService.waitForWrites([DataService.KEYS.SUGGESTIONS]);
       if (!ok) {
         const writeErr = DataService._writeErrors?.[DataService.KEYS.SUGGESTIONS];
-        if (writeErr && writeErr.status !== 0) {
-          setSuggestionErr(writeErr.message || 'Không thể lưu đề xuất sách lên máy chủ.');
-          return;
-        }
-        showToast('Máy chủ tạm gián đoạn — đề xuất đã được ghi nhận cục bộ.', 'warning');
+        setSuggestionErr(writeErr?.message || 'Không thể lưu đề xuất sách lên máy chủ. Kiểm tra kết nối và thử lại.');
+        return;
       } else {
         showToast('Đã gửi đề xuất sách thành công!', 'success');
       }
@@ -3266,8 +3148,7 @@ function initLogoutActions() {
       danger: true
     });
     if (ok) {
-      localStorage.removeItem('ixs_library_session');
-      localStorage.removeItem('ixs_library_current_user');
+      await DataService.logout();
       window.location.href = '../login.html';
     }
   });
