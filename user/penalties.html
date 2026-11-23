@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Thanh toán - LEAF LIBRARY</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="../css/style.css"><link rel="stylesheet" href="../css/admin.css"><link rel="stylesheet" href="../css/user.css">
 </head>
 <body class="user-interface reader-workflow-page">
@@ -18,7 +18,7 @@
 				<div class="user-dropdown-menu" id="userDropdownMenu">
 					<div class="user-dropdown-header">
 						<div class="user-dropdown-name" id="dropdownUserName">Bạn đọc</div>
-						<div class="user-dropdown-meta"><span id="dropdownUserCode">Mã ĐG: 220260004</span><span class="badge status-badge badge-reader-valid" id="dropdownUserRole">Độc giả</span></div>
+						<div class="user-dropdown-meta"><span id="dropdownUserCode">Mã ĐG: BD004</span><span class="badge status-badge badge-reader-valid" id="dropdownUserRole">Độc giả</span></div>
 					</div>
 					<button type="button" class="user-dropdown-item" id="btnOpenMyAccount">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -42,271 +42,95 @@
 				<a href="catalog.html" class="sidebar-item" title="Tra cứu sách"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>Tra cứu sách</span></a>
 				<a href="bookshelf.html" class="sidebar-item" title="Tủ sách cá nhân"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Tủ sách cá nhân</span></a>
 				<a href="history.html" class="sidebar-item" title="Lịch sử mượn/trả"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Lịch sử mượn/trả</span></a>
-				<a href="penalties.html" class="sidebar-item active" title="Thanh toán"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><span>Thanh toán</span></a>
+				<a href="penalties.html" class="sidebar-item active" aria-current="page" title="Thanh toán"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><span>Thanh toán</span></a>
 				<a href="suggestions.html" class="sidebar-item" title="Đề xuất sách"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Đề xuất sách</span></a>
 			</aside>
-			<main class="content-section user-dashboard-section payment-dashboard-section">
-				<div class="user-dash-topbar"><div></div><div class="user-dash-actions"><button type="button" class="topbar-icon-btn" id="btnNotification" title="Thông báo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="topbar-badge badge-red" id="notifBadge" style="display: none;">0</span></button></div></div>
+      <main class="content-section user-dashboard-section reader-payments" aria-labelledby="readerPaymentsTitle">
+        <header class="user-dash-topbar">
+          <h1 class="reader-section-title" id="readerPaymentsTitle">Thanh toán</h1>
+          <div class="user-dash-actions"><button type="button" class="topbar-icon-btn" id="btnNotification" title="Thông báo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="topbar-badge badge-red" id="notifBadge" style="display: none;">0</span></button></div>
+        </header>
 
-				<!-- TRẠNG THÁI KHÔNG CÓ KHOẢN PHÍ NỢ -->
-				<div class="payment-step-view" id="viewPaymentClear" style="display: none;">
-					<div class="payment-checkout-card" style="text-align: center; padding: 36px 28px;">
-						<div style="width: 56px; height: 56px; border-radius: 50%; background: #DCFCE7; color: #16A34A; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px;">
-							<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-						</div>
-						<h1 class="payment-checkout-title" style="border: none; padding-bottom: 0; margin-bottom: 8px;">Không có khoản phí cần thanh toán</h1>
-						<p class="payment-notice-sub" style="margin-bottom: 20px;">Tài khoản của bạn hiện không có khoản phạt hay lệ phí nào chưa thanh toán.</p>
-						<a href="catalog.html" class="btn-payment-now" style="text-decoration: none; max-width: 240px; margin: 0 auto;">Tiếp tục tra cứu sách</a>
-					</div>
-				</div>
+        <section class="reader-payment-summary" aria-label="Tổng quan công nợ">
+          <div class="stat-card reader-payment-balance">
+            <span>Số tiền cần thanh toán</span>
+            <strong id="readerPaymentBalance">—</strong>
+          </div>
+          <div class="stat-card">
+            <span>Phiếu chưa thanh toán</span>
+            <strong id="readerPaymentOpenCount">—</strong>
+          </div>
+          <div class="stat-card">
+            <span>Số tiền đã thanh toán</span>
+            <strong id="readerPaymentPaidTotal">—</strong>
+          </div>
+        </section>
 
-				<!-- BƯỚC 1: MÀN HÌNH THÔNG BÁO KHOẢN PHÍ CẦN THANH TOÁN -->
-				<div class="payment-step-view" id="viewPaymentNotice">
-					<div class="payment-checkout-card">
-						<div class="payment-notice-header">
-							<div class="payment-notice-badge">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-									<circle cx="12" cy="12" r="10"/>
-									<line x1="12" y1="8" x2="12" y2="12"/>
-									<line x1="12" y1="16" x2="12.01" y2="16"/>
-								</svg>
-							</div>
-							<div>
-								<h1 class="payment-checkout-title" style="margin-bottom: 4px; padding-bottom: 0; border: none;">Thông báo khoản phí cần thanh toán</h1>
-								<p class="payment-notice-sub">Bạn hiện có <strong id="noticeFeeCount">0</strong> khoản phí chưa thanh toán cần xử lý.</p>
-							</div>
-						</div>
+        <section class="reader-payment-list" aria-labelledby="readerPaymentListTitle">
+          <h2 id="readerPaymentListTitle">Danh sách phiếu phạt</h2>
+          <div class="subtabs-container">
+            <div class="subtabs-list" id="readerPaymentFilters" role="group" aria-label="Lọc phiếu phạt">
+              <button type="button" class="subtab-item active" data-payment-filter="all" aria-pressed="true">Tất cả</button>
+              <button type="button" class="subtab-item" data-payment-filter="open" aria-pressed="false">Chưa thanh toán</button>
+              <button type="button" class="subtab-item" data-payment-filter="paid" aria-pressed="false">Đã thanh toán</button>
+            </div>
+            <div class="subtabs-line"></div>
+          </div>
+          <div class="reader-payment-toolbar">
+            <label class="workflow-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+              </svg>
+              <input type="search" id="readerPaymentSearch" placeholder="Tìm mã phiếu phạt, mã phiếu mượn..." aria-label="Tìm phiếu phạt">
+            </label>
+            <button type="button" class="btn-action-gray" id="readerPaymentRefresh">Làm mới</button>
+          </div>
 
-						<!-- HỘP TỔNG KẾT KHOẢN PHÍ -->
-						<div class="payment-summary-box" style="margin-top: 24px;">
-							<div class="payment-summary-header">
-								<span class="payment-summary-label">Tổng số tiền cần thanh toán</span>
-								<span class="badge status-badge" id="noticePaymentStatusBadge" style="background:#FEE2E2; color:#DC2626; font-weight:700; border-radius:6px; padding:4px 8px; font-size:12px;">CHƯA THANH TOÁN</span>
-							</div>
+          <div class="table-responsive reader-payment-table-wrap">
+            <table class="reader-payment-table">
+              <thead>
+                <tr>
+                  <th scope="col">Mã phiếu phạt</th>
+                  <th scope="col">Mã phiếu mượn</th>
+                  <th scope="col">Ngày lập</th>
+                  <th scope="col">Vi phạm</th>
+                  <th scope="col" class="reader-payment-money">Số tiền</th>
+                  <th scope="col">Trạng thái</th>
+                  <th scope="col">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="readerPaymentRows" aria-live="polite">
+                <tr><td colspan="7" class="reader-payment-empty">Đang tải phiếu phạt…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
 
-							<div class="payment-total-amount" id="noticePaymentTotal" style="color:#DC2626; margin: 10px 0 16px 0;">0 VND</div>
-
-							<div class="payment-breakdown-list" id="noticeDebtItemsContainer"></div>
-						</div>
-
-						<button type="button" class="btn-payment-now" id="btnGoToChooseMethod">
-							Xem chi tiết &amp; Chọn hình thức thanh toán <span class="arrow-right">→</span>
-						</button>
-					</div>
-
-					<div class="payment-page-footer">
-						<div class="footer-left">
-							Gặp vấn đề khi thanh toán? <a href="mailto:hotro@leaflibrary.vn" class="contact-link">Liên hệ thủ thư</a>
-						</div>
-						<div class="footer-right">
-							Hotline hỗ trợ: 1900 6868
-						</div>
-					</div>
-				</div>
-
-				<!-- BƯỚC 2: MÀN HÌNH CHỌN HÌNH THỨC THANH TOÁN -->
-				<div class="payment-step-view" id="viewPaymentMethod" style="display: none;">
-					<div class="payment-checkout-card">
-						<button type="button" class="payment-back-link" id="btnBackToNotice">
-							<span>‹</span> Quay lại thông báo khoản phí
-						</button>
-
-						<h1 class="payment-checkout-title" style="margin-top: 14px; margin-bottom: 6px; border: none; padding-bottom: 0;">Chọn hình thức thanh toán</h1>
-						<p class="payment-notice-sub" style="margin-bottom: 26px;">Số tiền thanh toán: <strong id="chooseMethodTotal" style="color: #2563EB; font-size: 16px;">0 VND</strong>. Vui lòng chọn 1 trong 2 hình thức bên dưới:</p>
-
-						<div class="payment-choices-grid">
-							<button type="button" class="payment-choice-card" id="choicePayAtDesk" style="text-align: left;">
-								<div class="choice-icon desk-icon">
-									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-										<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-										<polyline points="9 22 9 12 15 12 15 22"/>
-									</svg>
-								</div>
-								<div class="choice-info">
-									<div class="choice-title">Thanh toán tại quầy thủ thư</div>
-									<div class="choice-desc">Thanh toán trực tiếp bằng tiền mặt hoặc thẻ tại quầy giao dịch thư viện (Tầng 1).</div>
-									<div class="choice-badge">Trực tiếp tại thư viện</div>
-								</div>
-								<div class="choice-action">
-									<span>Xem hướng dẫn</span>
-									<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-								</div>
-							</button>
-
-							<button type="button" class="payment-choice-card choice-highlight" id="choicePayOnline" style="text-align: left;">
-								<div class="choice-icon bank-icon">
-									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-										<rect x="3" y="3" width="7" height="7" rx="1"/>
-										<rect x="14" y="3" width="7" height="7" rx="1"/>
-										<rect x="3" y="14" width="7" height="7" rx="1"/>
-										<rect x="14" y="14" width="3" height="3"/>
-										<rect x="18" y="18" width="3" height="3"/>
-									</svg>
-								</div>
-								<div class="choice-info">
-									<div class="choice-title">Thanh toán qua ngân hàng</div>
-									<div class="choice-desc">Quét mã VietQR Napas247 từ bất kỳ App ngân hàng nào, đối soát tự động 24/7.</div>
-									<div class="choice-badge recommended">Khuyên dùng · Nhanh chóng</div>
-								</div>
-								<div class="choice-action">
-									<span>Chuyển khoản ngay</span>
-									<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-								</div>
-							</button>
-						</div>
-					</div>
-
-					<div class="payment-page-footer">
-						<div class="footer-left">
-							Gặp vấn đề khi thanh toán? <a href="mailto:hotro@leaflibrary.vn" class="contact-link">Liên hệ thủ thư</a>
-						</div>
-						<div class="footer-right">
-							Hotline hỗ trợ: 1900 6868
-						</div>
-					</div>
-				</div>
-
-				<!-- BƯỚC 3: GIAO DIỆN THANH TOÁN QUA NGÂN HÀNG -->
-				<div class="payment-step-view" id="viewPaymentOnline" style="display: none;">
-					<div class="payment-checkout-card">
-						<button type="button" class="payment-back-link" id="btnBackToChooseMethod">
-							<span>‹</span> Quay lại chọn hình thức khác
-						</button>
-
-						<h1 class="payment-checkout-title" style="margin-top: 14px;">Thanh toán</h1>
-						
-						<div class="payment-summary-box">
-							<div class="payment-summary-header">
-								<span class="payment-summary-label">Số tiền cần thanh toán</span>
-								<button type="button" class="payment-receipt-link" id="btnTogglePaymentBreakdown">
-									Chi tiết biên lai <span class="arrow-icon">›</span>
-								</button>
-							</div>
-
-							<div class="payment-total-amount" id="paymentTotal">0 VND</div>
-
-							<div class="payment-breakdown-list" id="paymentBreakdown"></div>
-						</div>
-
-						<div class="payment-method-section">
-							<div class="payment-method-heading">Phương thức thanh toán đã chọn</div>
-							
-							<div class="payment-method-card active">
-								<div class="payment-method-check" aria-hidden="true">
-									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-										<polyline points="20 6 9 17 4 12"/>
-									</svg>
-								</div>
-								<div class="payment-method-qr-icon">
-									<svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2">
-										<rect x="3" y="3" width="7" height="7" rx="1"/>
-										<rect x="14" y="3" width="7" height="7" rx="1"/>
-										<rect x="3" y="14" width="7" height="7" rx="1"/>
-										<rect x="14" y="14" width="3" height="3"/>
-										<rect x="18" y="18" width="3" height="3"/>
-										<rect x="18" y="14" width="3" height="3"/>
-										<rect x="14" y="18" width="3" height="3"/>
-									</svg>
-								</div>
-								<div class="payment-method-title">Ngân hàng (QR)</div>
-								<div class="payment-method-sub">VietQR Napas247</div>
-							</div>
-						</div>
-
-						<button type="button" class="btn-payment-now" id="btnSubmitPayment">
-							Thanh toán ngay <span class="arrow-right">→</span>
-						</button>
-					</div>
-
-					<div class="payment-page-footer">
-						<div class="footer-left">
-							Gặp vấn đề khi thanh toán? <a href="mailto:hotro@leaflibrary.vn" class="contact-link">Liên hệ thủ thư</a>
-						</div>
-						<div class="footer-right">
-							Hotline hỗ trợ: 1900 6868
-						</div>
-					</div>
-				</div>
-			</main>
-		</div>
-	</div>
-
-	<!-- MODAL THANH TOÁN VIETQR -->
-	<div class="modal-overlay" id="modalPaymentNotice">
-		<div class="modal-box payment-qr-modal-box">
-			<div class="user-modal-header">
-				<div class="user-modal-title">THANH TOÁN VIETQR</div>
-				<button type="button" class="user-modal-close-btn" id="btnClosePaymentNotice" aria-label="Đóng">✕</button>
-			</div>
-			<div class="payment-qr-modal-body">
-				<div class="qr-code-frame">
-					<img id="qrCodeImg" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=LEAF_LIBRARY" alt="Mã QR VietQR" onerror="this.style.display='none'; document.getElementById('qrCodeFallback').style.display='flex';">
-					<div id="qrCodeFallback" style="display:none; width: 180px; height: 180px; background: #EFF6FF; border-radius: 12px; align-items: center; justify-content: center; flex-direction: column; gap: 8px; color: #2563EB;">
-						<svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2">
-							<rect x="3" y="3" width="7" height="7"/>
-							<rect x="14" y="3" width="7" height="7"/>
-							<rect x="3" y="14" width="7" height="7"/>
-							<rect x="14" y="14" width="3" height="3"/>
-							<rect x="18" y="18" width="3" height="3"/>
-						</svg>
-						<span style="font-size: 12px; font-weight: 700;">VIETQR NAPAS247</span>
-					</div>
-				</div>
-				<div class="qr-info-table">
-					<div class="qr-info-row"><span class="qr-label">Ngân hàng:</span><strong class="qr-val">MB Bank (Quân Đội)</strong></div>
-					<div class="qr-info-row"><span class="qr-label">Số tài khoản:</span><strong class="qr-val" style="color: #2563EB;">9999 8888 22026</strong></div>
-					<div class="qr-info-row"><span class="qr-label">Chủ tài khoản:</span><strong class="qr-val">THU VIEN LEAF LIBRARY</strong></div>
-					<div class="qr-info-row"><span class="qr-label">Số tiền:</span><strong class="qr-val" style="color: #2563EB; font-size: 17px;" id="qrModalAmount">0 VND</strong></div>
-					<div class="qr-info-row"><span class="qr-label">Nội dung CK:</span><strong class="qr-val" id="qrTransferContent" style="color: #1E293B;">TT PHI DOC GIA</strong></div>
-				</div>
-				<button type="button" class="btn-payment-now" id="btnConfirmPaymentNotice" style="margin-top: 14px;">
-					Tôi đã chuyển khoản thành công
-				</button>
-			</div>
-		</div>
-	</div>
-
-	<!-- MODAL HƯỚNG DẪN THANH TOÁN TẠI QUẦY -->
-	<div class="modal-overlay" id="modalPayAtDesk">
-		<div class="modal-box payment-desk-modal-box">
-			<div class="user-modal-header">
-				<div class="user-modal-title">HƯỚNG DẪN THANH TOÁN TẠI QUẦY</div>
-				<button type="button" class="user-modal-close-btn" id="btnClosePayAtDeskModal" aria-label="Đóng">✕</button>
-			</div>
-			<div class="payment-desk-modal-body">
-				<div class="desk-guide-icon">
-					<svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="#1D5D86" stroke-width="2">
-						<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-						<polyline points="9 22 9 12 15 12 15 22"/>
-					</svg>
-				</div>
-				<div class="desk-guide-steps">
-					<div class="guide-step-item">
-						<div class="step-num">1</div>
-						<div class="step-text">Đến <strong>Quầy Dịch vụ Độc giả &amp; Lưu thông</strong> tại <strong>Tầng 1 - Thư viện Leaf Library</strong>.</div>
-					</div>
-					<div class="guide-step-item">
-						<div class="step-num">2</div>
-						<div class="step-text">Xuất trình thẻ thư viện hoặc đọc Mã độc giả: <strong id="deskReaderInfo" style="color:#2563EB;">Bạn đọc</strong>.</div>
-					</div>
-					<div class="guide-step-item">
-						<div class="step-num">3</div>
-						<div class="step-text">Nộp số tiền <strong style="color:#DC2626;" id="deskModalAmount">0 VND</strong> bằng tiền mặt hoặc quẹt thẻ qua máy POS.</div>
-					</div>
-					<div class="guide-step-item">
-						<div class="step-num">4</div>
-						<div class="step-text">Nhận biên lai thu tiền từ Thủ thư. Hệ thống sẽ cập nhật trạng thái thanh toán của bạn ngay lập tức.</div>
-					</div>
-				</div>
-				<div class="desk-hours-box">
-					<strong>Giờ tiếp đón độc giả:</strong> Thứ 2 – Thứ 7 (08:00 – 17:30).
-				</div>
-				<button type="button" class="btn-payment-now" id="btnConfirmPayAtDesk" style="margin-top: 16px;">
-					Đã hiểu, tôi sẽ đến quầy thanh toán
-				</button>
-			</div>
-		</div>
-	</div>
+  <dialog class="fine-detail-dialog reader-payment-guide" id="readerPaymentGuide" aria-labelledby="readerPaymentGuideTitle">
+    <div class="modal-header">
+      <h2 class="modal-title" id="readerPaymentGuideTitle">Hướng dẫn thanh toán</h2>
+    </div>
+    <div class="modal-body">
+      <dl class="reader-payment-guide-summary">
+        <dt>Mã phiếu phạt</dt><dd id="readerPaymentGuideCode"></dd>
+        <dt>Số tiền</dt><dd id="readerPaymentGuideAmount"></dd>
+      </dl>
+      <details open>
+        <summary>Thanh toán tại quầy</summary>
+        <p>Xuất trình thẻ thư viện và mã phiếu phạt tại quầy thủ thư. Thủ thư sẽ ghi nhận sau khi thu tiền.</p>
+      </details>
+      <details id="readerTransferDetails">
+        <summary>Chuyển khoản</summary>
+        <div id="readerTransferInstructions" aria-live="polite"></div>
+      </details>
+      <form method="dialog">
+        <button type="submit" class="btn-action-gray">Đóng</button>
+      </form>
+    </div>
+  </dialog>
 
   <!-- ===== MODAL THÔNG TIN CÁ NHÂN ===== -->
   <div class="modal-overlay" id="modalUserProfile">
@@ -370,7 +194,7 @@
           </div>
           <div class="profile-code-group">
             <div class="profile-code-label">Mã bạn đọc (mã tài khoản)</div>
-            <div class="profile-code-value" id="profCodeValue">220260004</div>
+            <div class="profile-code-value" id="profCodeValue">BD004</div>
           </div>
           <div class="profile-actions-stack">
             <button type="button" class="btn-profile-primary" id="btnViewReaderCard">XEM THẺ ĐỘC GIẢ</button>
@@ -445,7 +269,7 @@
           </div>
           <div class="profile-code-group">
             <div class="profile-code-label">Mã bạn đọc (mã tài khoản)</div>
-            <div class="profile-code-value" id="editProfCodeValue">220260004</div>
+            <div class="profile-code-value" id="editProfCodeValue">BD004</div>
           </div>
           <div class="profile-actions-stack">
             <button type="button" class="btn-profile-primary" id="btnSaveEditProfile">LƯU</button>
@@ -472,7 +296,7 @@
         </div>
         <div class="lib-card-field-group">
           <div class="lib-card-label">MÃ THẺ</div>
-          <div class="lib-card-code" id="libCardCode">220260004</div>
+          <div class="lib-card-code" id="libCardCode">BD004</div>
         </div>
         <div class="lib-card-field-group">
           <div class="lib-card-label">HỌ &amp; TÊN</div>

@@ -44,7 +44,6 @@
             </div>
             
             <div class="actions-row">
-                <a href="#" onclick="switchForm('form-phone'); return false;">Quên mật khẩu?</a>
             </div>
 
             <div id="login-success" class="success-msg" role="status" aria-live="polite"></div>
@@ -142,104 +141,6 @@
             </div>
         </div>
 
-        <div id="form-phone" class="card">
-            <div class="header">
-                <div class="logo-icon">
-                    <img class="logo-img" src="assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false">
-                 </div>
-                <div class="subtitle">Khôi phục mật khẩu</div>
-            </div>
-
-            <p class="description">Vui lòng nhập số điện thoại đã đăng ký để nhận mã xác thực OTP qua SMS.</p>
-            
-            <div class="input-group">
-                <label for="forgot-phone">Số điện thoại</label>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-phone left-icon" aria-hidden="true"></i>
-                    <input type="tel" id="forgot-phone" autocomplete="tel" placeholder="0987654389 (10 chữ số)">
-                </div>
-                <div id="err-forgot-phone" class="field-error" role="alert"></div>
-            </div>
-            
-            <button type="button" id="btn-forgot-submit" class="btn btn-primary" style="margin-top: 10px;" onclick="goToOTP()">Tiếp tục</button>
-            
-            <div class="bottom-links" style="margin-bottom: 0;">
-                <a href="#" onclick="switchForm('form-login'); return false;">← Quay lại Đăng nhập</a>
-            </div>
-        </div>
-
-        <div id="form-otp" class="card">
-            <div class="header">
-                <div class="logo-icon">
-                    <img class="logo-img" src="assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false">
-                </div>
-                <div class="subtitle">Xác thực mã OTP</div>
-            </div>
-
-            <p class="description" style="margin-bottom: 25px;">
-                Vui lòng nhập mã OTP gồm 6 chữ số đã được gửi về số điện thoại <br>
-                <span class="highlight" id="display-phone">09******89</span>. Mã sẽ hết hiệu lực sau <span class="highlight" id="countdown-timer">300 giây</span>
-            </p>
-            
-            <div class="input-group" style="text-align: center;">
-                <label style="text-align: left;">Nhập mã OTP</label>
-                <div class="otp-container">
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-box" maxlength="1" aria-label="Chữ số OTP thứ 1" onkeyup="moveOtpFocus(this, event)">
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-box" maxlength="1" aria-label="Chữ số OTP thứ 2" onkeyup="moveOtpFocus(this, event)">
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-box" maxlength="1" aria-label="Chữ số OTP thứ 3" onkeyup="moveOtpFocus(this, event)">
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-box" maxlength="1" aria-label="Chữ số OTP thứ 4" onkeyup="moveOtpFocus(this, event)">
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-box" maxlength="1" aria-label="Chữ số OTP thứ 5" onkeyup="moveOtpFocus(this, event)">
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-box" maxlength="1" aria-label="Chữ số OTP thứ 6" onkeyup="moveOtpFocus(this, event)">
-                </div>
-            </div>
-            
-            <div id="otp-error" class="error-msg" role="alert"></div>
-
-            <button type="button" class="btn btn-primary" onclick="continuePasswordReset()">Tiếp tục</button>
-            <button type="button" class="btn btn-secondary" onclick="cancelOTP()">Quay lại</button>
-            
-            <div class="bottom-links" style="margin-bottom: 0;">
-                Chưa nhận được mã? <a href="#" onclick="resendPasswordResetCode(); return false;" style="color: var(--primary-navy); text-decoration: underline;">Gửi lại mã</a>
-            </div>
-        </div>
-
-        <div id="form-reset" class="card">
-            <div class="header">
-                <div class="logo-icon">
-                    <img class="logo-img" src="assets/images/logo-leaflibrary.png" alt="Leaf Library Logo" draggable="false">
-                </div>
-                <div class="subtitle">Đặt lại mật khẩu mới</div>
-            </div>
-            
-            <div class="input-group">
-                <label for="demo-new-pwd">Mật khẩu mới <span aria-hidden="true">*</span></label>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-lock left-icon" aria-hidden="true"></i>
-                    <input type="password" id="demo-new-pwd" autocomplete="new-password" placeholder="Tối thiểu 8 ký tự">
-                    <button type="button" class="password-toggle-btn" aria-label="Hiển thị hoặc ẩn mật khẩu mới" onclick="togglePassword(this)">
-                        <i class="fa-regular fa-eye" aria-hidden="true"></i>
-                    </button>
-                </div>
-                <div id="err-reset-pwd" class="field-error" role="alert"></div>
-            </div>
-            
-            <div class="input-group">
-                <label for="demo-confirm-new-pwd">Xác nhận mật khẩu mới <span aria-hidden="true">*</span></label>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-lock left-icon" aria-hidden="true"></i>
-                    <input type="password" id="demo-confirm-new-pwd" autocomplete="new-password" placeholder="Nhập lại mật khẩu mới">
-                    <button type="button" class="password-toggle-btn" aria-label="Hiển thị hoặc ẩn mật khẩu xác nhận" onclick="togglePassword(this)">
-                        <i class="fa-regular fa-eye" aria-hidden="true"></i>
-                    </button>
-                </div>
-                <div id="err-reset-confirm" class="field-error" role="alert"></div>
-            </div>
-            
-            <div id="reset-error" class="error-msg" role="alert"></div>
-
-            <button type="button" id="btn-reset-submit" class="btn btn-primary" style="margin-top: 10px;" onclick="handlePasswordReset()">Cập nhật mật khẩu</button>
-            <button type="button" class="btn btn-secondary" onclick="switchForm('form-login')">Hủy bỏ</button>
-        </div>
 
     </div>
 

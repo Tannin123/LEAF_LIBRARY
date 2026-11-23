@@ -37,7 +37,7 @@
           <div class="user-dropdown-header">
             <div class="user-dropdown-name" id="dropdownUserName">Quản trị viên</div>
             <div class="user-dropdown-meta">
-              <span id="dropdownUserCode">Mã NV: 12026001</span>
+              <span id="dropdownUserCode">Mã NV: NV001</span>
               <span class="badge status-badge badge-admin" id="dropdownUserRole">QUẢN TRỊ VIÊN</span>
             </div>
           </div>
@@ -61,9 +61,9 @@
     <div class="main-body">
 
       <aside class="sidebar-menu admin-sidebar" id="sidebarMenu">
-        <a href="index.html" class="sidebar-item" title="Quản lý hệ thống">
+        <a href="index.html" class="sidebar-item" title="Quản lý nhân viên">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          <span>Quản lý hệ thống</span>
+          <span>Quản lý nhân viên</span>
         </a>
         <a href="books.html" class="sidebar-item" title="Quản lý kho sách">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
@@ -77,6 +77,12 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
           <span>Quản lý mượn - trả</span>
         </a>
+        <a href="violations.html" class="sidebar-item" title="Quản lý vi phạm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 8v4m0 4h.01M10.3 4.8 2.7 18a1.5 1.5 0 0 0 1.3 2.2h16a1.5 1.5 0 0 0 1.3-2.2L13.3 4.8a1.7 1.7 0 0 0-3 0Z"/>
+          </svg>
+          <span>Quản lý vi phạm</span>
+        </a>
         <a href="reports.html" class="sidebar-item" title="Báo cáo, thống kê">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           <span>Báo cáo, thống kê</span>
@@ -88,7 +94,8 @@
         <div class="subtabs-container">
           <div class="subtabs-list">
             <button type="button" class="subtab-item active" data-tab="tabReadersList">Danh sách độc giả</button>
-            <button type="button" class="subtab-item" data-tab="tabIssueCard">Cấp thẻ thư viện</button>
+            <button type="button" class="subtab-item" data-tab="tabRegistrationReview">Duyệt đăng ký</button>
+            <button type="button" class="subtab-item" data-tab="tabIssueCard">Mở thẻ thư viện</button>
             <button type="button" class="subtab-item" data-tab="tabReaderHistory">Lịch sử mượn đọc</button>
           </div>
           <div class="subtabs-line"></div>
@@ -107,6 +114,8 @@
               <div class="filter-box">
                 <select id="filterReaderStatus">
                   <option value="all">Tất cả trạng thái</option>
+                  <option value="PENDING">Chờ duyệt</option>
+                  <option value="REJECTED">Từ chối</option>
                   <option value="HỢP LỆ">Hợp lệ</option>
                   <option value="HẾT HẠN">Hết hạn</option>
                   <option value="BỊ KHÓA">Bị khóa</option>
@@ -139,6 +148,35 @@
           </div>
 
           <div class="pagination-wrapper" id="rdPagination"></div>
+        </div>
+
+        <div class="tab-content-panel" id="tabRegistrationReview">
+          <div class="toolbar-container">
+            <div class="toolbar-left-group">
+              <div class="search-box">
+                <input type="search" id="registrationSearch" aria-label="Tìm hồ sơ đăng ký" placeholder="Tìm theo tên, tài khoản, email hoặc SĐT">
+                <span class="search-icon" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </span>
+              </div>
+              <span id="registrationCount" role="status"></span>
+            </div>
+            <button type="button" class="btn-action-gray registration-refresh" id="refreshRegistrations">Làm mới</button>
+          </div>
+
+          <div class="table-responsive registration-table">
+            <div class="readers-table-header">
+              <div>Mã độc giả</div>
+              <div>Họ và tên</div>
+              <div>Tên đăng nhập</div>
+              <div>Email</div>
+              <div>Số điện thoại</div>
+              <div>Trạng thái</div>
+              <div>Thao tác</div>
+            </div>
+            <div class="table-frame" id="registrationTableContent"></div>
+          </div>
+          <div class="pagination-wrapper" id="registrationPagination"></div>
         </div>
 
         <div class="tab-content-panel" id="tabIssueCard">
@@ -392,7 +430,7 @@
 
             <div class="modal-id-group">
               <div class="modal-book-code-label">Mã độc giả</div>
-              <div class="modal-book-code-val" id="rdCodeDisplay">220260001</div>
+              <div class="modal-book-code-val" id="rdCodeDisplay">BD001</div>
             </div>
           </div>
 
@@ -472,52 +510,19 @@
     </div>
   </div>
 
-  <div class="modal-overlay confirm-modal" id="modalRenewCard">
-    <div class="modal-box modal-box-md">
+  <div class="modal-overlay confirm-modal" id="modalLockReader">
+    <div class="modal-box modal-box-sm">
       <div class="modal-header">
-        <div class="modal-title">LEAF LIBRARY - CẤP LẠI THẺ ĐỘC GIẢ</div>
-        <button type="button" class="modal-close-btn" data-close="modalRenewCard">✕</button>
+        <div class="modal-title">LEAF LIBRARY - KHÓA THẺ ĐỘC GIẢ</div>
+        <button type="button" class="modal-close-btn" data-close="modalLockReader">✕</button>
       </div>
       <div class="modal-body">
-        <div class="modal-col-left">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px 14px; background-color: #F4F6F8; border-radius: 8px; font-size: 13.5px;">
-            <div><strong>Mã độc giả:</strong> <span id="renewReaderId" style="color: var(--primary-navy); font-weight: 700;">220260001</span></div>
-            <div><strong>Họ và tên:</strong> <span id="renewReaderName" style="font-weight: 700;">-</span></div>
-            <div><strong>Đối tượng:</strong> <span id="renewReaderType">Sinh viên</span></div>
-            <div><strong>Hạn thẻ cũ:</strong> <span id="renewOldExpiry" style="color: #B91C1C; font-weight: 600;">-</span></div>
-          </div>
-
-          <div class="form-grid-row" style="grid-template-columns: 150px 1fr;">
-            <label class="form-field-label">Lý do cấp lại / gia hạn</label>
-            <select class="form-select-control" id="renewReasonSelect">
-              <option value="Gia hạn thẻ hết hạn">Gia hạn thẻ hết hạn</option>
-              <option value="Cấp lại do mất thẻ">Cấp lại do mất thẻ</option>
-              <option value="Cấp lại do hỏng thẻ">Cấp lại do hỏng thẻ</option>
-            </select>
-          </div>
-
-          <div class="form-grid-row" style="grid-template-columns: 150px 1fr;">
-            <label class="form-field-label">Thời hạn gia hạn</label>
-            <select class="form-select-control" id="renewDurationSelect">
-              <option value="12">12 tháng (1 năm)</option>
-              <option value="6">6 tháng</option>
-            </select>
-          </div>
-
-          <div class="form-grid-row" style="grid-template-columns: 150px 1fr;">
-            <label class="form-field-label">Ngày hết hạn mới</label>
-            <input type="text" class="form-input-text" id="renewNewExpiryInput" value="21 / 02 / 2027" readonly style="font-weight: 700; color: #15803D; background-color: #F4F6F8;">
-          </div>
-
-          <div class="form-grid-row" style="grid-template-columns: 150px 1fr;">
-            <label class="form-field-label">Lệ phí cấp lại</label>
-            <input type="text" class="form-input-text" id="renewFeeInput" value="50,000 VNĐ" readonly style="font-weight: 700; color: #B91C1C; background-color: #F4F6F8;">
-          </div>
-
-          <div class="confirm-buttons-row" style="margin-top: 8px;">
-            <button type="button" class="btn-action-gray" data-close="modalRenewCard">HỦY BỎ</button>
-            <button type="button" class="btn-action-blue" id="btnConfirmRenewCard">XÁC NHẬN CẤP LẠI</button>
-          </div>
+        <div class="confirm-text-message">
+          Bạn có chắc chắn muốn thay đổi trạng thái khóa thẻ của độc giả <strong id="lockReaderCode">BD001</strong> không?
+        </div>
+        <div class="confirm-buttons-row">
+          <button type="button" class="btn-action-gray" data-close="modalLockReader">HỦY BỎ</button>
+          <button type="button" class="btn-action-blue" id="btnConfirmLockReader">XÁC NHẬN</button>
         </div>
       </div>
     </div>
@@ -540,7 +545,7 @@
 
             <div class="leaf-card-field">
               <div class="leaf-card-label">MÃ THẺ</div>
-              <div class="leaf-card-value-id" id="popupCardId">220260004</div>
+              <div class="leaf-card-value-id" id="popupCardId">BD004</div>
             </div>
 
             <div class="leaf-card-field">
@@ -614,24 +619,6 @@
     </div>
   </div>
 
-  <div class="modal-overlay confirm-modal" id="modalLockReader">
-    <div class="modal-box modal-box-sm">
-      <div class="modal-header">
-        <div class="modal-title">LEAF LIBRARY - KHÓA THẺ ĐỘC GIẢ</div>
-        <button type="button" class="modal-close-btn" data-close="modalLockReader">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="confirm-text-message">
-          Bạn có chắc chắn muốn thay đổi trạng thái khóa thẻ của độc giả <strong id="lockReaderCode">220260001</strong> không?
-        </div>
-        <div class="confirm-buttons-row">
-          <button type="button" class="btn-action-gray" data-close="modalLockReader">HỦY BỎ</button>
-          <button type="button" class="btn-action-blue" id="btnConfirmLockReader">XÁC NHẬN</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div class="modal-overlay confirm-modal" id="modalDeleteReader">
     <div class="modal-box modal-box-sm">
       <div class="modal-header">
@@ -640,7 +627,7 @@
       </div>
       <div class="modal-body">
         <div class="confirm-text-message">
-          Bạn có chắc chắn muốn xóa hồ sơ độc giả <strong id="deleteReaderCode">220260001</strong> khỏi hệ thống không?
+          Bạn có chắc chắn muốn xóa hồ sơ độc giả <strong id="deleteReaderCode">BD001</strong> khỏi hệ thống không?
         </div>
         <div class="confirm-buttons-row">
           <button type="button" class="btn-action-gray" data-close="modalDeleteReader">HỦY BỎ</button>

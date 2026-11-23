@@ -1,6 +1,3 @@
-let countdownInterval;
-let resetTargetPhone = '';
-
 function switchForm(targetFormId) {
   clearFieldErrors();
   const successEl = document.getElementById('login-success');
@@ -33,17 +30,6 @@ function togglePassword(trigger) {
   }
 }
 
-function moveOtpFocus(current, event) {
-  current.value = current.value.replace(/\D/g, '').slice(0, 1);
-  if (event.key === 'Backspace' && current.value === '') {
-    const previous = current.previousElementSibling;
-    if (previous) previous.focus();
-  } else if (current.value.length === 1) {
-    const next = current.nextElementSibling;
-    if (next) next.focus();
-  }
-}
-
 function showFieldError(id, message, inputId = null) {
   const element = document.getElementById(id);
   if (element) {
@@ -70,7 +56,7 @@ function clearFieldErrors() {
     element.innerText = '';
   });
   document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-  ['register-error', 'login-error', 'otp-error', 'reset-error'].forEach(id => {
+  ['register-error', 'login-error'].forEach(id => {
     const element = document.getElementById(id);
     if (element) {
       element.style.display = 'none';
@@ -94,12 +80,6 @@ function setButtonLoading(btnId, isLoading, loadingText) {
   }
 }
 
-/**
- * Xử lý đăng nhập hệ thống & Phân quyền chuyển hướng theo đúng đối tượng (Admin / Thủ thư -> admin/, Bạn đọc -> user/)
- * Hỗ trợ linh hoạt:
- * 1. Khi có Backend PostgreSQL API (http://localhost:3000): Xác thực dữ liệu thực tế từ Database.
- * 2. Khi chạy Offline / Live Server: Tự động kích hoạt cơ chế tài khoản trải nghiệm mẫu (admin, thuthu, tannin).
- */
 async function handleLogin() {
   clearFieldErrors();
   const successBanner = document.getElementById('login-success');
@@ -135,13 +115,14 @@ async function handleLogin() {
     try {
       if (typeof DataService !== 'undefined' && typeof DataService.request === 'function') {
         const result = await DataService.request('POST', '/auth/login', { username, password });
-        user = result && result.user;
+        user = result?.user;
+        if (result?.token) sessionStorage.setItem('ixs_library_token', result.token);
         apiConnected = true;
       }
     } catch (err) {
       if (err && err.status === 403) {
         if (error) {
-          error.innerText = 'Tài khoản của bạn đã bị khóa hoặc chưa được cấp quyền hoạt động!';
+          error.innerText = err.message;
           error.style.display = 'block';
         }
         return;
@@ -187,105 +168,15 @@ async function handleLogin() {
         console.warn('Logging skipped:', e);
       }
 
-      window.location.href = isReader ? 'user/index.html' : 'admin/index.html';
+      window.location.href = isReader ? 'user/index.html' : isLibraryAdmin(user.role) ? 'admin/index.html' : 'admin/books.html';
       return;
     }
 
-    // 3. Cơ chế dự phòng trải nghiệm mẫu (Offline / Seed Accounts Fallback)
-    const q = username.toLowerCase();
-    let mockUser = null;
-
-    if (q === 'admin' || q === 'admin@leaflibrary.vn') {
-      mockUser = {
-        id: '12026001',
-        username: 'admin',
-        fullName: 'Quản trị viên',
-        name: 'Quản trị viên',
-        role: 'QUẢN TRỊ VIÊN',
-        accountType: 'employee',
-        email: 'admin@leaflibrary.vn',
-        phone: '0906.789.982',
-        password: 'admin123'
-      };
-    } else if (q === 'thuthu' || q === 'thuthu@leaflibrary.vn') {
-      mockUser = {
-        id: '12026002',
-        username: 'thuthu',
-        fullName: 'Thủ thư quầy',
-        name: 'Thủ thư quầy',
-        role: 'THỦ THƯ QUẦY',
-        accountType: 'employee',
-        email: 'thuthu@leaflibrary.vn',
-        phone: '0909.123.456',
-        password: '123456'
-      };
-    } else if (q === 'tannin' || q === 'tanin' || q === 'luutannin@gmail.com' || q === 'tannin@gmail.com' || q === '220260004') {
-      mockUser = {
-        id: '220260004',
-        readerId: '220260004',
-        username: 'tanin',
-        fullName: 'Lưu Tấn Nin',
-        name: 'Lưu Tấn Nin',
-        role: 'Sinh viên',
-        accountType: 'reader',
-        email: 'luutannin@gmail.com',
-        phone: '0363894957',
-        cccd: '080206008896',
-        password: 'Nin10112006'
-      };
-    }
-
-    if (mockUser) {
-      if (password !== (mockUser.password || '123456')) {
-        if (error) {
-          error.innerText = 'Mật khẩu không chính xác. Vui lòng kiểm tra lại.';
-          error.style.display = 'block';
-        }
-        return;
-      }
-
-      const isReader = mockUser.accountType === 'reader';
-      const session = {
-        id: mockUser.id,
-        username: mockUser.username,
-        fullName: mockUser.fullName,
-        name: mockUser.name,
-        role: mockUser.role,
-        accountType: mockUser.accountType,
-        userType: isReader ? 'READER' : 'EMPLOYEE',
-        readerType: isReader ? mockUser.role : undefined,
-        email: mockUser.email || '',
-        phone: mockUser.phone || '',
-        cccd: mockUser.cccd || '',
-        dob: '10 / 11 / 2006',
-        gender: 'Nam',
-        address: 'Thành phố Hồ Chí Minh',
-        avatarUrl: ''
-      };
-
-      localStorage.setItem('ixs_library_session', JSON.stringify(session));
-      localStorage.setItem('ixs_library_current_user', JSON.stringify(session));
-      sessionStorage.setItem('ixs_library_session', JSON.stringify(session));
-      sessionStorage.setItem('ixs_library_current_user', JSON.stringify(session));
-
-      try {
-        if (typeof addLog === 'function') {
-          addLog('ĐĂNG NHẬP', session.id, `Người dùng <strong>${session.name}</strong> (${session.role}) đăng nhập thành công.`);
-        }
-      } catch (e) {
-        console.warn('Logging skipped:', e);
-      }
-
-      window.location.href = isReader ? 'user/index.html' : 'admin/index.html';
-      return;
-    }
-
-    // 4. Nếu không khớp cả Backend lẫn Mock
     if (error) {
       if (apiConnected) {
         error.innerText = 'Tên đăng nhập hoặc mật khẩu không chính xác!';
       } else {
-        error.innerText = 'Không thể kết nối máy chủ Backend. Bạn có thể trải nghiệm bằng tài khoản mẫu: admin / thuthu / tannin.';
+        error.innerText = 'Không thể kết nối máy chủ Backend.';
       }
       error.style.display = 'block';
     }
@@ -343,7 +234,7 @@ async function validateRegister() {
     const loginInput = document.getElementById('demo-login-email');
     if (loginInput) loginInput.value = username;
     switchForm('form-login');
-    showBannerMessage('login-success', 'Đăng ký tài khoản bạn đọc thành công! Bạn có thể đăng nhập ngay.');
+    showBannerMessage('login-success', 'Đăng ký tài khoản bạn đọc thành công! Tài khoản đang chờ thủ thư hoặc quản trị viên duyệt.');
   } catch (err) {
     error.innerText = err.status === 409
       ? (err.message || 'Tên đăng nhập, email, số điện thoại hoặc CCCD đã tồn tại trong hệ thống.')
@@ -353,114 +244,6 @@ async function validateRegister() {
     error.style.display = 'block';
   } finally {
     setButtonLoading('btn-register-submit', false);
-  }
-}
-
-async function goToOTP() {
-  clearFieldErrors();
-  const input = document.getElementById('forgot-phone');
-  const phone = input ? input.value.replace(/\D/g, '') : '';
-  if (!/^\d{10}$/.test(phone)) {
-    showFieldError('err-forgot-phone', 'Số điện thoại phải bao gồm đúng 10 chữ số.', 'forgot-phone');
-    if (input) input.focus();
-    return;
-  }
-  setButtonLoading('btn-forgot-submit', true, 'Đang gửi mã OTP...');
-  try {
-    await DataService.request('POST', '/auth/password-reset/request', { phone });
-    resetTargetPhone = phone;
-    document.querySelectorAll('.otp-box').forEach(box => { box.value = ''; });
-    document.getElementById('display-phone').innerText = `${phone.slice(0, 2)}******${phone.slice(-2)}`;
-    switchForm('form-otp');
-    startCountdown(300);
-  } catch (error) {
-    const message = error.status === 429
-      ? 'Vui lòng chờ 1 phút trước khi yêu cầu gửi lại mã.'
-      : error.status === 0
-        ? 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại backend.'
-        : error.status === 502 || error.status === 503
-          ? 'Dịch vụ SMS tạm thời không khả dụng. Vui lòng liên hệ quản trị viên.'
-          : error.message || 'Không thể gửi mã xác nhận. Vui lòng thử lại sau.';
-    if (resetTargetPhone) showBannerMessage('otp-error', message);
-    else showFieldError('err-forgot-phone', message, 'forgot-phone');
-  } finally {
-    setButtonLoading('btn-forgot-submit', false);
-  }
-}
-
-function continuePasswordReset() {
-  clearFieldErrors();
-  const otp = Array.from(document.querySelectorAll('.otp-box')).map(box => box.value.trim()).join('');
-  if (!/^\d{6}$/.test(otp)) {
-    showBannerMessage('otp-error', 'Vui lòng nhập đủ 6 chữ số mã xác thực OTP.');
-    const firstEmpty = Array.from(document.querySelectorAll('.otp-box')).find(b => !b.value.trim());
-    if (firstEmpty) firstEmpty.focus();
-    return;
-  }
-  switchForm('form-reset');
-}
-
-function resendPasswordResetCode() {
-  goToOTP();
-}
-
-function startCountdown(seconds) {
-  clearInterval(countdownInterval);
-  let timeLeft = seconds;
-  const timerDisplay = document.getElementById('countdown-timer');
-  timerDisplay.innerText = timeLeft + ' giây';
-
-  countdownInterval = setInterval(() => {
-    timeLeft--;
-    if (timeLeft >= 0) {
-      timerDisplay.innerText = timeLeft + ' giây';
-    } else {
-      clearInterval(countdownInterval);
-      timerDisplay.innerText = '0 giây (Đã hết hạn)';
-    }
-  }, 1000);
-}
-
-function cancelOTP() {
-  clearInterval(countdownInterval);
-  resetTargetPhone = '';
-  switchForm('form-phone');
-}
-
-async function handlePasswordReset() {
-  clearFieldErrors();
-  const newPassword = document.getElementById('demo-new-pwd').value;
-  const confirmation = document.getElementById('demo-confirm-new-pwd').value;
-  const otp = Array.from(document.querySelectorAll('.otp-box')).map(box => box.value.trim()).join('');
-  const error = document.getElementById('reset-error');
-  let valid = true;
-
-  if (newPassword.length < 8) {
-    showFieldError('err-reset-pwd', 'Mật khẩu phải có tối thiểu 8 ký tự.', 'demo-new-pwd');
-    valid = false;
-  }
-  if (!confirmation || newPassword !== confirmation) {
-    showFieldError('err-reset-confirm', 'Mật khẩu xác nhận không khớp.', 'demo-confirm-new-pwd');
-    valid = false;
-  }
-  if (!valid) return;
-
-  setButtonLoading('btn-reset-submit', true, 'Đang cập nhật...');
-  try {
-    await DataService.request('POST', '/auth/password-reset', { phone: resetTargetPhone, otp, newPassword });
-    clearInterval(countdownInterval);
-    document.getElementById('demo-new-pwd').value = '';
-    document.getElementById('demo-confirm-new-pwd').value = '';
-    document.querySelectorAll('.otp-box').forEach(box => { box.value = ''; });
-    switchForm('form-login');
-    showBannerMessage('login-success', 'Cập nhật mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.');
-  } catch (requestError) {
-    error.innerText = requestError.status === 0
-      ? 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại backend.'
-      : requestError.message || 'Mã xác nhận không hợp lệ hoặc đã hết hạn.';
-    error.style.display = 'block';
-  } finally {
-    setButtonLoading('btn-reset-submit', false);
   }
 }
 
@@ -478,26 +261,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   bindEnter('#form-login input', handleLogin);
   bindEnter('#form-register input:not([type="checkbox"])', validateRegister);
-  bindEnter('#form-phone input', goToOTP);
-  bindEnter('#form-otp input', continuePasswordReset);
-  bindEnter('#form-reset input', handlePasswordReset);
-
-  // Hỗ trợ dán 6 chữ số OTP trực tiếp
-  const otpBoxes = document.querySelectorAll('.otp-box');
-  otpBoxes.forEach((box, idx) => {
-    box.addEventListener('paste', (e) => {
-      const text = (e.clipboardData || window.clipboardData)?.getData('text') || '';
-      const digits = text.replace(/\D/g, '').slice(0, 6);
-      if (digits.length > 1) {
-        e.preventDefault();
-        otpBoxes.forEach((b, i) => { b.value = digits[i] || ''; });
-        const focusIdx = Math.min(digits.length, otpBoxes.length - 1);
-        otpBoxes[focusIdx]?.focus();
-      }
-    });
-    box.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft' && idx > 0) otpBoxes[idx - 1].focus();
-      if (e.key === 'ArrowRight' && idx < otpBoxes.length - 1) otpBoxes[idx + 1].focus();
-    });
-  });
 });

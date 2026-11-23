@@ -310,7 +310,7 @@ const defaultSuppliers = [];
 const defaultPublishers = [];
 const defaultReaders = [
   {
-    id: '220260004',
+    id: 'BD004',
     name: 'Lưu Tấn Nin',
     fullName: 'Lưu Tấn Nin',
     readerType: 'Sinh viên',
@@ -329,7 +329,7 @@ const defaultReaderHistory = [
   {
     id: 'PM001',
     loanId: 'PM001',
-    readerId: '220260004',
+    readerId: 'BD004',
     readerName: 'Lưu Tấn Nin',
     copyId: 'CS001',
     bookTitle: 'Clean Code: A Handbook of Agile Software Craftsmanship',
@@ -341,8 +341,8 @@ const defaultReaderHistory = [
 
 const defaultSuggestions = [
   {
-    id: 'DX-2026-0001',
-    readerId: '220260004',
+    id: 'DX001',
+    readerId: 'BD004',
     readerName: 'Lưu Tấn Nin',
     title: 'Thiết kế kiến trúc hệ thống phân tán (Distributed Systems)',
     author: 'Martin Kleppmann',
@@ -357,8 +357,8 @@ const defaultSuggestions = [
     createdAt: '12/11/2026'
   },
   {
-    id: 'DX-2026-0002',
-    readerId: '220260004',
+    id: 'DX002',
+    readerId: 'BD004',
     readerName: 'Lưu Tấn Nin',
     title: 'Clean Architecture: Cấu trúc và Thiết kế Phần mềm',
     author: 'Robert C. Martin',
@@ -373,8 +373,8 @@ const defaultSuggestions = [
     createdAt: '05/11/2026'
   },
   {
-    id: 'DX-2026-0003',
-    readerId: '220260004',
+    id: 'DX003',
+    readerId: 'BD004',
     readerName: 'Lưu Tấn Nin',
     title: 'Machine Learning cơ bản và ứng dụng thực tế',
     author: 'Vũ Hữu Tiệp',
@@ -393,7 +393,7 @@ const defaultSuggestions = [
 const defaultFines = [
   {
     id: 'PH0001',
-    readerId: '220260004',
+    readerId: 'BD004',
     violation: 'Phí trễ hạn mượn sách',
     bookTitle: 'Clean Code: A Handbook of Agile Software Craftsmanship',
     amount: 100000,
@@ -402,7 +402,7 @@ const defaultFines = [
   },
   {
     id: 'PH0002',
-    readerId: '220260004',
+    readerId: 'BD004',
     violation: 'Phí làm lại thẻ thư viện',
     amount: 100000,
     paymentStatus: 'Chưa thanh toán',
@@ -410,136 +410,21 @@ const defaultFines = [
   }
 ];
 
-const defaultPermissions = {
-  'QUẢN TRỊ VIÊN': [
-    {
-      group: '1. Quản lý Kho sách & Tài liệu',
-      items: [
-        { name: 'Quản lý Đầu sách & Thể loại', view: true, add: true, edit: true, del: true },
-        { name: 'Quản lý Bản sao (Đánh mã vạch, vị trí kệ)', view: true, add: true, edit: true, del: true },
-        { name: 'Nhập sách mới & Quản lý Nhà cung cấp', view: true, add: true, edit: true, del: true }
-      ]
-    },
-    {
-      group: '2. Quản lý Độc giả',
-      items: [
-        { name: 'Cấp mới, gia hạn & khóa thẻ thư viện', view: true, add: true, edit: true, del: true },
-        { name: 'Tra cứu thông tin & lịch sử mượn của độc giả', view: true, add: true, edit: true, del: true }
-      ]
-    },
-    {
-      group: '3. Quản lý Mượn - Trả (Lưu thông)',
-      items: [
-        { name: 'Lập phiếu mượn, ghi nhận trả sách & gia hạn', view: true, add: true, edit: true, del: true },
-        { name: 'Xử lý vi phạm (Phạt trễ hạn, làm mất/hỏng sách)', view: true, add: true, edit: true, del: true }
-      ]
-    },
-    {
-      group: '4. Báo cáo & Quản trị hệ thống',
-      items: [
-        { name: 'Xem biểu đồ thống kê & xuất báo cáo', view: true, add: true, edit: true, del: true },
-        { name: 'Quản lý hồ sơ nhân viên & Cấp tài khoản', view: true, add: true, edit: true, del: true },
-        { name: 'Thiết lập quy định & Phân quyền hệ thống', view: true, add: true, edit: true, del: true }
-      ]
-    }
-  ],
-  'THỦ THƯ KHO': [
-    {
-      group: '1. Quản lý Kho sách & Tài liệu',
-      items: [
-        { name: 'Quản lý Đầu sách & Thể loại', view: true, add: true, edit: true, del: false },
-        { name: 'Quản lý Bản sao (Đánh mã vạch, vị trí kệ)', view: true, add: true, edit: true, del: false },
-        { name: 'Nhập sách mới & Quản lý Nhà cung cấp', view: true, add: true, edit: true, del: false }
-      ]
-    },
-    {
-      group: '2. Quản lý Độc giả',
-      items: [
-        { name: 'Cấp mới, gia hạn & khóa thẻ thư viện', view: false, add: false, edit: false, del: false },
-        { name: 'Tra cứu thông tin & lịch sử mượn của độc giả', view: true, add: false, edit: false, del: false }
-      ]
-    },
-    {
-      group: '3. Quản lý Mượn - Trả (Lưu thông)',
-      items: [
-        { name: 'Lập phiếu mượn, ghi nhận trả sách & gia hạn', view: false, add: false, edit: false, del: false },
-        { name: 'Xử lý vi phạm (Phạt trễ hạn, làm mất/hỏng sách)', view: false, add: false, edit: false, del: false }
-      ]
-    },
-    {
-      group: '4. Báo cáo & Quản trị hệ thống',
-      items: [
-        { name: 'Xem biểu đồ thống kê & xuất báo cáo', view: true, add: true, edit: false, del: false },
-        { name: 'Quản lý hồ sơ nhân viên & Cấp tài khoản', view: false, add: false, edit: false, del: false },
-        { name: 'Thiết lập quy định & Phân quyền hệ thống', view: false, add: false, edit: false, del: false }
-      ]
-    }
-  ],
-  'THỦ THƯ QUẦY': [
-    {
-      group: '1. Quản lý Kho sách & Tài liệu',
-      items: [
-        { name: 'Quản lý Đầu sách & Thể loại', view: true, add: false, edit: false, del: false },
-        { name: 'Quản lý Bản sao (Đánh mã vạch, vị trí kệ)', view: true, add: false, edit: true, del: false },
-        { name: 'Nhập sách mới & Quản lý Nhà cung cấp', view: false, add: false, edit: false, del: false }
-      ]
-    },
-    {
-      group: '2. Quản lý Độc giả',
-      items: [
-        { name: 'Cấp mới, gia hạn & khóa thẻ thư viện', view: true, add: true, edit: true, del: false },
-        { name: 'Tra cứu thông tin & lịch sử mượn của độc giả', view: true, add: true, edit: true, del: false }
-      ]
-    },
-    {
-      group: '3. Quản lý Mượn - Trả (Lưu thông)',
-      items: [
-        { name: 'Lập phiếu mượn, ghi nhận trả sách & gia hạn', view: true, add: true, edit: true, del: false },
-        { name: 'Xử lý vi phạm (Phạt trễ hạn, làm mất/hỏng sách)', view: true, add: true, edit: true, del: false }
-      ]
-    },
-    {
-      group: '4. Báo cáo & Quản trị hệ thống',
-      items: [
-        { name: 'Xem biểu đồ thống kê & xuất báo cáo', view: true, add: false, edit: false, del: false },
-        { name: 'Quản lý hồ sơ nhân viên & Cấp tài khoản', view: false, add: false, edit: false, del: false },
-        { name: 'Thiết lập quy định & Phân quyền hệ thống', view: false, add: false, edit: false, del: false }
-      ]
-    }
-  ],
-  'NHÂN VIÊN': [
-    {
-      group: '1. Quản lý Kho sách & Tài liệu',
-      items: [
-        { name: 'Quản lý Đầu sách & Thể loại', view: true, add: false, edit: false, del: false },
-        { name: 'Quản lý Bản sao (Đánh mã vạch, vị trí kệ)', view: true, add: false, edit: false, del: false },
-        { name: 'Nhập sách mới & Quản lý Nhà cung cấp', view: false, add: false, edit: false, del: false }
-      ]
-    },
-    {
-      group: '2. Quản lý Độc giả',
-      items: [
-        { name: 'Cấp mới, gia hạn & khóa thẻ thư viện', view: true, add: false, edit: false, del: false },
-        { name: 'Tra cứu thông tin & lịch sử mượn của độc giả', view: true, add: false, edit: false, del: false }
-      ]
-    },
-    {
-      group: '3. Quản lý Mượn - Trả (Lưu thông)',
-      items: [
-        { name: 'Lập phiếu mượn, ghi nhận trả sách & gia hạn', view: true, add: false, edit: false, del: false },
-        { name: 'Xử lý vi phạm (Phạt trễ hạn, làm mất/hỏng sách)', view: false, add: false, edit: false, del: false }
-      ]
-    },
-    {
-      group: '4. Báo cáo & Quản trị hệ thống',
-      items: [
-        { name: 'Xem biểu đồ thống kê & xuất báo cáo', view: false, add: false, edit: false, del: false },
-        { name: 'Quản lý hồ sơ nhân viên & Cấp tài khoản', view: false, add: false, edit: false, del: false },
-        { name: 'Thiết lập quy định & Phân quyền hệ thống', view: false, add: false, edit: false, del: false }
-      ]
-    }
-  ]
-};
+function isLibraryAdmin(role) {
+  const normalized = String(role ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase();
+  return normalized === 'admin' || normalized === 'quan tri vien';
+}
+
+const staffPermissionRows = [
+  { key: 'books', label: 'Đầu sách và cuốn sách' },
+  { key: 'imports', label: 'Nhập sách và nhà cung cấp' },
+  { key: 'suggestions', label: 'Đề xuất sách' },
+  { key: 'readers', label: 'Quản lý độc giả và duyệt đăng ký' },
+  { key: 'circulation', label: 'Mượn, trả và gia hạn' },
+  { key: 'fines', label: 'Quản lý vi phạm' },
+  { key: 'reports', label: 'Báo cáo, thống kê', viewOnly: true },
+  { key: 'employees', label: 'Quản lý nhân viên', adminOnly: true }
+];
 
 const defaultLibraryRules = {
   maxBorrowBooks: 5,
@@ -570,7 +455,6 @@ const DataService = {
   KEYS: {
     VERSION: 'ixs_data_version',
     EMPLOYEES: 'ixs_library_employees',
-    PERMISSIONS: 'ixs_library_permissions',
     LOGS: 'ixs_library_logs',
     BOOK_TITLES: 'ixs_library_book_titles',
     BOOK_COPIES: 'ixs_library_book_copies',
@@ -589,7 +473,6 @@ const DataService = {
     this._cache = {};
     const defaultData = {
       [this.KEYS.EMPLOYEES]: defaultEmployees,
-      [this.KEYS.PERMISSIONS]: defaultPermissions,
       [this.KEYS.LOGS]: defaultLogs,
       [this.KEYS.BOOK_TITLES]: defaultBookTitles,
       [this.KEYS.BOOK_COPIES]: defaultBookCopies,
@@ -633,7 +516,6 @@ const DataService = {
   resourceForKey(key) {
     return {
       [this.KEYS.EMPLOYEES]: 'employees',
-      [this.KEYS.PERMISSIONS]: 'config:permissions',
       [this.KEYS.LOGS]: 'logs',
       [this.KEYS.BOOK_TITLES]: 'bookTitles',
       [this.KEYS.BOOK_COPIES]: 'bookCopies',
@@ -650,9 +532,13 @@ const DataService = {
   },
 
   request(method, path, body) {
+    const token = sessionStorage.getItem('ixs_library_token');
     return fetch(`${this.API_BASE_URL}${path}`, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
       ...(body === undefined ? {} : { body: JSON.stringify(body) })
     }).then(async response => {
       if (!response.ok) {
@@ -853,14 +739,6 @@ function saveEmployees(list) {
   return DataService.saveAll(DataService.KEYS.EMPLOYEES, list);
 }
 
-function getPermissions() {
-  return DataService.getAll(DataService.KEYS.PERMISSIONS, defaultPermissions);
-}
-
-function savePermissions(perms) {
-  return DataService.saveAll(DataService.KEYS.PERMISSIONS, perms);
-}
-
 function getLogs() {
   return DataService.getAll(DataService.KEYS.LOGS, defaultLogs);
 }
@@ -877,7 +755,7 @@ function addLog(action, target, detail) {
   const ss = String(now.getSeconds()).padStart(2, '0');
 
   let activeUser = 'Quản trị viên';
-  let activeId = '12026001';
+  let activeId = 'NV001';
   try {
     const sessionRaw = localStorage.getItem('ixs_library_session') || localStorage.getItem('ixs_library_current_user');
     if (sessionRaw) {
@@ -1012,3 +890,55 @@ if (typeof window !== 'undefined' && typeof window.addEventListener === 'functio
     }
   });
 }
+
+document.addEventListener('click', async event => {
+  const button = event.target.closest('[data-fine-detail]');
+  if (!button || button.disabled || document.getElementById('fineDetailDialog')) return;
+  const dialog = document.createElement('dialog');
+  dialog.id = 'fineDetailDialog';
+  dialog.className = 'fine-detail-dialog';
+  dialog.setAttribute('aria-labelledby', 'fineDetailTitle');
+  dialog.innerHTML = `
+    <h2 id="fineDetailTitle">Chi tiết phiếu phạt</h2>
+    <div data-fine-content aria-live="polite">Đang tải phiếu phạt…</div>
+    <form method="dialog"><button type="submit" class="btn-action-gray">Đóng</button></form>
+  `;
+  dialog.addEventListener('close', () => dialog.remove(), { once: true });
+  document.body.appendChild(dialog);
+  dialog.showModal();
+  const content = dialog.querySelector('[data-fine-content]');
+  const currency = value => Number(value || 0).toLocaleString('vi-VN') + ' đ';
+  const addField = (list, label, value) => {
+    const term = document.createElement('dt');
+    term.textContent = label;
+    const description = document.createElement('dd');
+    description.textContent = value || '—';
+    list.append(term, description);
+  };
+  try {
+    const fine = await DataService.request('GET', `/fines/${encodeURIComponent(button.dataset.fineDetail)}`);
+    const summary = document.createElement('dl');
+    addField(summary, 'Mã phiếu phạt', fine.id);
+    addField(summary, 'Mã phiếu mượn', fine.loanId);
+    addField(summary, 'Ngày lập', fine.createdDate);
+    addField(summary, 'Tổng tiền', currency(fine.amount));
+    addField(summary, 'Thanh toán', fine.paymentStatus);
+    if (fine.paymentMethod) addField(summary, 'Phương thức', fine.paymentMethod);
+    if (fine.paidDate) addField(summary, 'Ngày thanh toán', fine.paidDate);
+    const violations = document.createElement('ul');
+    for (const item of fine.details) {
+      const row = document.createElement('li');
+      const parts = [item.copyId, item.violation, item.lateDays > 0 ? item.lateDays + ' ngày quá hạn' : '', item.damage, currency(item.amount)];
+      row.textContent = parts.filter(Boolean).join(' · ');
+      violations.appendChild(row);
+    }
+    if (!violations.childElementCount && fine.violation) {
+      const row = document.createElement('li');
+      row.textContent = fine.violation;
+      violations.appendChild(row);
+    }
+    content.replaceChildren(summary, violations);
+  } catch (error) {
+    content.textContent = error.message || 'Không tải được chi tiết phiếu phạt.';
+  }
+});

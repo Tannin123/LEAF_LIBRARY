@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Đề xuất sách mới - LEAF LIBRARY</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css"><link rel="stylesheet" href="../css/admin.css"><link rel="stylesheet" href="../css/user.css">
 </head>
 <body class="user-interface reader-workflow-page">
@@ -18,7 +18,7 @@
         <div class="user-dropdown-menu" id="userDropdownMenu">
           <div class="user-dropdown-header">
             <div class="user-dropdown-name" id="dropdownUserName">Bạn đọc</div>
-            <div class="user-dropdown-meta"><span id="dropdownUserCode">Mã ĐG: 220260004</span><span class="badge status-badge badge-reader-valid" id="dropdownUserRole">Độc giả</span></div>
+            <div class="user-dropdown-meta"><span id="dropdownUserCode">Mã ĐG: BD004</span><span class="badge status-badge badge-reader-valid" id="dropdownUserRole">Độc giả</span></div>
           </div>
           <button type="button" class="user-dropdown-item" id="btnOpenMyAccount">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -43,12 +43,21 @@
         <a href="bookshelf.html" class="sidebar-item" title="Tủ sách cá nhân"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Tủ sách cá nhân</span></a>
         <a href="history.html" class="sidebar-item" title="Lịch sử mượn/trả"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Lịch sử mượn/trả</span></a>
         <a href="penalties.html" class="sidebar-item" title="Thanh toán"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><span>Thanh toán</span></a>
-        <a href="suggestions.html" class="sidebar-item active" title="Đề xuất sách"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Đề xuất sách</span></a>
+        <a href="suggestions.html" class="sidebar-item active" aria-current="page" title="Đề xuất sách"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Đề xuất sách</span></a>
       </aside>
       <main class="content-section user-dashboard-section workflow-content">
         <div class="user-dash-topbar"><div class="workflow-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="suggestionSearch" type="search" placeholder="Tìm theo mã, tên sách hoặc tác giả..." aria-label="Tìm kiếm đề xuất sách"></div><div class="user-dash-actions"><button type="button" class="topbar-icon-btn" id="btnNotification" title="Thông báo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="topbar-badge badge-red" id="notifBadge" style="display: none;">0</span></button></div></div>
         <section class="workflow-page-content" aria-labelledby="suggestionsTitle">
-          <div class="workflow-heading workflow-heading-actions"><div><h1 id="suggestionsTitle">Đề xuất sách mới</h1><p>Gửi thư viện bổ sung sách bạn cần cho việc học và nghiên cứu.</p></div><button type="button" class="suggestion-create-button" id="btnOpenSuggestionForm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Tạo đề xuất mới</button></div>
+          <div class="workflow-heading workflow-heading-actions">
+            <div>
+              <h1 id="suggestionsTitle">Đề xuất sách mới</h1>
+              <p>Gửi thư viện bổ sung sách bạn cần cho việc học và nghiên cứu.</p>
+            </div>
+            <button type="button" class="btn-add" id="btnOpenSuggestionForm">
+              <span>Tạo đề xuất mới</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
           <div class="subtabs-container suggestion-subtabs-container">
             <div class="subtabs-list suggestion-tabs" role="tablist" aria-label="Lọc đề xuất sách">
               <button type="button" class="subtab-item active" role="tab" aria-selected="true" data-suggestion-status="all">Tất cả đề xuất</button>
@@ -69,7 +78,7 @@
             </div>
             <div class="table-frame user-suggestion-frame" id="suggestionRows"></div>
           </div>
-          <div class="pagination-wrapper" id="suggestionPagination"><button type="button" class="page-box disabled" disabled>&lt;</button><button type="button" class="page-box active">1</button><button type="button" class="page-box disabled" disabled>&gt;</button></div>
+          <div class="pagination-wrapper" id="suggestionPagination" hidden></div>
         </section>
       </main>
     </div>
@@ -77,7 +86,7 @@
 
   <div class="modal-overlay" id="modalCreateSuggestion">
     <div class="modal-box suggestion-modal" role="dialog" aria-modal="true" aria-labelledby="suggestionFormTitle">
-      <div class="user-modal-header"><h2 class="user-modal-title" id="suggestionFormTitle">TẠO ĐỀ XUẤT SÁCH MỚI</h2><button type="button" class="user-modal-close-btn" id="btnCloseSuggestionForm" aria-label="Đóng">✕</button></div>
+      <div class="modal-header"><h2 class="modal-title" id="suggestionFormTitle">TẠO ĐỀ XUẤT SÁCH MỚI</h2><button type="button" class="modal-close-btn" id="btnCloseSuggestionForm" aria-label="Đóng">✕</button></div>
       <form id="formCreateSuggestion" class="suggestion-form" novalidate>
         <div class="suggestion-form-grid">
           <div class="suggestion-cover-column"><label for="suggestionCover">Ảnh bìa tài liệu dự kiến</label><label class="suggestion-upload-box" for="suggestionCover"><img id="suggestionCoverPreview" alt="Ảnh bìa xem trước" hidden><span id="suggestionCoverPrompt">Chọn ảnh bìa<br><small>PNG, JPG hoặc WEBP (tối đa 5 MB)</small></span></label><input id="suggestionCover" type="file" accept="image/png,image/jpeg,image/webp"><div class="suggestion-form-note">Mã đề xuất được tạo tự động khi gửi.</div></div>
@@ -88,7 +97,7 @@
             <div id="suggestionFormError" class="field-error-text" role="alert" style="display: none;"></div>
           </div>
         </div>
-        <div class="suggestion-form-actions"><button type="button" class="bookshelf-cancel-button" id="btnCancelSuggestionForm">Thoát</button><button type="submit" id="btnSubmitSuggestion" class="suggestion-create-button">Gửi đề xuất sách</button></div>
+        <div class="reader-modal-actions"><button type="button" class="btn-action-gray" id="btnCancelSuggestionForm">Thoát</button><button type="submit" id="btnSubmitSuggestion" class="btn-action-blue">Gửi đề xuất sách</button></div>
       </form>
     </div>
   </div>
@@ -187,7 +196,7 @@
           </div>
           <div class="profile-code-group">
             <div class="profile-code-label">Mã bạn đọc (mã tài khoản)</div>
-            <div class="profile-code-value" id="profCodeValue">220260004</div>
+            <div class="profile-code-value" id="profCodeValue">BD004</div>
           </div>
           <div class="profile-actions-stack">
             <button type="button" class="btn-profile-primary" id="btnViewReaderCard">XEM THẺ ĐỘC GIẢ</button>
@@ -262,7 +271,7 @@
           </div>
           <div class="profile-code-group">
             <div class="profile-code-label">Mã bạn đọc (mã tài khoản)</div>
-            <div class="profile-code-value" id="editProfCodeValue">220260004</div>
+            <div class="profile-code-value" id="editProfCodeValue">BD004</div>
           </div>
           <div class="profile-actions-stack">
             <button type="button" class="btn-profile-primary" id="btnSaveEditProfile">LƯU</button>
@@ -289,7 +298,7 @@
         </div>
         <div class="lib-card-field-group">
           <div class="lib-card-label">MÃ THẺ</div>
-          <div class="lib-card-code" id="libCardCode">220260004</div>
+          <div class="lib-card-code" id="libCardCode">BD004</div>
         </div>
         <div class="lib-card-field-group">
           <div class="lib-card-label">HỌ &amp; TÊN</div>

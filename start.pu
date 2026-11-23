@@ -1,0 +1,27 @@
+@startuml
+!pragma layout smetana
+top to bottom direction
+skinparam dpi 150
+skinparam backgroundColor #FFFFFF
+skinparam monochrome true
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam StateMinimumWidth 200
+skinparam StateFontSize 13
+skinparam StateFontStyle bold
+skinparam StateAttributeFontSize 11
+skinparam ArrowFontSize 11
+skinparam nodesep 100
+skinparam ranksep 85
+
+state "CHUA_THANH_TOAN" as CHUA_THANH_TOAN : Đã lập phiếu phạt, chờ nộp phí
+state "DA_THANH_TOAN" as DA_THANH_TOAN : Đã hoàn tất thanh toán khoản phạt
+
+[*] -down-> CHUA_THANH_TOAN : Ghi nhận khoản phạt
+
+CHUA_THANH_TOAN -right-> CHUA_THANH_TOAN : Còn nợ phạt\n/ Khóa thẻ
+
+CHUA_THANH_TOAN -down-> DA_THANH_TOAN : Xác nhận thanh toán
+
+DA_THANH_TOAN -down-> [*]
+@enduml

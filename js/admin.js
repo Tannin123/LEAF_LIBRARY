@@ -8,6 +8,25 @@ var ICON_REFRESH = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 var ICON_PHONE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`;
 var ICON_MAIL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`;
 
+function getActiveUserSession() {
+  try {
+    const raw = localStorage.getItem('ixs_library_session') || localStorage.getItem('ixs_library_current_user');
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  const emps = getEmployees();
+  return emps[0] || {
+    id: 'NV001',
+    fullName: 'Quản trị viên',
+    name: 'Quản trị viên',
+    role: 'QUẢN TRỊ VIÊN',
+    email: 'admin',
+    phone: '0906.789.982',
+    dob: '21 / 02 / 2026',
+    gender: 'Nam',
+    address: '273 An Dương Vương, Phường 3, Quận 5, TP.HCM'
+  };
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   // Kiểm tra phân quyền nhân viên / quản trị
   try {
@@ -18,6 +37,28 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (isReaderOnly) {
         window.location.href = '../user/index.html';
         return;
+      }
+      if (parsedSession.accountType === 'employee' && !isLibraryAdmin(parsedSession.role)) {
+        const employeeLink = document.querySelector('.sidebar-item[href="index.html"]');
+        if (employeeLink?.classList.contains('active')) {
+          window.location.replace('books.html');
+          return;
+        }
+        employeeLink?.remove();
+      }
+      if (parsedSession.accountType === 'employee') {
+        try {
+          const role = isLibraryAdmin(parsedSession.role) ? 'admin' : 'librarian';
+          const result = await DataService.request('GET', `/config/permissions?role=${role}`);
+          if (result.value?.reports?.view === false) {
+            const reportsLink = document.querySelector('.sidebar-item[href="reports.html"]');
+            if (reportsLink?.classList.contains('active')) {
+              window.location.replace('books.html');
+              return;
+            }
+            reportsLink?.remove();
+          }
+        } catch (_) {}
       }
     }
   } catch (_) {}
@@ -418,25 +459,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     return createdIds;
   }
 
-  function getActiveUserSession() {
-    try {
-      const raw = localStorage.getItem('ixs_library_session') || localStorage.getItem('ixs_library_current_user');
-      if (raw) return JSON.parse(raw);
-    } catch (e) {}
-    const emps = getEmployees();
-    return emps[0] || {
-      id: '12026001',
-      fullName: 'Quản trị viên',
-      name: 'Quản trị viên',
-      role: 'QUẢN TRỊ VIÊN',
-      email: 'admin',
-      phone: '0906.789.982',
-      dob: '21 / 02 / 2026',
-      gender: 'Nam',
-      address: '273 An Dương Vương, Phường 3, Quận 5, TP.HCM'
-    };
-  }
-
   function syncGreetingBanner() {
     const session = getActiveUserSession();
     const greetName = session.fullName || session.name || 'Quản trị viên';
@@ -446,7 +468,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const dropName = document.getElementById('dropdownUserName');
     if (dropName) dropName.textContent = greetName;
     const dropCode = document.getElementById('dropdownUserCode');
-    if (dropCode) dropCode.textContent = `Mã NV: ${session.id || '12026001'}`;
+    if (dropCode) dropCode.textContent = `Mã NV: ${session.id || 'NV001'}`;
     const dropRole = document.getElementById('dropdownUserRole');
     if (dropRole) dropRole.textContent = session.role || 'QUẢN TRỊ VIÊN';
 
@@ -523,7 +545,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               <div class="supplier-row-2col">
                 <div class="supplier-field-block">
                   <label class="supplier-label-italic">Mã nhân viên</label>
-                  <div class="supplier-code-readonly" id="selfProfileId">12026001</div>
+                  <div class="supplier-code-readonly" id="selfProfileId">NV001</div>
                 </div>
                 <div class="supplier-field-block">
                   <label class="supplier-label-italic">Họ và tên hiển thị</label>
@@ -592,7 +614,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       btnOpenMyAccount.addEventListener('click', () => {
         if (userDropdownMenu) userDropdownMenu.classList.remove('active');
         const current = getActiveUserSession();
-        document.getElementById('selfProfileId').textContent = current.id || '12026001';
+        document.getElementById('selfProfileId').textContent = current.id || 'NV001';
         document.getElementById('selfProfileName').value = current.fullName || current.name || '';
         document.getElementById('selfProfilePhone').value = current.phone || '';
         document.getElementById('selfProfileEmail').value = current.email || '';
@@ -682,7 +704,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         btnConfirmSelfChangePwd.disabled = false;
         btnConfirmSelfChangePwd.textContent = origText;
-        addLog('CẬP NHẬT', current.id || '12026001', `Đổi mật khẩu cá nhân cho tài khoản <strong>${escapeAdminHtml(current.name || 'Quản trị viên')}</strong>`);
+        addLog('CẬP NHẬT', current.id || 'NV001', `Đổi mật khẩu cá nhân cho tài khoản <strong>${escapeAdminHtml(current.name || 'Quản trị viên')}</strong>`);
         closeModal('modalChangePasswordGlobal');
         showToast('Đã đổi mật khẩu thành công!');
       });
@@ -700,7 +722,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         if (!ok) return;
         const current = getActiveUserSession();
-        addLog('ĐĂNG NHẬP', current.id || '12026001', `Nhân viên <strong>${escapeAdminHtml(current.name || 'Quản trị viên')}</strong> đã đăng xuất khỏi hệ thống.`);
+        addLog('ĐĂNG NHẬP', current.id || 'NV001', `Nhân viên <strong>${escapeAdminHtml(current.name || 'Quản trị viên')}</strong> đã đăng xuất khỏi hệ thống.`);
+        await DataService.request('POST', '/auth/logout').catch(() => {});
+        sessionStorage.removeItem('ixs_library_token');
+        sessionStorage.removeItem('ixs_library_session');
+        sessionStorage.removeItem('ixs_library_current_user');
         localStorage.removeItem('ixs_library_session');
         localStorage.removeItem('ixs_library_current_user');
         window.location.href = '../login.html';
@@ -735,13 +761,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   /**
-   * 1. PHÂN HỆ QUẢN LÝ HỆ THỐNG (admin/index.html)
+   * 1. PHÂN HỆ QUẢN LÝ NHÂN VIÊN (admin/index.html)
    */
   const employeeTableContent = document.getElementById('tableContent') || document.getElementById('employeeTableContent');
 
   if (employeeTableContent) {
     const searchEmpInput = document.getElementById('searchInput') || document.getElementById('searchEmployeeInput');
     const filterRoleSelect = document.getElementById('roleFilter') || document.getElementById('filterRoleSelect');
+
     const permRoleSelect = document.getElementById('permRoleSelect');
     const permTableContent = document.getElementById('permTableContent');
 
@@ -762,6 +789,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const EMP_PAGE_SIZE = 5;
     const LOG_PAGE_SIZE = 6;
 
+
+
     function populateLogUserDropdown() {
       const logUserSelect = document.getElementById('logUserSelect');
       if (!logUserSelect) return;
@@ -779,8 +808,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function getRoleBadgeClass(role) {
       if (role === 'QUẢN TRỊ VIÊN') return 'badge-admin';
-      if (role === 'THỦ THƯ KHO') return 'badge-kho';
-      if (role === 'THỦ THƯ QUẦY') return 'badge-quay';
+      if (role === 'THỦ THƯ') return 'badge-quay';
       return 'badge-nhanvien';
     }
 
@@ -788,22 +816,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (!emp.hasAccount || emp.status === 'Hồ sơ') {
         return `<span class="status-indicator status-badge"><span class="status-dot hoso"></span><span class="status-text hoso">Hồ sơ</span></span>`;
       }
-      if (emp.status === 'Khóa') {
+      if (['KHÓA', 'LOCKED', 'BỊ KHÓA'].includes(String(emp.status).toUpperCase())) {
         return `<span class="status-indicator status-badge"><span class="status-dot locked"></span><span class="status-text locked">Đã khóa</span></span>`;
       }
       return `<span class="status-indicator status-badge"><span class="status-dot active"></span><span class="status-text active">Active</span></span>`;
     }
 
     function renderEmployeeActions(emp) {
-      if (!emp.hasAccount || emp.status === 'Hồ sơ') {
-        return `
-          <div class="actions-group">
-            <button type="button" class="btn-cap-tk" title="Cấp tài khoản" data-action="grant" data-id="${emp.id}"><span>CẤP</span><span>TK</span></button>
-            <span class="action-icon" title="Chỉnh sửa" data-action="edit" data-id="${emp.id}">${ICON_EDIT}</span>
-            <span class="action-icon" title="Xóa" data-action="delete" data-id="${emp.id}">${ICON_DELETE}</span>
-          </div>
-        `;
-      }
       return `
         <div class="actions-group">
           <span class="action-icon" title="Xem / Sửa hồ sơ" data-action="view" data-id="${emp.id}">${ICON_EDIT}</span>
@@ -860,11 +879,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       employeeTableContent.innerHTML = html;
+      populateLogUserDropdown();
       renderDynamicPagination('empPagination', filtered.length, EMP_PAGE_SIZE, empPage, (newPage) => {
         empPage = newPage;
         renderEmployeeTable();
       });
-      populateLogUserDropdown();
     }
 
     if (searchEmpInput) {
@@ -924,7 +943,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('editFirstName').value = emp.firstName || '';
       document.getElementById('editLastName').value = emp.lastName || '';
       document.getElementById('editGender').value = emp.gender || 'Nam';
-      document.getElementById('editDob').value = emp.dob || '';
+      const dobInput = document.getElementById('editDob');
+      const today = new Date();
+      dobInput.max = [today.getFullYear(), today.getMonth() + 1, today.getDate()]
+        .map(part => String(part).padStart(2, '0')).join('-');
+      const savedDob = String(emp.dob || '');
+      const dateParts = savedDob.match(/^(\d{1,2})\s*\/\s*(\d{1,2})\s*\/\s*(\d{4})$/);
+      dobInput.value = dateParts
+        ? [dateParts[3], dateParts[2].padStart(2, '0'), dateParts[1].padStart(2, '0')].join('-')
+        : savedDob;
       document.getElementById('editEthnicity').value = emp.ethnicity || 'Kinh';
       document.getElementById('editReligion').value = emp.religion || 'Không';
       document.getElementById('editAddress').value = emp.address || '';
@@ -932,22 +959,29 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('editEmail').value = emp.email
         ? (emp.email.includes('@') ? emp.email : `${emp.email}@gmail.com`)
         : '';
-      document.getElementById('editRole').value = emp.role || 'NHÂN VIÊN';
+      document.getElementById('editRole').value = isLibraryAdmin(emp.role) ? 'QUẢN TRỊ VIÊN' : 'THỦ THƯ';
       const workEl = document.getElementById('editWorkingStatus');
-      if (workEl) workEl.value = emp.workingStatus || 'DANG_LAM_VIEC';
-      const accStatusEl = document.getElementById('editAccountStatus');
-      if (accStatusEl) {
-        if (!emp.hasAccount || emp.status === 'Hồ sơ') {
-          accStatusEl.value = 'Hồ sơ';
-        } else if (emp.status === 'Khóa') {
-          accStatusEl.value = 'Khóa';
-        } else {
-          accStatusEl.value = 'Active';
-        }
+      if (workEl) {
+        const status = emp.employmentStatus || emp.workingStatus;
+        workEl.value = Array.from(workEl.options).some(option => option.value === status) ? status : 'DANG_LAM_VIEC';
       }
+      document.getElementById('employeeInitialPassword').value = '';
+      updateEmployeePasswordField(createMode || !emp.hasAccount);
+      document.getElementById('btnEditResetPassword').hidden = createMode || !emp.hasAccount;
       document.getElementById('editIdLarge').textContent = emp.id;
       empUploadWidget.setState(emp.avatarUrl || '', !createMode);
     }
+
+    function updateEmployeePasswordField(needsAccount) {
+      const showPassword = needsAccount && isLibraryAdmin(document.getElementById('editRole').value);
+      document.getElementById('employeePasswordRow').hidden = !showPassword;
+      document.getElementById('employeeInitialPassword').required = showPassword;
+    }
+
+    document.getElementById('editRole').addEventListener('change', () => {
+      const employee = getEmployees().find(item => item.id === selectedEmpId);
+      updateEmployeePasswordField(isCreatingEmp || !employee?.hasAccount);
+    });
 
     employeeTableContent.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action]');
@@ -966,10 +1000,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else if (action === 'edit') {
         populateEditModal(emp, false);
         openModal('modalEditEmployee');
-      } else if (action === 'grant') {
-        document.getElementById('grantEmployeeCode').textContent = emp.id;
-        document.getElementById('grantRoleSelect').value = emp.role || 'NHÂN VIÊN';
-        openModal('modalGrantAccount');
       } else if (action === 'delete') {
         document.getElementById('deleteEmployeeCode').textContent = emp.id;
         openModal('modalDeleteEmployee');
@@ -980,19 +1010,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     document.getElementById('btnAddEmployee').addEventListener('click', () => {
-      const nextId = DataService.generateNextId(DataService.KEYS.EMPLOYEES, '12026', 3);
+      const nextId = DataService.generateNextId(DataService.KEYS.EMPLOYEES, 'NV', 3);
       populateEditModal({
         id: nextId,
         firstName: '',
         lastName: '',
         gender: 'Nam',
-        dob: formatTodayDate(),
+        dob: '',
         ethnicity: 'Kinh',
         religion: 'Không',
         address: '',
         phone: '',
         email: '',
-        role: 'NHÂN VIÊN',
+        role: 'THỦ THƯ',
         status: 'Hồ sơ',
         hasAccount: false,
         avatarUrl: ''
@@ -1011,17 +1041,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('btnViewResetPassword').addEventListener('click', () => {
       closeModal('modalViewEmployee');
-      document.getElementById('resetAccountCode').textContent = selectedEmpId || '12026001';
+      document.getElementById('resetAccountCode').textContent = selectedEmpId || 'NV001';
       openModal('modalResetPassword');
     });
 
     document.getElementById('btnEditResetPassword').addEventListener('click', () => {
       closeModal('modalEditEmployee');
-      document.getElementById('resetAccountCode').textContent = selectedEmpId || '12026001';
+      document.getElementById('resetAccountCode').textContent = selectedEmpId || 'NV001';
       openModal('modalResetPassword');
     });
 
-    document.getElementById('btnSaveEmployeeInfo').addEventListener('click', () => {
+    document.getElementById('btnSaveEmployeeInfo').addEventListener('click', async event => {
       const employees = getEmployees();
       const fName = document.getElementById('editFirstName').value.trim();
       const lName = document.getElementById('editLastName').value.trim();
@@ -1033,14 +1063,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
 
-      const dobVal = document.getElementById('editDob').value.trim();
-      if (dobVal) {
-        const parsedDob = parseVNDate(dobVal);
-        if (!parsedDob || parsedDob > new Date()) {
-          showToast('Ngày sinh không hợp lệ (định dạng DD / MM / YYYY và không vượt quá ngày hiện tại)!', 'error');
-          document.getElementById('editDob')?.focus();
-          return;
-        }
+      const dobInput = document.getElementById('editDob');
+      const dobVal = dobInput.value;
+      if (!dobInput.checkValidity()) {
+        dobInput.reportValidity();
+        return;
       }
 
       const rawPhone = document.getElementById('editPhone').value.trim();
@@ -1073,66 +1100,61 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const newRole = document.getElementById('editRole').value;
       const workingStatusVal = document.getElementById('editWorkingStatus')?.value || 'DANG_LAM_VIEC';
-      const accStatusEl = document.getElementById('editAccountStatus');
-      const selectedAccStatus = accStatusEl ? accStatusEl.value : 'Active';
-      const hasAccountFlag = selectedAccStatus !== 'Hồ sơ';
-      const avatarVal = empUploadWidget.getValue();
-
-      if (isCreatingEmp) {
-        employees.push({
-          id: selectedEmpId,
-          name: fullName,
-          firstName: fName,
-          lastName: lName,
-          gender: document.getElementById('editGender').value,
-          dob: dobVal || formatTodayDate(),
-          ethnicity: document.getElementById('editEthnicity').value,
-          religion: document.getElementById('editReligion').value,
-          address: document.getElementById('editAddress').value.trim(),
-          phone: formattedPhone,
-          email: normalizedEmail,
-          role: newRole,
-          workingStatus: workingStatusVal,
-          status: selectedAccStatus,
-          hasAccount: hasAccountFlag,
-          avatarUrl: avatarVal
-        });
-        saveEmployees(employees);
-        addLog('TẠO MỚI', selectedEmpId, `Tạo mới hồ sơ nhân viên <strong>${escapeAdminHtml(fullName)}</strong> (${escapeAdminHtml(selectedEmpId)}) - Trạng thái: ${escapeAdminHtml(selectedAccStatus)}`);
-        showToast(`Đã thêm nhân viên ${fullName} (${selectedEmpId})!`);
-      } else {
-        const emp = employees.find(item => item.id === selectedEmpId);
-        if (emp) {
-          emp.firstName = fName;
-          emp.lastName = lName;
-          emp.name = fullName;
-          emp.gender = document.getElementById('editGender').value;
-          emp.dob = dobVal;
-          emp.ethnicity = document.getElementById('editEthnicity').value;
-          emp.religion = document.getElementById('editReligion').value;
-          emp.address = document.getElementById('editAddress').value.trim();
-          emp.phone = formattedPhone;
-          emp.email = normalizedEmail;
-          emp.role = newRole;
-          emp.workingStatus = workingStatusVal;
-          emp.status = selectedAccStatus;
-          emp.hasAccount = hasAccountFlag;
-          emp.avatarUrl = avatarVal;
-          saveEmployees(employees);
-          addLog('CẬP NHẬT', emp.id, `Cập nhật hồ sơ nhân viên <strong>${escapeAdminHtml(emp.name)}</strong> - Nhóm quyền: ${escapeAdminHtml(newRole)}`);
-          showToast(`Đã lưu thông tin nhân viên ${emp.name}!`);
-        }
+      const existing = employees.find(item => item.id === selectedEmpId);
+      if (!isCreatingEmp && !existing) return;
+      const needsAccount = isCreatingEmp || !existing.hasAccount;
+      const password = document.getElementById('employeeInitialPassword').value;
+      if (needsAccount && !isLibraryAdmin(newRole) && !dobVal) {
+        showToast('Nhập ngày sinh để tạo mật khẩu ban đầu của thủ thư.', 'error');
+        document.getElementById('editDob').focus();
+        return;
+      }
+      if (needsAccount && isLibraryAdmin(newRole) && password.length < 8) {
+        showToast('Mật khẩu ban đầu của quản trị viên phải có ít nhất 8 ký tự.', 'error');
+        document.getElementById('employeeInitialPassword').focus();
+        return;
       }
 
-      closeModal('modalEditEmployee');
-      renderEmployeeTable();
-      renderAuditLogs();
+      const record = {
+        id: selectedEmpId,
+        username: existing?.username || selectedEmpId,
+        name: fullName,
+        gender: document.getElementById('editGender').value,
+        dob: dobVal,
+        ethnicity: document.getElementById('editEthnicity').value,
+        address: document.getElementById('editAddress').value.trim(),
+        phone: formattedPhone,
+        email: normalizedEmail,
+        role: newRole,
+        employmentStatus: workingStatusVal,
+        avatarUrl: empUploadWidget.getValue()
+      };
+      if (needsAccount && isLibraryAdmin(newRole)) record.password = password;
+      const button = event.currentTarget;
+      button.disabled = true;
+      try {
+        const path = isCreatingEmp ? '/employees' : `/employees/${encodeURIComponent(selectedEmpId)}`;
+        const saved = await DataService.request(isCreatingEmp ? 'POST' : 'PUT', path, record);
+        record.id = saved.id;
+        addLog(isCreatingEmp ? 'TẠO MỚI' : 'CẬP NHẬT', record.id, `Lưu hồ sơ nhân viên <strong>${escapeAdminHtml(fullName)}</strong>`);
+        closeModal('modalEditEmployee');
+        showToast(needsAccount ? `Đã tạo tài khoản cho ${fullName}. Mã đăng nhập: ${record.id}.` : `Đã lưu hồ sơ ${fullName}.`, 'success');
+        try {
+          await DataService.hydrate(DataService.KEYS.EMPLOYEES, 'employees');
+          renderEmployeeTable();
+        } catch {
+          showToast('Đã lưu hồ sơ. Tải lại trang để cập nhật danh sách.', 'warning');
+        }
+      } catch (error) {
+        showToast(error.message || 'Không lưu được hồ sơ nhân viên.', 'error');
+      } finally {
+        button.disabled = false;
+      }
     });
 
     document.getElementById('btnConfirmResetPassword').addEventListener('click', () => {
       if (selectedEmpId) {
         addLog('RESET MẬT KHẨU', selectedEmpId, `Reset mật khẩu tài khoản <strong>${selectedEmpId}</strong> và gửi qua Gmail.`);
-        renderAuditLogs();
         showToast(`Đã reset mật khẩu cho tài khoản ${selectedEmpId}!`);
       }
       closeModal('modalResetPassword');
@@ -1144,7 +1166,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const employees = getEmployees();
         const emp = employees.find(item => item.id === selectedEmpId);
         if (emp) {
-          emp.status = emp.status === 'Active' ? 'Khóa' : 'Active';
+          const isLocked = ['KHÓA', 'LOCKED', 'BỊ KHÓA'].includes(String(emp.status).toUpperCase());
+          emp.status = isLocked ? 'Active' : 'Khóa';
           saveEmployees(employees);
           addLog(
             'KHÓA TÀI KHOẢN',
@@ -1152,7 +1175,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             `${emp.status === 'Khóa' ? 'Khóa' : 'Mở khóa'} tài khoản nhân viên <strong>${emp.name}</strong>`
           );
           renderEmployeeTable();
-          renderAuditLogs();
           showToast(`Đã ${emp.status === 'Khóa' ? 'khóa' : 'mở khóa'} tài khoản ${emp.name}!`);
         }
         closeModal('modalLockEmployee');
@@ -1180,188 +1202,77 @@ document.addEventListener('DOMContentLoaded', async () => {
         saveEmployees(employees);
         addLog('XÓA DỮ LIỆU', target.id, `Xóa nhân viên <strong>${escapeAdminHtml(target.name)}</strong> (Trạng thái 0: Đã nghỉ việc)`);
         renderEmployeeTable();
-        renderAuditLogs();
         showToast(`Đã xóa nhân viên ${target.name} khỏi danh sách!`);
       }
       closeModal('modalDeleteEmployee');
     });
 
-    document.getElementById('btnConfirmGrantAccount').addEventListener('click', () => {
-      const employees = getEmployees();
-      const emp = employees.find(item => item.id === selectedEmpId);
-      const selectedRole = document.getElementById('grantRoleSelect').value;
-      if (emp) {
-        emp.hasAccount = true;
-        emp.status = 'Active';
-        emp.role = selectedRole;
-        if (!emp.email) {
-          emp.email = emp.id.toLowerCase();
-        }
-        saveEmployees(employees);
-        addLog('CẤP TÀI KHOẢN', emp.id, `Cấp tài khoản cho nhân viên <strong>${emp.name}</strong> với nhóm quyền ${selectedRole}`);
-        renderEmployeeTable();
-        renderAuditLogs();
-        showToast(`Đã cấp tài khoản thành công cho ${emp.name}!`);
-      }
-      closeModal('modalGrantAccount');
-    });
+    const savePermButton = document.getElementById('btnSavePerm');
+    const rolePermissions = {};
+    let savingPermissions = false;
+
+    function selectedPermissionRole() {
+      return isLibraryAdmin(permRoleSelect.value) ? 'admin' : 'librarian';
+    }
 
     function renderPermissionMatrix() {
-      const role = permRoleSelect.value;
-      const perms = getPermissions();
-      const roleData = perms[role] || [];
-
-      let html = '';
-      roleData.forEach((group, gIdx) => {
-        html += `<div class="perm-table-row" style="background-color: #F8FAFC;"><div class="perm-module-name" style="grid-column: 1 / -1; color: var(--primary-navy);">${group.group}</div></div>`;
-        group.items.forEach((item, iIdx) => {
-          html += `
-            <div class="perm-table-row">
-              <div>${item.name}</div>
-              <div><input type="checkbox" class="perm-checkbox" data-g="${gIdx}" data-i="${iIdx}" data-k="view" ${item.view ? 'checked' : ''}></div>
-              <div><input type="checkbox" class="perm-checkbox" data-g="${gIdx}" data-i="${iIdx}" data-k="add" ${item.add ? 'checked' : ''}></div>
-              <div><input type="checkbox" class="perm-checkbox" data-g="${gIdx}" data-i="${iIdx}" data-k="edit" ${item.edit ? 'checked' : ''}></div>
-              <div><input type="checkbox" class="perm-checkbox" data-g="${gIdx}" data-i="${iIdx}" data-k="del" ${item.del ? 'checked' : ''}></div>
-            </div>
-          `;
-        });
-      });
-
-      permTableContent.innerHTML = html;
+      const role = selectedPermissionRole();
+      const config = rolePermissions[role];
+      savePermButton.disabled = savingPermissions || !config;
+      permTableContent.innerHTML = staffPermissionRows.map(row => {
+        const permissions = ['view', 'add', 'edit', 'del'].map(action => {
+          if (row.viewOnly && action !== 'view') return '<div>—</div>';
+          const roleAllowed = !row.adminOnly || role === 'admin';
+          const checked = roleAllowed && config?.[row.key]?.[action] !== false;
+          const disabled = !roleAllowed || !config || savingPermissions;
+          return `<div><input type="checkbox" class="perm-checkbox"
+            aria-label="${row.label} · ${{ view: 'Xem', add: 'Thêm', edit: 'Sửa', del: 'Xóa' }[action]}"
+            data-group="${row.key}" data-action="${action}" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''}></div>`;
+        }).join('');
+        return `<div class="perm-table-row"><div>${row.label}</div>${permissions}</div>`;
+      }).join('');
     }
 
-    permRoleSelect.addEventListener('change', renderPermissionMatrix);
-
-    document.getElementById('btnSavePerm').addEventListener('click', () => {
-      const role = permRoleSelect.value;
-      const perms = getPermissions();
-      const roleData = perms[role];
-      if (!roleData) return;
-
-      const checkboxes = permTableContent.querySelectorAll('.perm-checkbox');
-      checkboxes.forEach(cb => {
-        const g = parseInt(cb.getAttribute('data-g'), 10);
-        const i = parseInt(cb.getAttribute('data-i'), 10);
-        const k = cb.getAttribute('data-k');
-        roleData[g].items[i][k] = cb.checked;
-      });
-
-      savePermissions(perms);
-      addLog('CẬP NHẬT', 'PHAN-QUYEN', `Lưu cấu hình ma trận phân quyền cho nhóm <strong>${role}</strong>`);
-      renderAuditLogs();
-      showToast(`Đã lưu cấu hình phân quyền cho nhóm ${role}!`);
-    });
-
-    const rulesStatusInfo = document.getElementById('rulesStatusInfo');
-    const rulesFeedbackBadge = document.getElementById('rulesFeedbackBadge');
-    const btnSaveRules = document.getElementById('btnSaveRules');
-    const btnRestoreDefaultRules = document.getElementById('btnRestoreDefaultRules');
-
-    function showRulesFeedback(msg, isError = false) {
-      if (!rulesFeedbackBadge) return;
-      rulesFeedbackBadge.textContent = msg;
-      rulesFeedbackBadge.classList.toggle('error', isError);
-      rulesFeedbackBadge.classList.add('visible');
-      setTimeout(() => {
-        rulesFeedbackBadge.classList.remove('visible');
-      }, 3200);
-    }
-
-    function renderRulesForm() {
-      const rules = getLibraryRules();
-      document.getElementById('ruleMaxBorrowBooks').value = rules.maxBorrowBooks;
-      document.getElementById('ruleMaxBorrowDays').value = rules.maxBorrowDays;
-      document.getElementById('ruleMaxRenewals').value = rules.maxRenewals;
-      document.getElementById('ruleRenewalDays').value = rules.renewalDays;
-      document.getElementById('ruleNewCardFee').value = rules.newCardFee;
-      document.getElementById('ruleRenewCardFee').value = rules.renewCardFee;
-      document.getElementById('ruleCardValidityMonths').value = rules.cardValidityMonths;
-      document.getElementById('ruleHoldBookHours').value = rules.holdBookHours;
-      document.getElementById('ruleLateFeePerDay').value = rules.lateFeePerDay;
-      document.getElementById('ruleDamageFee').value = rules.damageFee;
-      document.getElementById('ruleLostCompensationPercent').value = rules.lostCompensationPercent;
-      document.getElementById('ruleMaxLateDaysBeforeLock').value = rules.maxLateDaysBeforeLock;
-      document.getElementById('ruleMinCopiesInStock').value = rules.minCopiesInStock;
-      document.getElementById('ruleAutoLockTornBooks').value = rules.autoLockTornBooks;
-      document.getElementById('ruleAllowBookPurchaseRequest').value = rules.allowBookPurchaseRequest;
-      document.getElementById('ruleAllowOnlineRenewal').value = rules.allowOnlineRenewal;
-
-      if (rulesStatusInfo) {
-        rulesStatusInfo.textContent = `Cập nhật lần cuối: ${rules.updatedAt || '21 / 02 / 2026'} bởi ${rules.updatedBy || 'Quản trị viên'}`;
+    async function loadPermissionMatrix() {
+      const role = selectedPermissionRole();
+      renderPermissionMatrix();
+      if (rolePermissions[role]) return;
+      try {
+        const result = await DataService.request('GET', `/config/permissions?role=${role}`);
+        rolePermissions[role] ??= result.value;
+        renderPermissionMatrix();
+      } catch (error) {
+        showToast(error.message || 'Không tải được cấu hình quyền.', 'error');
       }
     }
 
-    if (btnSaveRules) {
-      btnSaveRules.addEventListener('click', () => {
-        const numericIds = [
-          'ruleMaxBorrowBooks', 'ruleMaxBorrowDays', 'ruleMaxRenewals', 'ruleRenewalDays',
-          'ruleNewCardFee', 'ruleRenewCardFee', 'ruleCardValidityMonths', 'ruleHoldBookHours',
-          'ruleLateFeePerDay', 'ruleDamageFee', 'ruleLostCompensationPercent',
-          'ruleMaxLateDaysBeforeLock', 'ruleMinCopiesInStock'
-        ];
-
-        for (const id of numericIds) {
-          const el = document.getElementById(id);
-          const val = Number(el.value);
-          if (el.value.trim() === '' || isNaN(val) || val < 0) {
-            showRulesFeedback('Lỗi: Các thông số quy định phải là số lớn hơn hoặc bằng 0!', true);
-            showToast('Thông số quy định không hợp lệ!', 'error');
-            el.focus();
-            return;
-          }
-        }
-
-        const todayStr = formatTodayDate();
-        const session = getActiveUserSession();
-        const newRules = {
-          maxBorrowBooks: Number(document.getElementById('ruleMaxBorrowBooks').value),
-          maxBorrowDays: Number(document.getElementById('ruleMaxBorrowDays').value),
-          maxRenewals: Number(document.getElementById('ruleMaxRenewals').value),
-          renewalDays: Number(document.getElementById('ruleRenewalDays').value),
-          newCardFee: Number(document.getElementById('ruleNewCardFee').value),
-          renewCardFee: Number(document.getElementById('ruleRenewCardFee').value),
-          cardValidityMonths: Number(document.getElementById('ruleCardValidityMonths').value),
-          holdBookHours: Number(document.getElementById('ruleHoldBookHours').value),
-          lateFeePerDay: Number(document.getElementById('ruleLateFeePerDay').value),
-          damageFee: Number(document.getElementById('ruleDamageFee').value),
-          lostCompensationPercent: Number(document.getElementById('ruleLostCompensationPercent').value),
-          maxLateDaysBeforeLock: Number(document.getElementById('ruleMaxLateDaysBeforeLock').value),
-          minCopiesInStock: Number(document.getElementById('ruleMinCopiesInStock').value),
-          autoLockTornBooks: document.getElementById('ruleAutoLockTornBooks').value,
-          allowBookPurchaseRequest: document.getElementById('ruleAllowBookPurchaseRequest').value,
-          allowOnlineRenewal: document.getElementById('ruleAllowOnlineRenewal').value,
-          updatedAt: todayStr,
-          updatedBy: session.name || 'Quản trị viên'
-        };
-
-        saveLibraryRules(newRules);
-        renderRulesForm();
-        showRulesFeedback('Đã lưu thiết lập quy định thành công!');
-        showToast('Đã lưu thiết lập quy định hệ thống!');
-        addLog('CẬP NHẬT', 'QUY-DINH', 'Cập nhật thông số Thiết lập quy định hệ thống thư viện LEAF LIBRARY');
-        renderAuditLogs();
-      });
-    }
-
-    if (btnRestoreDefaultRules) {
-      btnRestoreDefaultRules.addEventListener('click', async () => {
-        const ok = await openAdminConfirmModal({
-          title: 'Khôi phục quy định mặc định',
-          message: 'Mọi thông số quy định thư viện hiện tại sẽ được đưa về giá trị mặc định ban đầu. Bạn có chắc muốn tiếp tục?',
-          confirmText: 'Khôi phục mặc định',
-          cancelText: 'Hủy'
-        });
-        if (!ok) return;
-        const defaults = resetLibraryRulesToDefault();
-        defaults.updatedAt = formatTodayDate();
-        saveLibraryRules(defaults);
-        renderRulesForm();
-        showRulesFeedback('Đã khôi phục thông số mặc định!');
-        showToast('Đã khôi phục quy định mặc định!');
-        addLog('CẬP NHẬT', 'QUY-DINH', 'Khôi phục thông số mặc định cho Thiết lập quy định thư viện');
-        renderAuditLogs();
-      });
-    }
+    permRoleSelect.addEventListener('change', loadPermissionMatrix);
+    document.querySelector('[data-tab="tabPermissions"]').addEventListener('click', loadPermissionMatrix);
+    permTableContent.addEventListener('change', event => {
+      const checkbox = event.target.closest('.perm-checkbox:not(:disabled)');
+      const config = rolePermissions[selectedPermissionRole()];
+      if (!checkbox || !config) return;
+      const { group, action } = checkbox.dataset;
+      (config[group] ??= {})[action] = checkbox.checked;
+    });
+    savePermButton.addEventListener('click', async () => {
+      const role = selectedPermissionRole();
+      const config = rolePermissions[role];
+      if (!config || savingPermissions) return;
+      const roleLabel = role === 'admin' ? 'Quản trị viên' : 'Thủ thư';
+      savingPermissions = true;
+      renderPermissionMatrix();
+      try {
+        await DataService.request('PUT', `/config/permissions?role=${role}`, { value: config });
+        addLog('CẬP NHẬT', 'PHAN-QUYEN', `Lưu cấu hình phân quyền cho ${roleLabel}`);
+        showToast(`Đã lưu quyền truy cập của ${roleLabel}.`, 'success');
+      } catch (error) {
+        showToast(error.message || 'Không lưu được cấu hình quyền.', 'error');
+      } finally {
+        savingPermissions = false;
+        renderPermissionMatrix();
+      }
+    });
 
     const logTableContent = document.getElementById('logTableContent');
     const logUserSelect = document.getElementById('logUserSelect');
@@ -1460,10 +1371,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderAuditLogs();
     });
 
-    renderEmployeeTable();
     renderPermissionMatrix();
-    renderRulesForm();
     renderAuditLogs();
+    document.querySelector('[data-tab="tabAuditLog"]').addEventListener('click', renderAuditLogs);
+    window.addEventListener('ixs:data-loaded', event => {
+      if (event.detail?.key === DataService.KEYS.LOGS) renderAuditLogs();
+    });
+    renderEmployeeTable();
   }
 
   /**
@@ -1478,7 +1392,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     let isCreatingBookCopy = false;
     let selectedSupplierId = null;
     let isCreatingSupplier = false;
-    let selectedPublisherId = null;
 
     let btPage = 1;
     let bcPage = 1;
@@ -1540,7 +1453,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function renderBookTitlesGrid() {
       const books = getBookTitles();
-      const copies = getBookCopies();
       const q = (searchBookTitleInput.value || '').trim().toLowerCase();
       const cat = filterBookCategory.value;
       const isFiltered = Boolean(q) || cat !== 'all';
@@ -1565,15 +1477,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         html = renderEmptyState(isFiltered, 'Thêm đầu sách +');
       } else {
         paged.forEach(b => {
-          const bookCopies = copies.filter(c => c.bookId === b.id);
-          const totalCount = bookCopies.length > 0 ? bookCopies.length : (b.total || 0);
-          const borrowedCount = bookCopies.length > 0
-            ? bookCopies.filter(c => c.circulationStatus === 'ĐANG MƯỢN').length
-            : Math.max(0, (b.total || 0) - (b.available || 0));
-          const availCount = bookCopies.length > 0
-            ? bookCopies.filter(c => c.circulationStatus === 'SẴN SÀNG').length
-            : (b.available || 0);
-
           html += `
             <div class="book-card" data-id="${b.id}">
               ${renderBookPosterGraphic(b.coverUrl, b.title)}
@@ -1607,10 +1510,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
 
                 <div class="book-card-footer">
-                  <div>
-                    <div class="book-meta-label">Tổng tồn kho (${borrowedCount} cuốn đang mượn)</div>
-                    <div class="book-stock-value">${availCount} / ${totalCount}</div>
-                  </div>
                   <div class="book-card-actions">
                     <span class="link-view-copies" data-action="view-copies" data-id="${b.id}">Xem các bản sao →</span>
                     <span class="action-icon" title="Chỉnh sửa đầu sách" data-action="edit-book" data-id="${b.id}">${ICON_EDIT}</span>
@@ -1711,13 +1610,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             try {
               await DataService.request('PUT', `/suggestions/${encodeURIComponent(id)}`, { status: 'Đã duyệt' });
             } catch (err) {
-              if (err && err.status !== 0 && err.status !== 404) {
-                showToast(err.message || 'Không thể duyệt đề xuất sách.', 'error');
-                return;
-              }
+              showToast(err.message || 'Không thể duyệt đề xuất sách.', 'error');
+              return;
             }
-            target.status = 'Đã duyệt';
-            saveBookSuggestions(suggestions);
+            await DataService.hydrate(DataService.KEYS.SUGGESTIONS, 'suggestions');
             addLog('DUYỆT ĐỀ XUẤT', id, `Phê duyệt đề xuất sách <strong>${escapeAdminHtml(target.title)}</strong> của độc giả ${escapeAdminHtml(target.readerId)}`);
             showToast(`Đã duyệt đề xuất sách "${target.title}"!`, 'success');
             renderAdminSuggestionsTable();
@@ -1740,10 +1636,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             reasonInput.value = '';
             openModal('modalRejectSuggestion');
             reasonInput.focus();
-          } else {
-            target.status = 'Từ chối';
-            saveBookSuggestions(suggestions);
-            renderAdminSuggestionsTable();
           }
           return;
         }
@@ -1767,15 +1659,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             rejectionReason: reasonVal
           });
         } catch (err) {
-          if (err && err.status !== 0 && err.status !== 404) {
-            showToast(err.message || 'Không thể từ chối đề xuất sách.', 'error');
-            return;
-          }
+          showToast(err.message || 'Không thể từ chối đề xuất sách.', 'error');
+          return;
         }
-        target.status = 'Từ chối';
-        target.rejectionReason = reasonVal;
-        target.lyDoTuChoi = reasonVal;
-        saveBookSuggestions(suggestions);
+        await DataService.hydrate(DataService.KEYS.SUGGESTIONS, 'suggestions');
         addLog('TỪ CHỐI ĐỀ XUẤT', target.id, `Từ chối đề xuất sách <strong>${escapeAdminHtml(target.title)}</strong> - Lý do: ${escapeAdminHtml(reasonVal)}`);
         showToast(`Đã từ chối đề xuất sách "${target.title}".`, 'info');
         renderAdminSuggestionsTable();
@@ -2031,11 +1918,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (bcPhysicalInput && bcCirculationInput) {
       bcPhysicalInput.addEventListener('change', () => {
         const val = bcPhysicalInput.value.toUpperCase();
-        if (val.includes('RÁCH NÁT')) {
+        if (val.includes('RÁCH NÁT') && bcCirculationInput.value === 'SẴN SÀNG') {
           const rules = getLibraryRules();
           if (!rules || rules.autoLockTornBooks === 'Bật') {
-            bcCirculationInput.value = 'KHÓA';
-            showToast('Theo quy định hệ thống: Sách "Rách nát" tự động chuyển sang trạng thái KHÓA lưu thông!', 'warning');
+            bcCirculationInput.value = 'HƯ HỎNG';
+            showToast('Sách rách nát được chuyển sang trạng thái Hư hỏng.', 'warning');
           }
         }
       });
@@ -2102,7 +1989,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         html = renderEmptyState(isFiltered, 'Thêm cuốn sách +');
       } else {
         paged.forEach(c => {
-          const isLiquidated = String(c.circulationStatus || '').toUpperCase().includes('THANH LÝ');
           html += `
             <div class="copies-table-row" data-id="${escapeAdminHtml(c.id)}">
               <div style="font-weight: 600;">${escapeAdminHtml(c.id)}</div>
@@ -2113,8 +1999,6 @@ document.addEventListener('DOMContentLoaded', async () => {
               <div>
                 <div class="actions-group">
                   <span class="action-icon" title="Chỉnh sửa cuốn sách" data-action="edit-copy" data-id="${escapeAdminHtml(c.id)}">${ICON_EDIT}</span>
-                  ${!isLiquidated ? `<span class="action-icon" title="Thanh lý cuốn sách" data-action="liquidate-copy" data-id="${escapeAdminHtml(c.id)}" style="color:#D97706;">${ICON_LOCK}</span>` : ''}
-                  <span class="action-icon" title="Xóa cuốn sách" data-action="delete-copy" data-id="${escapeAdminHtml(c.id)}">${ICON_DELETE}</span>
                 </div>
               </div>
             </div>
@@ -2190,43 +2074,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('bcLocationInput').value = copy.location;
         document.getElementById('bcPriceInput').value = copy.price || '120.000';
         document.getElementById('bcPhysicalInput').value = copy.physicalStatus;
-        document.getElementById('bcCirculationInput').value = copy.circulationStatus;
+        const supportedStatus = Array.from(bcCirculationInput.options).some(option => option.value === copy.circulationStatus);
+        bcCirculationInput.value = supportedStatus ? copy.circulationStatus : '';
         updateBookCopyStockSummary(copy.bookId);
         bcUploadWidget.setState(copy.coverUrl || '', true);
         openModal('modalBookCopy');
-      } else if (action === 'liquidate-copy') {
-        if (String(copy.circulationStatus || '').toUpperCase().includes('ĐANG MƯỢN')) {
-          showToast('Không thể thanh lý sách đang trong trạng thái mượn!', 'error');
-          return;
-        }
-        openAdminConfirmModal({
-          title: 'Xác nhận thanh lý cuốn sách',
-          message: `Bạn có chắc muốn thanh lý cuốn sách "${copy.id}" (${copy.bookTitle}) khỏi kho? Trạng thái sẽ chuyển thành ĐÃ THANH LÝ.`,
-          confirmText: 'Xác nhận thanh lý',
-          cancelText: 'Hủy',
-          danger: true
-        }).then(async ok => {
-          if (!ok) return;
-          try {
-            await DataService.request('POST', `/bookCopies/${encodeURIComponent(copy.id)}/liquidate`, {});
-          } catch (err) {
-            if (err && err.status !== 0 && err.status !== 404) {
-              showToast(err.message || 'Không thể thanh lý cuốn sách này.', 'error');
-              return;
-            }
-          }
-          copy.circulationStatus = 'ĐÃ THANH LÝ';
-          copy.status = 'ĐÃ THANH LÝ';
-          saveBookCopies(copies);
-          syncBookCountsWithCopies(copy.bookId);
-          addLog('CẬP NHẬT', copy.id, `Thanh lý cuốn sách <strong>${escapeAdminHtml(copy.id)}</strong> khỏi kho lưu trữ`);
-          renderBookCopiesTable();
-          renderBookTitlesGrid();
-          showToast(`Đã thanh lý cuốn sách ${copy.id}!`);
-        });
-      } else if (action === 'delete-copy') {
-        document.getElementById('deleteBookCopyCode').textContent = copy.id;
-        openModal('modalDeleteBookCopy');
       }
     });
 
@@ -2252,12 +2104,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
       const phyVal = document.getElementById('bcPhysicalInput').value.trim().toUpperCase() || 'TỐT';
-      let cirVal = document.getElementById('bcCirculationInput').value.trim().toUpperCase() || 'SẴN SÀNG';
+      const existingCopy = isCreatingBookCopy ? undefined : copies.find(copy => copy.id === selectedBookCopyId);
+      let cirVal = bcCirculationInput.value || existingCopy?.circulationStatus || 'SẴN SÀNG';
       const coverVal = bcUploadWidget.getValue();
 
       const rules = getLibraryRules();
-      if (phyVal.includes('RÁCH NÁT') && (!rules || rules.autoLockTornBooks === 'Bật')) {
-        cirVal = 'KHÓA';
+      if (cirVal === 'SẴN SÀNG' && phyVal.includes('RÁCH NÁT') && (!rules || rules.autoLockTornBooks === 'Bật')) {
+        cirVal = 'HƯ HỎNG';
       }
 
       const matchedBook = books.find(b => b.title.toUpperCase() === titleVal) ||
@@ -2325,26 +2178,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
-    document.getElementById('btnConfirmDeleteBookCopy').addEventListener('click', () => {
-      let copies = getBookCopies();
-      const target = copies.find(c => c.id === selectedBookCopyId);
-      if (target) {
-        if (target.circulationStatus === 'ĐANG MƯỢN') {
-          closeModal('modalDeleteBookCopy');
-          showToast(`Không thể xóa bản sao ${target.id} vì sách đang được độc giả mượn!`, 'error');
-          return;
-        }
-        const parentId = target.bookId;
-        copies = copies.filter(c => c.id !== selectedBookCopyId);
-        saveBookCopies(copies);
-        syncBookCountsWithCopies(parentId);
-        addLog('XÓA DỮ LIỆU', target.id, `Xóa bản sao cuốn sách <strong>${target.id}</strong> khỏi kho lưu trữ`);
-        renderBookCopiesTable();
-        renderBookTitlesGrid();
-        showToast(`Đã xóa cuốn sách ${target.id}!`);
-      }
-      closeModal('modalDeleteBookCopy');
-    });
+
 
     const importReceiptsTableContent = document.getElementById('importReceiptsTableContent');
     const searchImportInput = document.getElementById('searchImportReceiptInput') || document.getElementById('searchImportInput');
@@ -2515,7 +2349,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('btnCreateImportReceipt').addEventListener('click', () => {
       const suppliers = getSuppliers().filter(s => s.status !== 'NGỪNG GD');
-      const nextId = DataService.generateNextId(DataService.KEYS.IMPORT_RECEIPTS, 'PNH26', 4);
+      const nextId = DataService.generateNextId(DataService.KEYS.IMPORT_RECEIPTS, 'PN', 3);
       document.getElementById('impNewCodeDisplay').textContent = nextId;
       document.getElementById('impNewDateInput').value = formatTodayDate();
 
@@ -2538,7 +2372,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('btnSaveImportReceipt').addEventListener('click', async () => {
       const btnSave = document.getElementById('btnSaveImportReceipt');
-      const receipts = getImportReceipts();
       const books = getBookTitles();
       const code = document.getElementById('impNewCodeDisplay').textContent.trim();
       const date = document.getElementById('impNewDateInput').value.trim() || formatTodayDate();
@@ -2605,7 +2438,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       try {
         const totalStr = `${grandTotal.toLocaleString('vi-VN')} đ`;
 
-        receipts.unshift({
+        const receipt = await DataService.request('POST', '/importReceipts', {
           id: code,
           employeeId: getActiveUserSession().id,
           date,
@@ -2618,17 +2451,15 @@ document.addEventListener('DOMContentLoaded', async () => {
           items
         });
 
-        saveImportReceipts(receipts);
-        addLog('TẠO MỚI', code, `Tạo phiếu nhập kho <strong>${escapeAdminHtml(code)}</strong> (${totalBooks} cuốn - ${escapeAdminHtml(receiptStatus)})`);
-        const savesSucceeded = await DataService.waitForWrites([
-          DataService.KEYS.IMPORT_RECEIPTS
-        ]);
-        if (!savesSucceeded) return;
+        addLog('TẠO MỚI', receipt.id, `Tạo phiếu nhập kho <strong>${escapeAdminHtml(receipt.id)}</strong> (${totalBooks} cuốn - ${escapeAdminHtml(receiptStatus)})`);
+        await DataService.hydrate(DataService.KEYS.IMPORT_RECEIPTS, 'importReceipts');
         closeModal('modalCreateImport');
         renderImportReceiptsTable();
         renderBookTitlesGrid();
         renderBookCopiesTable();
-        showToast(`Đã lập phiếu nhập ${code} ở trạng thái Chờ xác nhận! Hãy nhấn "Xác nhận" khi hoàn tất nhập kho.`);
+        showToast(`Đã lập phiếu nhập ${receipt.id} ở trạng thái Chờ xác nhận! Hãy nhấn "Xác nhận" khi hoàn tất nhập kho.`);
+      } catch (error) {
+        showToast(error.message || 'Không thể lưu phiếu nhập.', 'error');
       } finally {
         if (btnSave) {
           btnSave.disabled = false;
@@ -2820,7 +2651,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('btnAddSupplier').addEventListener('click', () => {
       isCreatingSupplier = true;
-      selectedSupplierId = DataService.generateNextId(DataService.KEYS.SUPPLIERS, 'NCC26', 4);
+      selectedSupplierId = DataService.generateNextId(DataService.KEYS.SUPPLIERS, 'NC', 3);
       document.getElementById('modalSupplierHeader').textContent = 'LEAF LIBRARY - THÊM NHÀ CUNG CẤP MỚI';
       document.getElementById('supIdDisplay').textContent = selectedSupplierId;
       document.getElementById('supNameInput').value = '';
@@ -2858,7 +2689,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
-    document.getElementById('btnSaveSupplier').addEventListener('click', () => {
+    document.getElementById('btnSaveSupplier').addEventListener('click', async event => {
       const suppliers = getSuppliers();
       const nameVal = document.getElementById('supNameInput').value.trim();
       if (!nameVal) {
@@ -2883,7 +2714,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       const addrVal = document.getElementById('supAddressInput').value.trim() || 'TP.HCM';
 
       if (isCreatingSupplier) {
-        suppliers.push({
+        const button = event.currentTarget;
+        button.disabled = true;
+        try {
+          const created = await DataService.request('POST', '/suppliers', {
           id: selectedSupplierId,
           name: nameVal,
           contact: contactVal,
@@ -2891,10 +2725,16 @@ document.addEventListener('DOMContentLoaded', async () => {
           email: emailVal || 'contact@partner.vn',
           address: addrVal,
           status: 'HOẠT ĐỘNG'
-        });
-        saveSuppliers(suppliers);
-        addLog('TẠO MỚI', selectedSupplierId, `Thêm đối tác cung cấp mới <strong>${escapeAdminHtml(nameVal)}</strong>`);
-        showToast(`Đã thêm nhà cung cấp ${nameVal}!`);
+          });
+          await DataService.hydrate(DataService.KEYS.SUPPLIERS, 'suppliers');
+          addLog('TẠO MỚI', created.id, `Thêm đối tác cung cấp mới <strong>${escapeAdminHtml(nameVal)}</strong>`);
+          showToast(`Đã thêm nhà cung cấp ${nameVal} (${created.id})!`);
+        } catch (error) {
+          showToast(error.message || 'Không thể lưu nhà cung cấp.', 'error');
+          return;
+        } finally {
+          button.disabled = false;
+        }
       } else {
         const sup = suppliers.find(s => s.id === selectedSupplierId);
         if (sup) {
@@ -2926,76 +2766,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       closeModal('modalDeleteSupplier');
     });
 
-    document.getElementById('btnAddPublisher').addEventListener('click', () => {
-      const nextCode = DataService.generateNextId(DataService.KEYS.PUBLISHERS, 'NXB26', 4);
-      document.getElementById('pubAddCodeInput').value = nextCode;
-      document.getElementById('pubAddNameInput').value = '';
-      document.getElementById('pubAddPhoneInput').value = '';
-      document.getElementById('pubAddEmailInput').value = '';
-      document.getElementById('pubAddAddressInput').value = '';
-      document.getElementById('pubAddNoteInput').value = '';
-      openModal('modalAddPublisher');
-    });
-
-    document.getElementById('btnConfirmAddPublisher').addEventListener('click', () => {
-      const pubs = getPublishers();
-      const code = document.getElementById('pubAddCodeInput').value.trim() || 'NXB260001';
-      const name = document.getElementById('pubAddNameInput').value.trim();
-      if (!name) {
-        showToast('Vui lòng nhập Tên nhà xuất bản!', 'error');
-        return;
-      }
-      const phone = document.getElementById('pubAddPhoneInput').value.trim();
-      const email = document.getElementById('pubAddEmailInput').value.trim();
-      const address = document.getElementById('pubAddAddressInput').value.trim();
-      const note = document.getElementById('pubAddNoteInput').value.trim();
-
-      const newPub = { id: code, name, phone, email, address, note, status: 'HOẠT ĐỘNG' };
-      pubs.push(newPub);
-      savePublishers(pubs);
-      addLog('TẠO MỚI', code, `Thêm Nhà xuất bản mới <strong>${name}</strong>`);
-
-      closeModal('modalAddPublisher');
-      selectedPublisherId = code;
-      document.getElementById('pubEditCodeInput').value = newPub.id;
-      document.getElementById('pubEditNameInput').value = newPub.name;
-      document.getElementById('pubEditPhoneInput').value = newPub.phone;
-      document.getElementById('pubEditEmailInput').value = newPub.email;
-      document.getElementById('pubEditAddressInput').value = newPub.address;
-      document.getElementById('pubEditNoteInput').value = newPub.note;
-      document.getElementById('pubEditStatusSelect').value = newPub.status;
-      showToast(`Đã thêm NXB ${name}!`);
-      openModal('modalEditPublisher');
-    });
-
-    document.getElementById('btnConfirmEditPublisher').addEventListener('click', () => {
-      const pubs = getPublishers();
-      const pub = pubs.find(p => p.id === selectedPublisherId) || pubs[pubs.length - 1];
-      if (pub) {
-        pub.id = document.getElementById('pubEditCodeInput').value.trim() || pub.id;
-        pub.name = document.getElementById('pubEditNameInput').value.trim() || pub.name;
-        pub.phone = document.getElementById('pubEditPhoneInput').value.trim();
-        pub.email = document.getElementById('pubEditEmailInput').value.trim();
-        pub.address = document.getElementById('pubEditAddressInput').value.trim();
-        pub.note = document.getElementById('pubEditNoteInput').value.trim();
-        pub.status = document.getElementById('pubEditStatusSelect').value;
-        savePublishers(pubs);
-        addLog('CẬP NHẬT', pub.id, `Cập nhật thông tin Nhà xuất bản <strong>${pub.name}</strong>`);
-        showToast(`Đã cập nhật thông tin NXB ${pub.name}!`);
-      }
-      closeModal('modalEditPublisher');
-    });
-
     renderBookTitlesGrid();
     renderBookCopiesTable();
     renderImportReceiptsTable();
     renderSuppliersTable();
-
-    // === UC04: QUẢN LÝ DANH MỤC TÀI LIỆU ===
-    const categoriesTableContent = document.getElementById('categoriesTableContent');
-    const searchCategoryInput = document.getElementById('searchCategoryInput');
-    let isCreatingCategory = false;
-    let selectedCategoryId = null;
 
     function syncCategorySelects() {
       const cats = typeof getCategories === 'function' ? getCategories() : [];
@@ -3013,123 +2787,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
 
-    function renderCategoriesTable() {
-      if (!categoriesTableContent) return;
-      const cats = typeof getCategories === 'function' ? getCategories() : [];
-      const books = getBookTitles();
-      const q = (searchCategoryInput?.value || '').trim().toLowerCase();
-      const filtered = cats.filter(c => !q || String(c.id).toLowerCase().includes(q) || String(c.name).toLowerCase().includes(q));
-      if (!filtered.length) {
-        categoriesTableContent.innerHTML = `<div class="empty-state-box">${q ? 'Không tìm thấy danh mục phù hợp.' : 'Chưa có danh mục tài liệu.'}</div>`;
-        syncCategorySelects();
-        return;
-      }
-      categoriesTableContent.innerHTML = filtered.map(c => {
-        const count = books.filter(b => String(b.category || '').toLowerCase() === String(c.name || '').toLowerCase() || String(b.categoryId) === String(c.id)).length;
-        return `
-          <div class="supplier-table-row" style="grid-template-columns: 160px 1fr 180px 160px; display: grid; align-items: center; min-height: 48px; border-bottom: 1px solid var(--border-color); padding: 8px 14px; font-size: 13.5px;">
-            <div style="font-weight: 600; color: var(--primary-navy);">${escapeAdminHtml(c.id)}</div>
-            <div style="font-weight: 500;">${escapeAdminHtml(c.name)}</div>
-            <div style="text-align: center; font-weight: 600;">${count} đầu sách</div>
-            <div>
-              <div class="actions-group" style="justify-content: center;">
-                <span class="action-icon" title="Chỉnh sửa danh mục" data-action="edit-cat" data-id="${escapeAdminHtml(c.id)}">${ICON_EDIT}</span>
-                <span class="action-icon" title="Xóa danh mục" data-action="delete-cat" data-id="${escapeAdminHtml(c.id)}">${ICON_DELETE}</span>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-      syncCategorySelects();
-    }
-
-    searchCategoryInput?.addEventListener('input', renderCategoriesTable);
-    document.getElementById('btnAddCategory')?.addEventListener('click', () => {
-      isCreatingCategory = true;
-      const cats = typeof getCategories === 'function' ? getCategories() : [];
-      selectedCategoryId = `DM${String(cats.length + 1).padStart(2, '0')}`;
-      const header = document.getElementById('modalCategoryHeader');
-      if (header) header.textContent = 'THÊM DANH MỤC TÀI LIỆU';
-      const idIn = document.getElementById('catIdInput');
-      const nameIn = document.getElementById('catNameInput');
-      if (idIn) { idIn.value = selectedCategoryId; idIn.readOnly = false; }
-      if (nameIn) nameIn.value = '';
-      openModal('modalCategory');
-      nameIn?.focus();
-    });
-
-    categoriesTableContent?.addEventListener('click', async (e) => {
-      const btn = e.target.closest('[data-action]');
-      if (!btn) return;
-      const action = btn.getAttribute('data-action');
-      const id = btn.getAttribute('data-id');
-      const cats = typeof getCategories === 'function' ? getCategories() : [];
-      const cat = cats.find(c => String(c.id) === String(id));
-      if (!cat) return;
-      if (action === 'edit-cat') {
-        isCreatingCategory = false;
-        selectedCategoryId = cat.id;
-        const header = document.getElementById('modalCategoryHeader');
-        if (header) header.textContent = 'CẬP NHẬT DANH MỤC TÀI LIỆU';
-        const idIn = document.getElementById('catIdInput');
-        const nameIn = document.getElementById('catNameInput');
-        if (idIn) { idIn.value = cat.id; idIn.readOnly = true; }
-        if (nameIn) nameIn.value = cat.name;
-        openModal('modalCategory');
-        nameIn?.focus();
-      } else if (action === 'delete-cat') {
-        const books = getBookTitles();
-        const used = books.some(b => String(b.category || '').toLowerCase() === String(cat.name || '').toLowerCase() || String(b.categoryId) === String(cat.id));
-        if (used) {
-          showToast('Không thể xóa danh mục đã chứa tài liệu!', 'error');
-          return;
-        }
-        const ok = await openAdminConfirmModal({
-          title: 'Xóa danh mục tài liệu',
-          message: `Bạn có chắc muốn xóa danh mục "${cat.name}" (${cat.id})?`,
-          confirmText: 'Xóa danh mục',
-          cancelText: 'Hủy',
-          danger: true
-        });
-        if (!ok) return;
-        saveCategories(cats.filter(c => String(c.id) !== String(cat.id)));
-        addLog('XÓA DỮ LIỆU', cat.id, `Xóa danh mục tài liệu <strong>${escapeAdminHtml(cat.name)}</strong>`);
-        renderCategoriesTable();
-        showToast(`Đã xóa danh mục ${cat.name}!`);
-      }
-    });
-
-    document.getElementById('btnSaveCategory')?.addEventListener('click', () => {
-      const cats = typeof getCategories === 'function' ? getCategories() : [];
-      const idVal = document.getElementById('catIdInput')?.value.trim() || selectedCategoryId;
-      const nameVal = document.getElementById('catNameInput')?.value.trim() || '';
-      if (!idVal || !nameVal) {
-        showToast('Vui lòng nhập đầy đủ Mã và Tên danh mục!', 'error');
-        return;
-      }
-      if (isCreatingCategory && cats.some(c => String(c.id).toUpperCase() === idVal.toUpperCase())) {
-        showToast(`Mã danh mục ${idVal} đã tồn tại!`, 'error');
-        return;
-      }
-      if (cats.some(c => String(c.id) !== String(selectedCategoryId) && String(c.name || '').toLowerCase() === nameVal.toLowerCase())) {
-        showToast(`Tên danh mục "${nameVal}" đã tồn tại!`, 'error');
-        return;
-      }
-      if (isCreatingCategory) {
-        cats.push({ id: idVal, name: nameVal });
-        addLog('TẠO MỚI', idVal, `Thêm danh mục tài liệu <strong>${escapeAdminHtml(nameVal)}</strong>`);
-      } else {
-        const target = cats.find(c => String(c.id) === String(selectedCategoryId));
-        if (target) target.name = nameVal;
-        addLog('CẬP NHẬT', selectedCategoryId, `Cập nhật danh mục tài liệu <strong>${escapeAdminHtml(nameVal)}</strong>`);
-      }
-      saveCategories(cats);
-      closeModal('modalCategory');
-      renderCategoriesTable();
-      showToast(`Đã lưu danh mục "${nameVal}"!`);
-    });
-
-    renderCategoriesTable();
+    syncCategorySelects();
   }
 
   /**
@@ -3158,17 +2816,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     const filterReaderStatus = document.getElementById('filterReaderStatus');
 
     function getReaderStatusBadge(status) {
-      if (status === 'HỢP LỆ') return `<span class="badge-reader-valid status-badge">HỢP LỆ</span>`;
+      if (status === 'PENDING') return '<span class="status-badge badge-reader-expired">CHỜ DUYỆT</span>';
+      if (status === 'REJECTED') return '<span class="status-badge badge-reader-locked">TỪ CHỐI</span>';
+      if (['HỢP LỆ', 'ACTIVE', 'HOẠT ĐỘNG'].includes(status)) return `<span class="badge-reader-valid status-badge">HỢP LỆ</span>`;
       if (status === 'HẾT HẠN') return `<span class="badge-reader-expired status-badge">HẾT HẠN</span>`;
       return `<span class="badge-reader-locked status-badge">BỊ KHÓA</span>`;
     }
 
     function renderReaderActions(reader) {
+      if (reader.status === 'REJECTED') return '';
+      if (reader.status === 'PENDING') {
+        return '<button type="button" class="btn-action-gray" data-open-registration>Đi tới xét duyệt</button>';
+      }
       return `
         <div class="actions-group">
           <span class="action-icon" title="Xem / In thẻ thư viện" data-action="print-card" data-id="${reader.id}">${ICON_PRINT}</span>
           <span class="action-icon" title="Chỉnh sửa thông tin độc giả" data-action="edit-reader" data-id="${reader.id}">${ICON_EDIT}</span>
-          <span class="action-icon" title="Gia hạn / Cấp lại thẻ" data-action="renew-card" data-id="${reader.id}">${ICON_REFRESH}</span>
           <span class="action-icon" title="Khóa / Mở khóa thẻ" data-action="lock-reader" data-id="${reader.id}">${ICON_LOCK}</span>
           <span class="action-icon" title="Xóa hồ sơ độc giả" data-action="delete-reader" data-id="${reader.id}">${ICON_DELETE}</span>
         </div>
@@ -3182,7 +2845,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const isFiltered = Boolean(q) || st !== 'all';
 
       const filtered = readers.filter(r => {
-        const matchSt = st === 'all' || r.status === st;
+        const matchSt = st === 'all' || r.status === st || (st === 'HỢP LỆ' && ['ACTIVE', 'HOẠT ĐỘNG'].includes(r.status));
         const matchQ = !q ||
           r.id.toLowerCase().includes(q) ||
           r.name.toLowerCase().includes(q) ||
@@ -3221,6 +2884,112 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderReadersTable();
       });
     }
+
+    const registrationTab = document.querySelector('[data-tab="tabRegistrationReview"]');
+    const registrationTable = document.getElementById('registrationTableContent');
+    const registrationSearch = document.getElementById('registrationSearch');
+    const registrationCount = document.getElementById('registrationCount');
+    const refreshRegistrations = document.getElementById('refreshRegistrations');
+    let registrationPage = 1;
+    let pendingRegistrations = [];
+    let registrationLoadError = '';
+    let registrationReviewing = false;
+
+    function renderRegistrations() {
+      const query = registrationSearch.value.trim().toLowerCase();
+      const filtered = pendingRegistrations.filter(reader =>
+        [reader.id, reader.name, reader.username, reader.email, reader.phone].some(field =>
+          String(field ?? '').toLowerCase().includes(query)
+        )
+      );
+      registrationPage = Math.min(registrationPage, Math.max(1, Math.ceil(filtered.length / RD_PAGE_SIZE)));
+      const start = (registrationPage - 1) * RD_PAGE_SIZE;
+      registrationCount.textContent = refreshRegistrations.disabled ? 'Đang tải hồ sơ…'
+        : registrationLoadError ? '' : `${pendingRegistrations.length} hồ sơ chờ duyệt`;
+      const emptyMessage = registrationLoadError || (refreshRegistrations.disabled ? 'Đang tải hồ sơ…'
+        : query ? 'Không tìm thấy hồ sơ phù hợp.' : 'Không có hồ sơ đăng ký chờ duyệt.');
+      const visible = filtered.slice(start, start + RD_PAGE_SIZE);
+      registrationTable.innerHTML = visible.length ? visible.map(reader => `
+        <div class="readers-table-row" data-id="${escapeAdminHtml(reader.id)}">
+          <div>${escapeAdminHtml(reader.id)}</div>
+          <div>${escapeAdminHtml(reader.name)}</div>
+          <div>${escapeAdminHtml(reader.username || '—')}</div>
+          <div>${escapeAdminHtml(reader.email || '—')}</div>
+          <div>${escapeAdminHtml(reader.phone || '—')}</div>
+          <div>${getReaderStatusBadge(reader.status)}</div>
+          <div class="registration-actions">
+            <button type="button" class="btn-action-blue" data-registration-decision="approve">Duyệt</button>
+            <button type="button" class="btn-action-gray" data-registration-decision="reject">Từ chối</button>
+          </div>
+        </div>
+      `).join('') : `<div class="registration-empty">${escapeAdminHtml(emptyMessage)}</div>`;
+      renderDynamicPagination('registrationPagination', filtered.length, RD_PAGE_SIZE, registrationPage, page => {
+        registrationPage = page;
+        renderRegistrations();
+      });
+    }
+
+    async function loadRegistrations() {
+      if (refreshRegistrations.disabled) return;
+      refreshRegistrations.disabled = true;
+      registrationLoadError = '';
+      renderRegistrations();
+      try {
+        const readers = await DataService.hydrate(DataService.KEYS.READERS, 'readers');
+        pendingRegistrations = readers.filter(reader => reader.status === 'PENDING');
+        renderReadersTable();
+      } catch (error) {
+        registrationLoadError = error.message || 'Không tải được hồ sơ đăng ký.';
+        pendingRegistrations = [];
+      } finally {
+        refreshRegistrations.disabled = false;
+        renderRegistrations();
+      }
+    }
+
+    const reloadRegistrationTab = () => {
+      if (!registrationReviewing) return loadRegistrations();
+    };
+    registrationTab.addEventListener('click', reloadRegistrationTab);
+    refreshRegistrations.addEventListener('click', reloadRegistrationTab);
+    registrationSearch.addEventListener('input', () => {
+      registrationPage = 1;
+      renderRegistrations();
+    });
+    readersTableContent.addEventListener('click', event => {
+      if (event.target.closest('[data-open-registration]')) registrationTab.click();
+    });
+    registrationTable.addEventListener('click', async event => {
+      const button = event.target.closest('[data-registration-decision]');
+      if (!button || registrationReviewing || refreshRegistrations.disabled) return;
+      const row = button.closest('.readers-table-row');
+      const reader = pendingRegistrations.find(item => String(item.id) === row.dataset.id);
+      if (!reader) return;
+      const decision = button.dataset.registrationDecision;
+      const label = decision === 'approve' ? 'Duyệt đăng ký' : 'Từ chối đăng ký';
+      registrationReviewing = true;
+      const buttons = row.querySelectorAll('[data-registration-decision]');
+      buttons.forEach(item => { item.disabled = true; });
+      try {
+        const confirmed = await openAdminConfirmModal({
+          title: label,
+          message: `Xác nhận xử lý đăng ký của ${reader.name} (${reader.username || reader.id})?`,
+          confirmText: label,
+          danger: decision === 'reject'
+        });
+        if (!confirmed) return;
+        await DataService.request('POST', `/readers/${encodeURIComponent(reader.id)}/registration-decision`, { decision });
+        pendingRegistrations = pendingRegistrations.filter(item => item !== reader);
+        showToast(`${label} thành công.`, 'success');
+        await loadRegistrations();
+      } catch (error) {
+        showToast(error.message || 'Không thể xử lý đăng ký.', 'error');
+        if (error.status === 409) await loadRegistrations();
+      } finally {
+        registrationReviewing = false;
+        buttons.forEach(item => { item.disabled = false; });
+      }
+    });
 
     searchReaderInput.addEventListener('input', () => {
       rdPage = 1;
@@ -3273,23 +3042,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('rdStatusSelect').value = reader.status || 'HỢP LỆ';
         rdUploadWidget.setState(reader.avatarUrl || '', true);
         openModal('modalReaderInfo');
-      } else if (action === 'renew-card') {
-        const rules = getLibraryRules();
-        const renewFee = (rules && rules.renewCardFee !== undefined) ? Number(rules.renewCardFee) : 50000;
-        const defaultMonths = (rules && rules.cardValidityMonths) ? String(rules.cardValidityMonths) : '12';
-
-        document.getElementById('renewReaderId').textContent = reader.id;
-        document.getElementById('renewReaderName').textContent = reader.name;
-        document.getElementById('renewReaderType').textContent = reader.readerType;
-        document.getElementById('renewOldExpiry').textContent = reader.expiryDate;
-
-        const durSelect = document.getElementById('renewDurationSelect');
-        if (durSelect) {
-          durSelect.value = defaultMonths === '6' ? '6' : '12';
-        }
-        document.getElementById('renewNewExpiryInput').value = calculateExpiryDateStr(durSelect ? durSelect.value : 12);
-        document.getElementById('renewFeeInput').value = `${renewFee.toLocaleString('en-US')} VNĐ`;
-        openModal('modalRenewCard');
       } else if (action === 'lock-reader') {
         document.getElementById('lockReaderCode').textContent = `${reader.id} (${reader.name})`;
         openModal('modalLockReader');
@@ -3298,6 +3050,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         openModal('modalDeleteReader');
       }
     });
+
+
 
     const btnTriggerPrintCard = document.getElementById('btnTriggerPrintCard');
     if (btnTriggerPrintCard) {
@@ -3384,30 +3138,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       closeModal('modalReaderInfo');
     });
 
-    const renewDurationSelect = document.getElementById('renewDurationSelect');
-    if (renewDurationSelect) {
-      renewDurationSelect.addEventListener('change', () => {
-        const months = parseInt(renewDurationSelect.value, 10) || 12;
-        document.getElementById('renewNewExpiryInput').value = calculateExpiryDateStr(months);
-      });
-    }
-
-    document.getElementById('btnConfirmRenewCard').addEventListener('click', () => {
-      const readers = getReaders();
-      const reader = readers.find(r => r.id === selectedReaderId);
-      if (reader) {
-        const newExp = document.getElementById('renewNewExpiryInput').value.trim() || calculateExpiryDateStr(12);
-        const reason = document.getElementById('renewReasonSelect').value;
-        reader.expiryDate = newExp;
-        reader.status = 'HỢP LỆ';
-        saveReaders(readers);
-        addLog('GIA HẠN', reader.id, `${reason} cho độc giả <strong>${reader.name}</strong> đến ngày ${newExp}`);
-        renderReadersTable();
-        showToast(`Đã gia hạn thẻ cho độc giả ${reader.name} đến ${newExp}!`);
-      }
-      closeModal('modalRenewCard');
-    });
-
     document.getElementById('btnConfirmLockReader').addEventListener('click', () => {
       const readers = getReaders();
       const reader = readers.find(r => r.id === selectedReaderId);
@@ -3471,7 +3201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const issueFeeText = document.getElementById('issueFeeText');
 
     function getNextReaderCode() {
-      return DataService.generateNextId(DataService.KEYS.READERS, '22026', 4);
+      return DataService.generateNextId(DataService.KEYS.READERS, 'BD', 3);
     }
 
     function numberToVietnameseWords(amount) {
@@ -3536,7 +3266,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('btnCancelIssueCard').addEventListener('click', resetIssueCardForm);
 
-    document.getElementById('btnSubmitIssueCard').addEventListener('click', () => {
+    document.getElementById('btnSubmitIssueCard').addEventListener('click', async event => {
       const readers = getReaders();
       const nameVal = issueReaderName.value.trim();
       const usernameVal = issueReaderUsername.value.trim();
@@ -3633,9 +3363,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         avatarUrl: ''
       };
 
-      readers.unshift(newReader);
-      saveReaders(readers);
-      addLog('TẠO MỚI', newId, `Cấp thẻ thư viện mới cho độc giả <strong>${escapeAdminHtml(nameVal)}</strong> (${escapeAdminHtml(newId)} - ${escapeAdminHtml(rType)})`);
+      const button = event.currentTarget;
+      button.disabled = true;
+      try {
+        const saved = await DataService.request('POST', '/readers', newReader);
+        newReader.id = saved.id;
+        await DataService.hydrate(DataService.KEYS.READERS, 'readers');
+        addLog('TẠO MỚI', saved.id, `Cấp thẻ cho bạn đọc <strong>${escapeAdminHtml(nameVal)}</strong>`);
+      } catch (error) {
+        showToast(error.message || 'Không thể mở thẻ thư viện.', 'error');
+        return;
+      } finally {
+        button.disabled = false;
+      }
 
       resetIssueCardForm();
       renderReadersTable();
@@ -3643,12 +3383,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const listTabBtn = document.querySelector('.subtab-item[data-tab="tabReadersList"], .sub-tab[data-target="tabReadersList"]');
       if (listTabBtn) listTabBtn.click();
 
-      document.getElementById('popupCardId').textContent = newReader.id;
-      document.getElementById('popupCardName').textContent = newReader.name.toUpperCase();
-      document.getElementById('popupCardType').textContent = newReader.readerType;
-      document.getElementById('popupCardExpiry').textContent = newReader.expiryDate;
-      showToast(`Đã cấp thẻ thành công cho độc giả ${newReader.name}!`);
-      openModal('modalPrintCard');
+      showToast(`Đã thêm bạn đọc ${newReader.name}!`);
     });
 
     const readerHistoryTableContent = document.getElementById('readerHistoryTableContent');
@@ -3797,9 +3532,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const borrowRequestsTableBody = document.getElementById('borrowRequestsTableBody');
   const violationTableBody = document.getElementById('violationTableBody');
   const renewalsTableBody = document.getElementById('renewalsTableBody');
-  const waitingTableBody = document.getElementById('waitingTableBody');
   const repBookTableBody = document.getElementById('repBookTableBody');
-  const isCirculationPage = Boolean(loanTableBody || borrowRequestsTableBody || violationTableBody || renewalsTableBody || waitingTableBody);
+  const isCirculationPage = Boolean(loanTableBody || borrowRequestsTableBody || violationTableBody || renewalsTableBody);
   const isReportsPage = Boolean(repBookTableBody);
 
   if (isCirculationPage || isReportsPage) {
@@ -3829,9 +3563,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const PAGE_SIZE = 8;
     let loanPage = 1;
     let borrowReqPage = 1;
+    let approvingBorrowRequest = false;
     let vioPage = 1;
     let renPage = 1;
-    let waitPage = 1;
     let waitingListCache = [];
     let borrowRequestsCache = null;
     let renewalsCache = null;
@@ -3855,10 +3589,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const filterRenTo = document.getElementById('filterRenewalToDate');
     const filterRenStatus = document.getElementById('filterRenewalStatus');
 
-    const searchWaitInput = document.getElementById('searchWaitingInput');
-    const filterWaitFrom = document.getElementById('filterWaitingFromDate');
-    const filterWaitTo = document.getElementById('filterWaitingToDate');
-    const filterWaitStatus = document.getElementById('filterWaitingStatus');
 
     function getStatusBadgeHtml(status) {
       const s = String(status || '').toUpperCase();
@@ -3982,7 +3712,10 @@ document.addEventListener('DOMContentLoaded', function () {
               <td>${esc(f.violation || f.lyDoPhat || 'Trễ hạn trả sách')}</td>
               <td style="font-weight: 600; color: #DC2626;">${Number(f.amount || f.soTien || 0).toLocaleString('vi-VN')} đ</td>
               <td style="text-align: center;">${badge}</td>
-              <td style="text-align: center;">${action}</td>
+              <td style="text-align: center;"><div class="fine-row-actions">
+                <button type="button" class="btn-action-gray" data-fine-detail="${esc(f.id)}">Chi tiết</button>
+                ${action}
+              </div></td>
             </tr>
           `;
         }).join('');
@@ -4066,7 +3799,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           const copySelectHtml = isPending
             ? (availableCopies.length
-              ? `<select class="form-select-control borrow-req-copy-select" data-req-id="${esc(rid)}" style="min-width:155px;height:32px;font-size:12px;">
+              ? `<select class="form-select-control borrow-req-copy-select" data-req-id="${esc(rid)}" aria-label="Cuốn sách giao cho yêu cầu ${esc(rid)}">
                   ${availableCopies.map(c => `<option value="${esc(c.id)}" ${String(c.id) === String(req.copyId) ? 'selected' : ''}>${esc(c.id)} (${esc(c.location || 'Kho')})</option>`).join('')}
                  </select>`
               : `<span style="color:#DC2626;font-size:12px;font-weight:600;">Hết bản sao sẵn sàng</span>`)
@@ -4085,9 +3818,9 @@ document.addEventListener('DOMContentLoaded', function () {
               : `<span class="badge status-badge badge-reader-locked">Từ chối</span>`);
 
           const actions = isPending ? `
-            <div style="display:flex;justify-content:center;gap:6px;">
-              <button type="button" class="btn-action-blue btn-approve-borrow-req" data-id="${esc(rid)}" ${!eligible || !availableCopies.length ? 'disabled style="opacity:0.45;cursor:not-allowed;padding:4px 8px;font-size:11px;height:auto;background:#16A34A;border:none;border-radius:4px;color:#fff;"' : 'style="padding:4px 8px;font-size:11px;height:auto;background:#16A34A;border:none;border-radius:4px;color:#fff;cursor:pointer;"'}>Duyệt & Lập phiếu</button>
-              <button type="button" class="btn-action-gray btn-reject-borrow-req" data-id="${esc(rid)}" style="padding:4px 8px;font-size:11px;height:auto;background:#EF4444;border:none;border-radius:4px;color:#fff;cursor:pointer;">Từ chối</button>
+            <div class="borrow-request-actions">
+              <button type="button" class="btn-action-blue btn-approve-borrow-req" data-id="${esc(rid)}" ${!eligible || !availableCopies.length ? 'disabled' : ''}>Duyệt &amp; lập phiếu</button>
+              <button type="button" class="btn-action-gray btn-reject-borrow-req" data-id="${esc(rid)}">Từ chối</button>
             </div>
           ` : `<span style="color:#64748B;font-size:12px;">${esc(req.requestDate || '—')}</span>`;
 
@@ -4184,72 +3917,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function loadWaitingList() {
-      if (!waitingTableBody) return;
       try {
         const res = await DataService.request('GET', '/waitingList');
         if (Array.isArray(res)) waitingListCache = res;
       } catch (_) {}
-      renderWaitingTable();
     }
 
-    function renderWaitingTable() {
-      if (!waitingTableBody) return;
-      const list = waitingListCache || [];
-      const q = (searchWaitInput?.value || '').trim().toLowerCase();
-      const fromV = filterWaitFrom?.value || '';
-      const toV = filterWaitTo?.value || '';
-      const stV = filterWaitStatus?.value || 'all';
-
-      const filtered = list.filter(w => {
-        const bId = w.bookTitleId || w.bookId || w.id || '';
-        const matchQ = !q || [w.readerId, w.readerName, bId, w.bookTitle].some(x => String(x || '').toLowerCase().includes(q));
-        const normSt = String(w.status || 'DANG CHO').toUpperCase();
-        const matchSt = stV === 'all' || normSt.includes(stV);
-        const matchDt = matchDateRange(w.registeredAt || w.requestDate || w.createdAt, fromV, toV);
-        return matchQ && matchSt && matchDt;
-      });
-
-      const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-      if (waitPage > totalPages) waitPage = totalPages;
-      const paged = filtered.slice((waitPage - 1) * PAGE_SIZE, waitPage * PAGE_SIZE);
-
-      if (!paged.length) {
-        waitingTableBody.innerHTML = `<tr><td colspan="6" style="padding: 0;"><div class="empty-state-container">${list.length ? 'Không tìm thấy yêu cầu đặt chỗ phù hợp.' : 'Không có độc giả nào đang chờ mượn sách.'}</div></td></tr>`;
-      } else {
-        waitingTableBody.innerHTML = paged.map((w, idx) => {
-          const bId = w.bookTitleId || w.bookId || w.id || '';
-          const rDate = w.registeredAt || w.requestDate || w.createdAt || '—';
-          const pos = w.position || w.priority || ((waitPage - 1) * PAGE_SIZE + idx + 1);
-          const stUp = String(w.status || 'DANG CHO').toUpperCase();
-          let badge = `<span class="badge status-badge" style="background: #FEF3C7; color: #D97706; border-color: #FCD34D;">Đang chờ</span>`;
-          if (stUp.includes('SAN SANG')) badge = `<span class="badge status-badge badge-circ-ready">Đã có sách</span>`;
-          else if (stUp.includes('DA NHAN')) badge = `<span class="badge status-badge badge-reader-valid">Đã nhận</span>`;
-          else if (stUp.includes('HUY')) badge = `<span class="badge status-badge badge-reader-locked">Đã hủy</span>`;
-
-          const actions = (stUp.includes('DANG CHO') || stUp.includes('SAN SANG')) ? `
-            <div style="display:flex; justify-content:center; gap:6px;">
-              ${stUp.includes('DANG CHO') ? `<button type="button" class="btn-action-blue btn-wait-status" data-reader-id="${esc(w.readerId)}" data-book-id="${esc(bId)}" data-status="SAN SANG" style="padding:4px 8px; font-size:11px; height:auto;">Báo có sách</button>` : ''}
-              ${stUp.includes('SAN SANG') ? `<button type="button" class="btn-action-blue btn-wait-status" data-reader-id="${esc(w.readerId)}" data-book-id="${esc(bId)}" data-status="DA NHAN" style="padding:4px 8px; font-size:11px; height:auto; background:#16A34A; border:none;">Đã nhận</button>` : ''}
-              <button type="button" class="btn-action-gray btn-wait-status" data-reader-id="${esc(w.readerId)}" data-book-id="${esc(bId)}" data-status="HUY" style="padding:4px 8px; font-size:11px; height:auto;">Hủy</button>
-            </div>
-          ` : `<span style="color:#64748B; font-size:12px;">Hoàn tất</span>`;
-
-          return `
-            <tr style="border-bottom: 1px solid var(--border-color); height: 48px;">
-              <td><strong>${esc(w.readerName || w.readerId || 'Độc giả')}</strong><br><small style="color:#64748B;">${esc(w.readerId || '')}</small></td>
-              <td><strong>${esc(bId || '—')}</strong>${w.bookTitle ? `<br><small style="color:#64748B;">${esc(w.bookTitle)}</small>` : ''}</td>
-              <td>${esc(rDate)}</td>
-              <td style="text-align: center; font-weight: 700;">#${pos}</td>
-              <td style="text-align: center;">${badge}</td>
-              <td style="text-align: center;">${actions}</td>
-            </tr>
-          `;
-        }).join('');
-      }
-      renderSubPagination('waitingPagination', filtered.length, PAGE_SIZE, waitPage, p => { waitPage = p; renderWaitingTable(); });
-    }
-
-    // Lắng nghe filter
     [searchLoanInput, filterLoanFrom, filterLoanTo, filterLoanStatus].forEach(el => {
       el?.addEventListener(el.tagName === 'SELECT' || el.type === 'date' ? 'change' : 'input', () => { loanPage = 1; renderLoansTable(); });
     });
@@ -4261,9 +3934,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     [searchRenInput, filterRenFrom, filterRenTo, filterRenStatus].forEach(el => {
       el?.addEventListener(el.tagName === 'SELECT' || el.type === 'date' ? 'change' : 'input', () => { renPage = 1; renderRenewalsTable(); });
-    });
-    [searchWaitInput, filterWaitFrom, filterWaitTo, filterWaitStatus].forEach(el => {
-      el?.addEventListener(el.tagName === 'SELECT' || el.type === 'date' ? 'change' : 'input', () => { waitPage = 1; renderWaitingTable(); });
     });
 
     // Modal Thêm phiếu mượn thực tế
@@ -4321,9 +3991,9 @@ document.addEventListener('DOMContentLoaded', function () {
       if (empEl) {
         try {
           const s = JSON.parse(localStorage.getItem('ixs_library_session') || '{}');
-          empEl.value = s.id || '12026001';
+          empEl.value = s.id || 'NV001';
         } catch (_) {
-          empEl.value = '12026001';
+          empEl.value = 'NV001';
         }
       }
       if (loanReaderIdInput) loanReaderIdInput.value = '';
@@ -4456,7 +4126,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const baseId = (document.getElementById('loanIdInput')?.value || '').trim() || DataService.generateNextId(DataService.KEYS.READER_HISTORY, 'PM', 3);
       const baseMatch = baseId.match(/^PM(\d+)$/);
       const baseNum = baseMatch ? parseInt(baseMatch[1], 10) : null;
-      const empId = (document.getElementById('loanEmpInput')?.value || '12026001').trim();
+      const empId = (document.getElementById('loanEmpInput')?.value || 'NV001').trim();
       const origText = btnSubmit?.textContent || 'XÁC NHẬN';
       if (btnSubmit) { btnSubmit.disabled = true; btnSubmit.textContent = 'Đang lưu...'; }
 
@@ -4591,7 +4261,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const cond = document.getElementById('returnConditionSelect')?.value || 'NGUYEN_VEN';
       const rules = typeof getLibraryRules === 'function' ? getLibraryRules() : { lateFeePerDay: 5000, damageFee: 30000, lostCompensationPercent: 150, maxLateDaysBeforeLock: 30 };
-      const empId = getActiveUserSession().id || document.getElementById('loanEmpInput')?.value || '12026001';
+      const empId = getActiveUserSession().id || document.getElementById('loanEmpInput')?.value || 'NV001';
 
       let apiReturnRes = null;
       let offlineMode = false;
@@ -4659,8 +4329,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (nextWaiter) {
           nextWaiter.status = 'SAN SANG';
           promotedWaiter = nextWaiter;
-          renderWaitingTable();
-        }
+            }
       }
 
       if (copy) {
@@ -4698,7 +4367,7 @@ document.addEventListener('DOMContentLoaded', function () {
           id: `PP-${Date.now().toString().slice(-6)}`,
           loanId: activeReturningLoanId,
           readerId: loan.readerId,
-          employeeId: document.getElementById('loanEmpInput')?.value || '12026001',
+          employeeId: document.getElementById('loanEmpInput')?.value || 'NV001',
           ngayLap: formatDMY(new Date()),
           date: formatDMY(new Date()),
           violation: reasons.join(' + '),
@@ -4779,7 +4448,7 @@ document.addEventListener('DOMContentLoaded', function () {
         id: `PP-${Date.now().toString().slice(-6)}`,
         loanId: loanId || null,
         readerId: rd.id,
-        employeeId: getActiveUserSession().id || '12026001',
+        employeeId: getActiveUserSession().id || 'NV001',
         ngayLap: formatDMY(new Date()),
         date: formatDMY(new Date()),
         violation: reason,
@@ -4790,16 +4459,16 @@ document.addEventListener('DOMContentLoaded', function () {
         status: 'Chưa thanh toán'
       };
       try {
-        await DataService.request('POST', '/fines', newFine);
-      } catch (err) {
-        if (err && err.status !== 0) {
-          setFineFormErr(err.message || 'Không thể lập phiếu phạt.');
-          return;
-        }
+        const saved = await DataService.request('POST', '/fines', newFine);
+        newFine.id = saved.id;
+        await Promise.all([
+          DataService.hydrate(DataService.KEYS.FINES, 'fines'),
+          DataService.hydrate(DataService.KEYS.READERS, 'readers')
+        ]);
+      } catch (error) {
+        setFineFormErr(error.message || 'Không thể lập phiếu phạt.');
+        return;
       }
-      saveFines([{ ...newFine, loanId: newFine.loanId || '—' }, ...getFines()]);
-      rd.outstandingFine = Number(rd.outstandingFine || 0) + amount;
-      saveReaders(readers);
       closeCreateFine();
       renderViolationsTable();
       toast(`Đã lập phiếu phạt ${newFine.id} (${amount.toLocaleString('vi-VN')} đ) cho độc giả ${rd.name}!`);
@@ -4829,37 +4498,29 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!fine) return;
         const amtNum = Number(fine.amount || fine.soTien || 0);
         const amt = amtNum.toLocaleString('vi-VN');
+        const method = window.prompt('Nhập 1 nếu thu tiền mặt, hoặc 2 nếu đã đối soát chuyển khoản.');
+        if (method === null) return;
+        const paymentMethod = { '1': 'Tiền mặt', '2': 'Chuyển khoản' }[method.trim()];
+        if (!paymentMethod) {
+          toast('Phương thức thanh toán không hợp lệ.', 'error');
+          return;
+        }
         const ok = await confirmDialog({
           title: 'Xác nhận thu tiền phạt',
-          message: `Xác nhận đã thu ${amt} đ cho phiếu phạt ${fid}?`,
+          message: `Xác nhận đã thu ${amt} đ cho phiếu ${fid} qua ${paymentMethod.toLowerCase()}?`,
           confirmText: 'Xác nhận đã thu',
           cancelText: 'Hủy'
         });
         if (!ok) return;
         try {
-          await DataService.request('PUT', `/fines/${encodeURIComponent(fid)}`, { paymentStatus: 'Đã thanh toán' });
+          await DataService.request('PUT', `/fines/${encodeURIComponent(fid)}`, { paymentMethod });
+          await Promise.all([
+            DataService.hydrate(DataService.KEYS.FINES, 'fines'),
+            DataService.hydrate(DataService.KEYS.READERS, 'readers')
+          ]);
         } catch (err) {
-          if (err && err.status !== 0 && err.status !== 404) {
-            toast(err.message || 'Không thể cập nhật thanh toán phạt.', 'error');
-            return;
-          }
-        }
-        fine.paymentStatus = 'Đã thanh toán';
-        fine.status = 'Đã thanh toán';
-        saveFines(fines);
-        if (fine.readerId) {
-          const readers = getReaders();
-          const rd = readers.find(r => String(r.id) === String(fine.readerId));
-          const remainingDebt = fines
-            .filter(f => String(f.readerId) === String(fine.readerId) && !String(f.paymentStatus || '').toLowerCase().includes('đã thanh toán'))
-            .reduce((s, f) => s + Number(f.amount || f.soTien || 0), 0);
-          if (rd) {
-            rd.outstandingFine = remainingDebt;
-            if (remainingDebt === 0 && (String(rd.status || '').toUpperCase().includes('KHÓA') || String(rd.status || '').toUpperCase().includes('LOCK'))) {
-              rd.status = 'ACTIVE';
-            }
-            saveReaders(readers);
-          }
+          toast(err.message || 'Không thể cập nhật thanh toán phạt.', 'error');
+          return;
         }
         renderViolationsTable();
         toast(`Đã xác nhận thu tiền phiếu phạt ${fid} & cập nhật công nợ bạn đọc!`, 'success');
@@ -4868,87 +4529,49 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // 2b. Duyệt yêu cầu mượn sách & lập phiếu mượn (Seq 2.8.1)
       const btnAppBorrow = e.target.closest('.btn-approve-borrow-req');
-      if (btnAppBorrow && !btnAppBorrow.disabled) {
-        const rid = btnAppBorrow.getAttribute('data-id');
-        const list = getBorrowRequests();
-        const reqItem = list.find(r => String(r.id || r.requestId) === String(rid));
-        if (!reqItem) return;
-        const copySelect = document.querySelector(`.borrow-req-copy-select[data-req-id="${CSS.escape(rid)}"]`);
-        const chosenCopyId = copySelect ? copySelect.value : reqItem.copyId;
-        if (!chosenCopyId) {
-          toast('Chưa có bản sao vật lý sẵn sàng để lập phiếu mượn.', 'error');
+      if (btnAppBorrow) {
+        if (btnAppBorrow.disabled || approvingBorrowRequest) return;
+        const rid = btnAppBorrow.dataset.id;
+        const request = getBorrowRequests().find(item => String(item.id || item.requestId) === rid);
+        if (!request) return;
+        const copySelect = btnAppBorrow.closest('tr')?.querySelector('.borrow-req-copy-select');
+        const copyId = copySelect?.value || request.copyId;
+        if (!copyId) {
+          toast('Chưa có cuốn sách sẵn sàng để lập phiếu mượn.', 'error');
           return;
         }
-        const ok = await confirmDialog({
-          title: 'Duyệt yêu cầu & Lập phiếu mượn',
-          message: `Xác nhận giao cuốn sách ${chosenCopyId} cho độc giả ${reqItem.readerName || reqItem.readerId} và lập phiếu mượn?`,
-          confirmText: 'Duyệt & Lập phiếu',
-          cancelText: 'Hủy'
-        });
-        if (!ok) return;
 
-        const rules = typeof getLibraryRules === 'function' ? getLibraryRules() : { maxBorrowBooks: 5, borrowDays: 14 };
-        const maxBorrowBooks = Number(rules.maxBorrowBooks) || 5;
-        const borrowDays = Number(rules.borrowDays || rules.maxBorrowDays) || 14;
-        const empId = getActiveUserSession().id || '12026001';
-        const newLoanId = DataService.generateNextId(DataService.KEYS.READER_HISTORY, 'PM', 3);
-
-        let offlineFallback = false;
+        approvingBorrowRequest = true;
+        btnAppBorrow.disabled = true;
+        const originalLabel = btnAppBorrow.textContent;
         try {
-          await DataService.request('POST', `/borrowRequests/${encodeURIComponent(rid)}/approve`, {
-            copyId: chosenCopyId,
-            employeeId: empId,
-            loanId: newLoanId,
-            maxBorrowBooks,
-            borrowDays
+          const confirmed = await confirmDialog({
+            title: 'Duyệt yêu cầu mượn',
+            message: `Giao cuốn ${copyId} cho bạn đọc ${request.readerName || request.readerId} và lập phiếu mượn?`,
+            confirmText: 'Duyệt & lập phiếu'
           });
-        } catch (err) {
-          if (err && err.status !== 0 && err.status !== 404) {
-            toast(err.message || 'Không thể duyệt yêu cầu mượn sách.', 'error');
-            return;
-          }
-          offlineFallback = true;
-        }
-
-        reqItem.status = 'DA DUYET';
-        reqItem.copyId = chosenCopyId;
-        if (Array.isArray(borrowRequestsCache)) {
-          localStorage.setItem('ixs_library_borrow_requests', JSON.stringify(list));
-        }
-
-        if (!offlineFallback) {
-          await Promise.all([
-            DataService.hydrate(DataService.KEYS.READER_HISTORY, 'readerHistory', []).catch(() => {}),
-            DataService.hydrate(DataService.KEYS.BOOK_COPIES, 'bookCopies', []).catch(() => {}),
-            DataService.hydrate(DataService.KEYS.BOOK_TITLES, 'bookTitles', []).catch(() => {}),
+          if (!confirmed) return;
+          btnAppBorrow.textContent = 'Đang lập phiếu…';
+          const loan = await DataService.request('POST', `/borrowRequests/${encodeURIComponent(rid)}/approve`, { copyId });
+          request.status = 'DA DUYET';
+          request.copyId = loan.copyId;
+          renderBorrowRequestsTable();
+          addLog('LẬP PHIẾU MƯỢN', loan.loanId, `Duyệt yêu cầu <strong>${esc(rid)}</strong> và giao cuốn <strong>${esc(loan.copyId)}</strong>`);
+          toast(`Đã duyệt ${rid} và lập phiếu mượn ${loan.loanId}.`, 'success');
+          await Promise.allSettled([
+            DataService.hydrate(DataService.KEYS.READER_HISTORY, 'readerHistory', []),
+            DataService.hydrate(DataService.KEYS.BOOK_COPIES, 'bookCopies', []),
+            DataService.hydrate(DataService.KEYS.BOOK_TITLES, 'bookTitles', []),
             loadBorrowRequests()
           ]);
-        } else {
-          const copies = getBookCopies();
-          const c = copies.find(x => String(x.id) === String(chosenCopyId));
-          if (c) { c.circulationStatus = 'ĐANG MƯỢN'; c.status = 'ĐANG MƯỢN'; }
-          const titles = getBookTitles();
-          const t = titles.find(x => String(x.id) === String(reqItem.bookId));
-          if (t && Number(t.available) > 0) t.available = Number(t.available) - 1;
-          const now = new Date();
-          const due = new Date(now.getTime() + borrowDays * 86400000);
-          const loans = getReaderHistory();
-          loans.unshift({
-            id: newLoanId, loanId: newLoanId, readerId: reqItem.readerId, readerName: reqItem.readerName || reqItem.readerId,
-            copyId: chosenCopyId, bookId: reqItem.bookId, bookTitle: reqItem.bookTitle || t?.title || reqItem.bookId,
-            employeeId: empId, borrowDate: formatDMY(now), dueDate: formatDMY(due), status: 'Đang mượn'
-          });
-          if (DataService._cache) {
-            DataService._cache[DataService.KEYS.READER_HISTORY] = loans;
-            DataService._cache[DataService.KEYS.BOOK_COPIES] = copies;
-            DataService._cache[DataService.KEYS.BOOK_TITLES] = titles;
-          }
-          localStorage.setItem('ixs_library_borrow_requests', JSON.stringify(list));
+          renderLoansTable();
+        } catch (error) {
+          toast(error.message || 'Không thể duyệt yêu cầu mượn.', 'error');
+        } finally {
+          approvingBorrowRequest = false;
+          btnAppBorrow.disabled = false;
+          btnAppBorrow.textContent = originalLabel;
         }
-        addLog('LẬP PHIẾU MƯỢN', newLoanId, `Duyệt yêu cầu <strong>${escapeAdminHtml(rid)}</strong> và giao cuốn <strong>${escapeAdminHtml(chosenCopyId)}</strong>`);
-        toast(`Đã duyệt yêu cầu ${rid} và lập phiếu mượn ${newLoanId}!`, 'success');
-        renderBorrowRequestsTable();
-        renderLoansTable();
         return;
       }
 
@@ -4956,21 +4579,17 @@ document.addEventListener('DOMContentLoaded', function () {
       const btnRejBorrow = e.target.closest('.btn-reject-borrow-req');
       if (btnRejBorrow) {
         const rid = btnRejBorrow.getAttribute('data-id');
-        const ok = await confirmDialog({
-          title: 'Từ chối yêu cầu mượn sách',
-          message: `Bạn có chắc muốn từ chối yêu cầu mượn ${rid}?`,
-          confirmText: 'Từ chối',
-          cancelText: 'Hủy',
-          danger: true
-        });
-        if (!ok) return;
+        const reason = window.prompt('Nhập lý do từ chối yêu cầu mượn (tối đa 255 ký tự).')?.trim();
+        if (reason === undefined) return;
+        if (!reason || reason.length > 255) {
+          toast('Lý do từ chối phải từ 1 đến 255 ký tự.', 'error');
+          return;
+        }
         try {
-          await DataService.request('POST', `/borrowRequests/${encodeURIComponent(rid)}/reject`, {});
+          await DataService.request('POST', `/borrowRequests/${encodeURIComponent(rid)}/reject`, { reason });
         } catch (err) {
-          if (err && err.status !== 0 && err.status !== 404) {
-            toast(err.message || 'Không thể từ chối yêu cầu mượn.', 'error');
-            return;
-          }
+          toast(err.message || 'Không thể từ chối yêu cầu mượn.', 'error');
+          return;
         }
         const list = getBorrowRequests();
         const reqItem = list.find(r => String(r.id || r.requestId) === String(rid));
@@ -5086,28 +4705,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       // 5. Cập nhật trạng thái hàng chờ
-      const btnWait = e.target.closest('.btn-wait-status');
-      if (btnWait) {
-        const readerId = btnWait.getAttribute('data-reader-id');
-        const bookId = btnWait.getAttribute('data-book-id');
-        const newStatus = btnWait.getAttribute('data-status');
-        try {
-          await DataService.request('PUT', `/waitingList/${encodeURIComponent(bookId)}`, {
-            readerId,
-            bookTitleId: bookId,
-            status: newStatus
-          });
-        } catch (err) {
-          if (err && err.status !== 0) {
-            toast(err.message || 'Không thể cập nhật hàng chờ.', 'error');
-            return;
-          }
-        }
-        const entry = waitingListCache.find(w => String(w.readerId) === String(readerId) && String(w.bookTitleId || w.bookId || w.id) === String(bookId));
-        if (entry) entry.status = newStatus;
-        renderWaitingTable();
-        toast('Đã cập nhật trạng thái hàng chờ mượn sách!', 'success');
-      }
+
     });
 
     window.addEventListener('ixs:data-loaded', () => {

@@ -37,7 +37,7 @@
           <div class="user-dropdown-header">
             <div class="user-dropdown-name" id="dropdownUserName">Quản trị viên</div>
             <div class="user-dropdown-meta">
-              <span id="dropdownUserCode">Mã NV: 12026001</span>
+              <span id="dropdownUserCode">Mã NV: NV001</span>
               <span class="badge status-badge badge-admin" id="dropdownUserRole">QUẢN TRỊ VIÊN</span>
             </div>
           </div>
@@ -61,9 +61,9 @@
     <div class="main-body">
 
       <aside class="sidebar-menu admin-sidebar" id="sidebarMenu">
-        <a href="index.html" class="sidebar-item" title="Quản lý hệ thống">
+        <a href="index.html" class="sidebar-item" title="Quản lý nhân viên">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          <span>Quản lý hệ thống</span>
+          <span>Quản lý nhân viên</span>
         </a>
         <a href="books.html" class="sidebar-item active" title="Quản lý kho sách">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
@@ -77,6 +77,12 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
           <span>Quản lý mượn - trả</span>
         </a>
+        <a href="violations.html" class="sidebar-item" title="Quản lý vi phạm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 8v4m0 4h.01M10.3 4.8 2.7 18a1.5 1.5 0 0 0 1.3 2.2h16a1.5 1.5 0 0 0 1.3-2.2L13.3 4.8a1.7 1.7 0 0 0-3 0Z"/>
+          </svg>
+          <span>Quản lý vi phạm</span>
+        </a>
         <a href="reports.html" class="sidebar-item" title="Báo cáo, thống kê">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           <span>Báo cáo, thống kê</span>
@@ -89,9 +95,8 @@
           <div class="subtabs-list">
             <button type="button" class="subtab-item active" data-tab="tabBookTitles">Danh mục đầu sách</button>
             <button type="button" class="subtab-item" data-tab="tabBookCopies">Danh sách cuốn sách</button>
-            <button type="button" class="subtab-item" data-tab="tabCategories">Danh mục tài liệu</button>
             <button type="button" class="subtab-item" data-tab="tabImportBooks">Nhập sách mới</button>
-            <button type="button" class="subtab-item" data-tab="tabSuppliers" style="display: none;">Đối tác cung cấp</button>
+            <button type="button" class="subtab-item" data-tab="tabSuppliers">Nhà cung cấp</button>
             <button type="button" class="subtab-item" data-tab="tabSuggestions">Xử lý đề xuất sách</button>
           </div>
           <div class="subtabs-line"></div>
@@ -175,10 +180,8 @@
                   <option value="all">Trạng thái lưu thông</option>
                   <option value="SẴN SÀNG">Sẵn sàng</option>
                   <option value="ĐANG MƯỢN">Đang mượn</option>
-                  <option value="GIỮ CHỜ NGƯỜI CHỜ">Giữ cho người chờ</option>
                   <option value="HƯ HỎNG">Hư hỏng</option>
                   <option value="MẤT">Mất</option>
-                  <option value="ĐÃ THANH LÝ">Đã thanh lý</option>
                 </select>
                 <span class="filter-arrow">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -251,7 +254,7 @@
           <div class="pagination-wrapper" id="impPagination"></div>
         </div>
 
-        <div class="tab-content-panel" id="tabSuppliers" style="display: none;">
+        <div class="tab-content-panel" id="tabSuppliers">
           <div class="toolbar-container">
             <div class="toolbar-left-group">
               <div class="search-box book-search">
@@ -274,10 +277,6 @@
             </div>
 
             <div class="toolbar-right-group">
-              <button type="button" class="btn-add" id="btnAddPublisher">
-                <span>Thêm NXB</span>
-                <span style="font-size: 16px; font-weight: 600;">+</span>
-              </button>
               <button type="button" class="btn-add" id="btnAddSupplier">
                 <span>Thêm nhà cung cấp</span>
                 <span style="font-size: 16px; font-weight: 600;">+</span>
@@ -303,32 +302,7 @@
           <div class="pagination-wrapper" id="supPagination"></div>
         </div>
 
-        <div class="tab-content-panel" id="tabCategories">
-          <div class="toolbar-container">
-            <div class="toolbar-left-group">
-              <div class="search-box book-search">
-                <input type="text" id="searchCategoryInput" class="book-search" placeholder="Tìm theo mã danh mục hoặc tên danh mục...">
-                <span class="search-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                </span>
-              </div>
-            </div>
-            <button type="button" class="btn-add btn-add-book" id="btnAddCategory">
-              <span>Thêm danh mục</span>
-              <span style="font-size: 16px; font-weight: 600;">+</span>
-            </button>
-          </div>
-          <div class="table-responsive">
-            <div class="supplier-table-header" style="grid-template-columns: 160px 1fr 180px 160px;">
-              <div>Mã danh mục</div>
-              <div>Tên danh mục tài liệu</div>
-              <div style="text-align: center;">Số đầu sách</div>
-              <div style="text-align: center;">Hành động</div>
-            </div>
-            <div class="table-frame" id="categoriesTableContent"></div>
-          </div>
-          <div class="pagination-wrapper" id="catPagination"></div>
-        </div>
+
 
         <div class="tab-content-panel" id="tabSuggestions">
           <div class="toolbar-container">
@@ -580,13 +554,11 @@
             <div class="form-grid-row" style="grid-template-columns: 135px 1fr;">
               <label class="form-field-label" for="bcCirculationInput">Trạng thái lưu thông</label>
               <select class="form-select-control" id="bcCirculationInput">
+                <option value="" hidden>Giữ trạng thái hiện tại</option>
                 <option value="SẴN SÀNG">SẴN SÀNG</option>
                 <option value="ĐANG MƯỢN">ĐANG MƯỢN</option>
-                <option value="GIỮ CHỜ NGƯỜI CHỜ">GIỮ CHỜ NGƯỜI CHỜ</option>
                 <option value="HƯ HỎNG">HƯ HỎNG</option>
                 <option value="MẤT">MẤT</option>
-                <option value="ĐÃ THANH LÝ">ĐÃ THANH LÝ</option>
-                <option value="KHÓA">KHÓA</option>
               </select>
             </div>
             <div class="form-grid-row" style="grid-template-columns: 135px 1fr;">
@@ -604,23 +576,7 @@
     </div>
   </div>
 
-  <div class="modal-overlay confirm-modal" id="modalDeleteBookCopy">
-    <div class="modal-box modal-box-sm">
-      <div class="modal-header">
-        <div class="modal-title">LEAF LIBRARY - XÓA CUỐN SÁCH</div>
-        <button type="button" class="modal-close-btn" data-close="modalDeleteBookCopy">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="confirm-text-message">
-          Bạn có chắc chắn muốn xóa bản sao cuốn sách có mã cá biệt <strong id="deleteBookCopyCode">CS001</strong> khỏi kho lưu trữ không?
-        </div>
-        <div class="confirm-buttons-row">
-          <button type="button" class="btn-action-gray" data-close="modalDeleteBookCopy">HỦY BỎ</button>
-          <button type="button" class="btn-action-blue" id="btnConfirmDeleteBookCopy">XÁC NHẬN XÓA</button>
-        </div>
-      </div>
-    </div>
-  </div>
+
 
   <div class="modal-overlay" id="modalSupplier">
     <div class="modal-box modal-box-md">
@@ -633,7 +589,7 @@
           <div class="supplier-row-2col">
             <div class="supplier-field-block">
               <label class="supplier-label-italic">Mã nhà cung cấp</label>
-              <div class="supplier-code-readonly" id="supIdDisplay">NCC260004</div>
+              <div class="supplier-code-readonly" id="supIdDisplay">NC004</div>
             </div>
             <div class="supplier-field-block">
               <label class="supplier-label-italic">Tên đối tác / đơn vị</label>
@@ -681,108 +637,11 @@
       </div>
       <div class="modal-body">
         <div class="confirm-text-message">
-          Bạn có chắc chắn muốn xóa đối tác cung cấp <strong id="deleteSupplierCode">NCC260001</strong> khỏi danh sách không?
+          Bạn có chắc chắn muốn xóa đối tác cung cấp <strong id="deleteSupplierCode">NC001</strong> khỏi danh sách không?
         </div>
         <div class="confirm-buttons-row">
           <button type="button" class="btn-action-gray" data-close="modalDeleteSupplier">HỦY BỎ</button>
           <button type="button" class="btn-action-blue" id="btnConfirmDeleteSupplier">XÁC NHẬN XÓA</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="modalAddPublisher">
-    <div class="modal-box modal-box-md">
-      <div class="modal-header">
-        <div class="modal-title">LEAF LIBRARY - THÊM NHÀ XUẤT BẢN</div>
-        <button type="button" class="modal-close-btn" data-close="modalAddPublisher">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-col-left">
-          <div class="form-grid-row" style="grid-template-columns: 125px 1fr;">
-            <label class="form-field-label">Mã nhà xuất bản</label>
-            <input type="text" class="form-input-text" id="pubAddCodeInput" style="max-width: 180px;">
-          </div>
-          <div class="form-grid-row" style="grid-template-columns: 125px 1fr;">
-            <label class="form-field-label">Tên nhà xuất bản</label>
-            <input type="text" class="form-input-text" id="pubAddNameInput">
-          </div>
-          <div class="form-grid-row" style="grid-template-columns: 125px 1fr;">
-            <label class="form-field-label">Số điện thoại</label>
-            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 12px; align-items: center;">
-              <input type="text" class="form-input-text" id="pubAddPhoneInput">
-              <div class="sub-field-group">
-                <span class="form-sub-label">Email</span>
-                <input type="text" class="form-input-text" id="pubAddEmailInput">
-              </div>
-            </div>
-          </div>
-          <div class="form-grid-row" style="grid-template-columns: 125px 1fr;">
-            <label class="form-field-label">Địa chỉ</label>
-            <input type="text" class="form-input-text" id="pubAddAddressInput">
-          </div>
-          <div class="form-grid-row" style="grid-template-columns: 125px 1fr; align-items: flex-start;">
-            <label class="form-field-label" style="margin-top: 8px;">Ghi chú</label>
-            <textarea class="form-textarea" id="pubAddNoteInput" style="min-height: 110px;"></textarea>
-          </div>
-          <div style="display: flex; justify-content: flex-end; gap: 14px; margin-top: 6px;">
-            <button type="button" class="btn-action-gray" data-close="modalAddPublisher" style="width: 120px;">THOÁT</button>
-            <button type="button" class="btn-action-blue" id="btnConfirmAddPublisher" style="width: 120px;">THÊM</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="modalEditPublisher">
-    <div class="modal-box modal-box-md">
-      <div class="modal-header">
-        <div class="modal-title">LEAF LIBRARY - THÔNG TIN NHÀ XUẤT BẢN</div>
-        <button type="button" class="modal-close-btn" data-close="modalEditPublisher">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-col-left">
-          <div class="form-grid-row" style="grid-template-columns: 125px 1fr;">
-            <label class="form-field-label">Mã nhà xuất bản</label>
-            <input type="text" class="form-input-text" id="pubEditCodeInput" style="max-width: 180px;">
-          </div>
-          <div class="form-grid-row" style="grid-template-columns: 125px 1fr;">
-            <label class="form-field-label">Tên nhà xuất bản</label>
-            <input type="text" class="form-input-text" id="pubEditNameInput">
-          </div>
-          <div class="form-grid-row" style="grid-template-columns: 125px 1fr;">
-            <label class="form-field-label">Số điện thoại</label>
-            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 12px; align-items: center;">
-              <input type="text" class="form-input-text" id="pubEditPhoneInput">
-              <div class="sub-field-group">
-                <span class="form-sub-label">Email</span>
-                <input type="text" class="form-input-text" id="pubEditEmailInput">
-              </div>
-            </div>
-          </div>
-          <div class="form-grid-row" style="grid-template-columns: 125px 1fr;">
-            <label class="form-field-label">Địa chỉ</label>
-            <input type="text" class="form-input-text" id="pubEditAddressInput">
-          </div>
-          <div class="form-grid-row" style="grid-template-columns: 125px 1fr; align-items: flex-start;">
-            <label class="form-field-label" style="margin-top: 8px;">Ghi chú</label>
-            <div style="display: grid; grid-template-columns: 145px 1fr; gap: 14px; align-items: stretch;">
-              <textarea class="form-textarea" id="pubEditNoteInput" style="min-height: 150px;"></textarea>
-              <div style="display: flex; flex-direction: column; justify-content: space-between;">
-                <div class="sub-field-group">
-                  <span class="form-sub-label">Trạng thái</span>
-                  <select class="form-select-control" id="pubEditStatusSelect">
-                    <option value="HOẠT ĐỘNG">Hoạt động</option>
-                    <option value="NGỪNG GD">Ngừng GD</option>
-                  </select>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                  <button type="button" class="btn-action-gray" data-close="modalEditPublisher">THOÁT</button>
-                  <button type="button" class="btn-action-blue" id="btnConfirmEditPublisher" style="white-space: normal; line-height: 1.15; font-size: 11px;">CHỈNH SỬA<br>THÔNG TIN</button>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -799,7 +658,7 @@
           <div class="dual-fields-container">
             <div class="supplier-field-block">
               <label class="supplier-label-italic">Mã phiếu nhập</label>
-              <div class="supplier-code-readonly" id="impNewCodeDisplay">PNH260003</div>
+              <div class="supplier-code-readonly" id="impNewCodeDisplay">PN003</div>
             </div>
             <div class="supplier-field-block">
               <label class="supplier-label-italic">Ngày nhập kho</label>
@@ -870,7 +729,7 @@
       <div class="modal-body">
         <div class="modal-col-left">
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
-            <div><strong>Mã phiếu nhập:</strong> <span id="detailImpId" style="color: var(--primary-navy); font-weight: 700;">PNH260002</span></div>
+            <div><strong>Mã phiếu nhập:</strong> <span id="detailImpId" style="color: var(--primary-navy); font-weight: 700;">PN002</span></div>
             <div><strong>Ngày nhập:</strong> <span id="detailImpDate">21 / 02 / 2026</span></div>
             <div><strong>Nhà cung cấp:</strong> <span id="detailImpSupplier">FAHASA</span></div>
             <div><strong>Người lập phiếu:</strong> <span id="detailImpCreator">Trần Giang Tuấn Kiệt</span></div>
@@ -981,28 +840,7 @@
   </div>
 
   <!-- MODAL DANH MỤC TÀI LIỆU (UC04 - Seq 2.4) -->
-  <div class="modal-overlay" id="modalCategory">
-    <div class="modal-box modal-box-sm" style="max-width: 440px;">
-      <div class="modal-header">
-        <div class="modal-title" id="modalCategoryHeader">THÊM DANH MỤC TÀI LIỆU</div>
-        <button type="button" class="modal-close-btn" data-close="modalCategory">✕</button>
-      </div>
-      <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
-        <div class="form-grid-row" style="grid-template-columns: 120px 1fr;">
-          <label class="form-field-label" for="catIdInput">Mã danh mục *</label>
-          <input type="text" class="form-input-text" id="catIdInput" placeholder="VD: DM08">
-        </div>
-        <div class="form-grid-row" style="grid-template-columns: 120px 1fr;">
-          <label class="form-field-label" for="catNameInput">Tên danh mục *</label>
-          <input type="text" class="form-input-text" id="catNameInput" placeholder="VD: Trí tuệ nhân tạo">
-        </div>
-        <div class="confirm-buttons-row" style="margin-top: 8px;">
-          <button type="button" class="btn-action-gray" data-close="modalCategory">HỦY BỎ</button>
-          <button type="button" class="btn-action-blue" id="btnSaveCategory">LƯU DANH MỤC</button>
-        </div>
-      </div>
-    </div>
-  </div>
+
 
   <!-- MODAL TỪ CHỐI ĐỀ XUẤT KÈM LÝ DO (UC07 - Seq 2.7.3) -->
   <div class="modal-overlay" id="modalRejectSuggestion">

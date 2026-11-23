@@ -57,7 +57,7 @@ ixs-library/
 
 1. **Đăng ký & Đăng nhập tài khoản:** Xác thực tài khoản bạn đọc (`login.html`) và admin (`admin/index.html`), phân quyền truy cập thích hợp.
 2. **Quản lý tài khoản bạn đọc:** Hỗ trợ Admin/Thủ thư xem, tìm kiếm, thêm mới và khóa/mở khóa tài khoản bạn đọc.
-3. **Quản lý nhân viên:** Quản lý danh sách nhân viên, chức vụ, trạng thái làm việc, cấp tài khoản và phân quyền (Admin, Thủ thư kho, Thủ thư quầy).
+3. **Quản lý nhân viên:** Quản lý danh sách nhân viên, chức vụ, trạng thái làm việc, cấp tài khoản và phân quyền cho Quản trị viên và Thủ thư. Thủ thư truy cập các chức năng nghiệp vụ ngoài Quản lý nhân viên.
 4. **Quản lý danh mục tài liệu:** Phân loại tài liệu theo thể loại, chủ đề, khoa hoặc chuyên ngành.
 5. **Quản lý sách và kho:** Quản lý thông tin đầu sách, mã cuốn sách vật lý riêng, vị trí lưu trữ trên kệ và lập/xác nhận phiếu nhập kho.
 6. **Quản lý tủ sách cá nhân:** Bạn đọc có thể lưu tài liệu yêu thích vào tủ sách cá nhân, xem lại hoặc xóa khỏi danh sách.
@@ -122,6 +122,6 @@ Hộp thoại xác nhận	confirm-modal
 
 Versioned SQL migrations live in `backend/migrations/`. The API applies unapplied migration files in filename order and records them in `ixs_schema_migrations` before it starts listening. Add a new numbered file for each schema change; do not modify a migration that has already run. The initial `database/library_db.sql` file is still used to create a fresh PostgreSQL volume.
 
-## Password reset SMS
+## Đăng ký tài khoản bạn đọc
 
-Password reset codes use eOTP's SMS API. Create and approve an eOTP project, then put its API key and secret in the untracked `.env` file as `EOTP_API_KEY` and `EOTP_API_SECRET`. Configure the project for numeric six-digit OTPs and the SMS channel. The API stores eOTP's `request_id` and asks eOTP to verify the code; OTP values are never sent to the browser by this app. Restart with `docker compose up -d --build api` after editing `.env`.
+Tài khoản đăng ký mới ở trạng thái chờ duyệt. Thủ thư hoặc quản trị viên vào mục Độc giả để duyệt hoặc từ chối. Sau khi được duyệt, bạn đọc có thể đăng nhập và đổi mật khẩu trong phần quản lý tài khoản.

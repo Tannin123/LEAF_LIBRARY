@@ -29,8 +29,6 @@ services:
       DB_NAME: postgres
       DB_USER: admin
       DB_PASSWORD: ${DB_PASSWORD:-Nin10112006}
-      EOTP_API_KEY: ${EOTP_API_KEY:-}
-      EOTP_API_SECRET: ${EOTP_API_SECRET:-}
     ports:
       - "3000:3000"
     depends_on:
