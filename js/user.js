@@ -1467,6 +1467,7 @@ function initBookshelfPage() {
   let bsPage = 1;
 
   const ICON_DELETE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>`;
+  const ICON_EDIT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
 
   function renderBookPosterGraphic(coverUrl) {
     const source = coverUrl || '../assets/images/logo-leaflibrary.png';
@@ -1618,10 +1619,22 @@ function initBookshelfPage() {
             </div>
 
             <div class="book-card-footer">
+              <div>
+                <div class="book-meta-label">Số trang đã đọc</div>
+                <div class="book-meta-value" data-pages-read>${Number(entry.pagesRead) || 0}</div>
+              </div>
               <div class="book-card-actions">
-                <button type="button" class="user-action-icon is-danger" title="Xóa khỏi tủ sách" aria-label="Xóa khỏi tủ sách" data-shelf-action="remove" data-id="${escapeCatalogHtml(book.id)}">${ICON_DELETE}</button>
+                <button type="button" class="action-icon" title="Chỉnh sửa số trang đã đọc" aria-label="Chỉnh sửa số trang đã đọc" aria-expanded="false" data-shelf-action="edit">${ICON_EDIT}</button>
+                <button type="button" class="action-icon" title="Xóa khỏi tủ sách" aria-label="Xóa khỏi tủ sách" data-shelf-action="remove" data-id="${escapeCatalogHtml(book.id)}">${ICON_DELETE}</button>
               </div>
             </div>
+            <form class="bookshelf-progress-form" data-book-id="${escapeCatalogHtml(book.id)}" hidden>
+              <label>
+                <span class="book-meta-label">Số trang đã đọc</span>
+                <input name="pagesRead" type="number" min="0" max="2147483647" step="1" required>
+              </label>
+              <button type="submit" class="btn-action-blue">Lưu</button>
+            </form>
           </div>
         </div>
       `;
@@ -1707,6 +1720,34 @@ function initBookshelfPage() {
     showToast(`Đã thêm “${book.title}” vào tủ cá nhân.`, 'success');
   });
 
+  list.addEventListener('submit', async event => {
+    const form = event.target.closest('.bookshelf-progress-form');
+    if (!form) return;
+    event.preventDefault();
+    const input = form.elements.pagesRead;
+    const button = form.querySelector('button');
+    if (button.disabled || !input.reportValidity()) return;
+    const bookId = form.dataset.bookId;
+    button.disabled = true;
+    input.readOnly = true;
+    try {
+      const saved = await DataService.request('PUT', `/wishlist/${encodeURIComponent(bookId)}`, { pagesRead: input.valueAsNumber });
+      saveShelf(getShelf().map(entry => String(entry.bookId) === bookId ? { ...entry, pagesRead: saved.pagesRead } : entry));
+      const card = form.closest('.book-card');
+      card.querySelector('[data-pages-read]').textContent = saved.pagesRead;
+      const editButton = card.querySelector('[data-shelf-action="edit"]');
+      form.hidden = true;
+      editButton.setAttribute('aria-expanded', 'false');
+      editButton.focus();
+      showToast('Đã lưu số trang đã đọc.', 'success');
+    } catch (err) {
+      showToast(err.message || 'Không thể lưu số trang đã đọc.', 'error');
+    } finally {
+      button.disabled = false;
+      input.readOnly = false;
+    }
+  });
+
   list.addEventListener('click', async event => {
     // 1. Xem các bản sao
     const copiesBtn = event.target.closest('[data-action="view-copies"]');
@@ -1720,6 +1761,19 @@ function initBookshelfPage() {
     const actionButton = event.target.closest('[data-shelf-action]');
     if (!actionButton) return;
     const card = actionButton.closest('.book-card');
+    if (actionButton.dataset.shelfAction === 'edit') {
+      const form = card.querySelector('.bookshelf-progress-form');
+      const input = form.elements.pagesRead;
+      if (input.readOnly) return;
+      form.hidden = !form.hidden;
+      actionButton.setAttribute('aria-expanded', String(!form.hidden));
+      if (!form.hidden) {
+        input.value = card.querySelector('[data-pages-read]').textContent;
+        input.focus();
+        input.select();
+      }
+      return;
+    }
     const bookId = actionButton.dataset.id || card?.dataset.id;
     if (!bookId) return;
 
@@ -1767,7 +1821,7 @@ function initBookshelfPage() {
       const reader = getBorrowReaderProfile();
       const apiWishlist = await DataService.request('GET', `/wishlist?readerId=${encodeURIComponent(reader.id)}`);
       if (Array.isArray(apiWishlist)) {
-        saveShelf(apiWishlist.map(item => ({ bookId: item.bookTitleId || item.id, addedAt: item.addedAt })));
+        saveShelf(apiWishlist.map(item => ({ bookId: item.bookTitleId || item.id, addedAt: item.addedAt, pagesRead: item.pagesRead })));
       }
     } catch (_) {}
     render();
@@ -1925,7 +1979,11 @@ function initReaderHistoryPage() {
           <div class="history-book-title">${escapeCatalogHtml(item.title)}</div>
           <div>${escapeCatalogHtml(String(item.requestDate).replace(/\s*\/\s*/g, '/'))}</div>
           <div style="color: #64748B; font-size: 12.5px;">${escapeCatalogHtml(item.dueDate)}</div>
-          <div><div style="display:inline-flex;align-items:center;justify-content:center;gap:8px;"><span class="badge-copy status-badge ${stCls}">${stText}</span>${cancelBtn}</div>${rejectionNote}</div>
+          <div class="history-status-cell">
+            <span class="badge-copy status-badge ${stCls}">${stText}</span>
+            ${cancelBtn}
+            ${rejectionNote}
+          </div>
         </div>`;
       }).join('');
       if (summary) summary.textContent = `Hiển thị ${startIdx + 1} - ${Math.min(startIdx + PAGE_SIZE, reqList.length)} trên tổng số ${reqList.length} yêu cầu mượn`;
@@ -2015,11 +2073,9 @@ function initReaderHistoryPage() {
         <div class="history-book-title">${escapeCatalogHtml(item.title)}</div>
         <div>${escapeCatalogHtml(bDate)}</div>
         <div>${escapeCatalogHtml(dDate)}</div>
-        <div>
-          <div style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-            ${statusBadge}
-            ${renewBtn}
-          </div>
+        <div class="history-status-cell">
+          ${statusBadge}
+          ${renewBtn}
         </div>
       </div>`;
     }).join('');
@@ -2167,6 +2223,8 @@ function initPaymentPage() {
   const search = document.getElementById('readerPaymentSearch');
   const refresh = document.getElementById('readerPaymentRefresh');
   const guide = document.getElementById('readerPaymentGuide');
+  const reportButton = document.getElementById('readerTransferReport');
+  const reportStatus = document.getElementById('readerTransferReportStatus');
   const transfer = document.getElementById('readerTransferInstructions');
   const transferDetails = document.getElementById('readerTransferDetails');
   let fines = [];
@@ -2217,7 +2275,7 @@ function initPaymentPage() {
           <td>${escapeCatalogHtml(fine.createdDate || fine.date || '—')}</td>
           <td>${escapeCatalogHtml(fine.violation || '—')}${fine.bookTitle ? `<small>${escapeCatalogHtml(fine.bookTitle)}</small>` : ''}</td>
           <td class="reader-payment-money">${formatMoney(amount(fine))}</td>
-          <td><span class="badge status-badge ${paid ? 'badge-reader-valid' : 'badge-reader-expired'}">${paid ? 'Đã thanh toán' : 'Chưa thanh toán'}</span>${paymentRecord ? `<small>${escapeCatalogHtml(paymentRecord)}</small>` : ''}</td>
+          <td><span class="badge status-badge ${paid ? 'badge-reader-valid' : 'badge-reader-expired'}">${paid ? 'Đã thanh toán' : 'Chưa thanh toán'}</span>${paymentRecord ? `<small>${escapeCatalogHtml(paymentRecord)}</small>` : !paid && fine.transferReportedAt ? '<small>Đã báo chuyển khoản · Chờ đối soát</small>' : ''}</td>
           <td><div class="reader-payment-actions">
             <button type="button" class="btn-action-gray" data-fine-detail="${id}">Chi tiết</button>
             ${!paid ? `<button type="button" class="btn-action-blue" data-payment-guide="${id}">Thanh toán</button>` : ''}
@@ -2272,39 +2330,49 @@ function initPaymentPage() {
     document.getElementById('readerPaymentGuideAmount').textContent = formatMoney(amount(selectedFine));
     transferDetails.open = false;
     transfer.replaceChildren();
+    reportButton.disabled = Boolean(selectedFine.transferReportedAt);
+    reportStatus.textContent = selectedFine.transferReportedAt ? 'Đã báo chuyển khoản. Vui lòng chờ thủ thư đối soát.' : '';
     guide.showModal();
   });
 
-  transferDetails.addEventListener('toggle', async () => {
+  transferDetails.addEventListener('toggle', () => {
     if (!transferDetails.open || !guide.open || !selectedFine) return;
-    const fine = selectedFine;
-    transfer.textContent = 'Đang tải thông tin chuyển khoản…';
-    let details;
-    try {
-      details = (await DataService.request('GET', '/config/payment_transfer')).value;
-    } catch (_) {}
-    if (selectedFine !== fine || !guide.open) return;
-    if (!details?.bankName || !details?.accountNumber || !details?.accountName) {
-      transfer.textContent = 'Liên hệ thủ thư để nhận thông tin tài khoản chuyển khoản của thư viện.';
-      return;
-    }
-
-    const list = document.createElement('dl');
-    for (const [label, value] of [
-      ['Ngân hàng', details.bankName],
-      ['Số tài khoản', details.accountNumber],
-      ['Chủ tài khoản', details.accountName],
-      ['Nội dung chuyển khoản', `PHAT ${fine.id}`]
-    ]) {
-      const term = document.createElement('dt');
-      const description = document.createElement('dd');
-      term.textContent = label;
-      description.textContent = value;
-      list.append(term, description);
-    }
+    const reference = document.createElement('dl');
+    const label = document.createElement('dt');
+    const code = document.createElement('dd');
+    label.textContent = 'Nội dung chuyển khoản';
+    code.textContent = `PHAT ${selectedFine.id}`;
+    reference.append(label, code);
     const note = document.createElement('p');
-    note.textContent = 'Giữ chứng từ để thủ thư đối soát và xác nhận thanh toán.';
-    transfer.replaceChildren(list, note);
+    note.textContent = 'Quét mã QR, nhập đúng số tiền và nội dung chuyển khoản, rồi giữ chứng từ để thủ thư đối soát.';
+    const qr = document.createElement('img');
+    qr.className = 'reader-transfer-qr';
+    qr.alt = 'Mã QR chuyển khoản của thư viện';
+    qr.hidden = true;
+    qr.addEventListener('load', () => { qr.hidden = false; });
+    qr.addEventListener('error', () => {
+      note.textContent = 'Chưa có mã QR. Liên hệ thủ thư để nhận thông tin chuyển khoản.';
+    });
+    transfer.replaceChildren(qr, reference, note);
+    qr.src = '../assets/images/MaQR_CK.jpg';
+  });
+
+  reportButton.addEventListener('click', async () => {
+    if (!selectedFine || reportButton.disabled) return;
+    const fine = selectedFine;
+    reportButton.disabled = true;
+    reportStatus.textContent = 'Đang gửi xác nhận…';
+    try {
+      const result = await DataService.request('POST', `/fines/${encodeURIComponent(fine.id)}/transfer-report`, {});
+      fine.transferReportedAt = result.transferReportedAt;
+      renderFines();
+      if (selectedFine === fine && guide.open) reportStatus.textContent = 'Đã báo chuyển khoản. Vui lòng chờ thủ thư đối soát.';
+    } catch (err) {
+      if (selectedFine === fine && guide.open) {
+        reportStatus.textContent = err.message || 'Không thể gửi xác nhận chuyển khoản.';
+        reportButton.disabled = false;
+      }
+    }
   });
 
   loadFines();
@@ -2319,15 +2387,11 @@ function initSuggestionsPage() {
   const form = document.getElementById('formCreateSuggestion');
   const errBox = document.getElementById('suggestionFormError');
   const submitBtn = document.getElementById('btnSubmitSuggestion');
-  const coverInput = document.getElementById('suggestionCover');
-  const coverPreview = document.getElementById('suggestionCoverPreview');
-  const coverPrompt = document.getElementById('suggestionCoverPrompt');
   const search = document.getElementById('suggestionSearch');
   const pagination = document.getElementById('suggestionPagination');
   let currentFilter = 'all';
   let currentPage = 1;
   const PAGE_SIZE = 6;
-  let coverData = '';
 
   const normalizeStatus = st => {
     const s = String(st || '').toLowerCase().trim();
@@ -2462,17 +2526,10 @@ function initSuggestionsPage() {
     });
   });
 
-  const resetCover = () => {
-    coverData = '';
-    if (coverInput) coverInput.value = '';
-    if (coverPreview) { coverPreview.src = ''; coverPreview.hidden = true; }
-    if (coverPrompt) coverPrompt.hidden = false;
-  };
-
   const hasSuggestionDraft = () => {
     if (!form) return false;
-    return ['suggestionTitle', 'suggestionAuthor', 'suggestionPublisher', 'suggestionYear', 'suggestionQuantity', 'suggestionEdition', 'suggestionReason']
-      .some(id => (document.getElementById(id)?.value || '').trim().length > 0) || Boolean(coverData);
+    return ['suggestionTitle', 'suggestionAuthor', 'suggestionPublisher', 'suggestionYear', 'suggestionQuantity', 'suggestionReason']
+      .some(id => (document.getElementById(id)?.value || '').trim().length > 0);
   };
 
   const closeModal = async (force = false) => {
@@ -2543,24 +2600,6 @@ function initSuggestionsPage() {
     }
   });
 
-  coverInput?.addEventListener('change', () => {
-    const file = coverInput.files?.[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      coverInput.value = '';
-      showToast('Ảnh bìa không được vượt quá 5 MB.', 'warning');
-      return;
-    }
-    const reader = new FileReader();
-    reader.addEventListener('load', () => {
-      coverData = String(reader.result || '');
-      coverPreview.src = coverData;
-      coverPreview.hidden = false;
-      coverPrompt.hidden = true;
-    });
-    reader.readAsDataURL(file);
-  });
-
   form?.addEventListener('submit', async event => {
     event.preventDefault();
     setSuggestionErr('');
@@ -2570,17 +2609,11 @@ function initSuggestionsPage() {
     const publisher = document.getElementById('suggestionPublisher').value.trim();
     const yearRaw = document.getElementById('suggestionYear').value.trim();
     const qtyRaw = document.getElementById('suggestionQuantity').value.trim();
-    const edition = document.getElementById('suggestionEdition').value;
     const reason = document.getElementById('suggestionReason').value.trim();
 
     if (!title) {
       setSuggestionErr('Vui lòng nhập tên sách đề xuất.');
       document.getElementById('suggestionTitle')?.focus();
-      return;
-    }
-    if (!author) {
-      setSuggestionErr('Vui lòng nhập tên tác giả.');
-      document.getElementById('suggestionAuthor')?.focus();
       return;
     }
     const curYear = new Date().getFullYear();
@@ -2594,8 +2627,8 @@ function initSuggestionsPage() {
     }
     if (qtyRaw) {
       const q = Number(qtyRaw);
-      if (!Number.isInteger(q) || q < 1 || q > 500) {
-        setSuggestionErr('Số lượng bản đề xuất phải là số nguyên từ 1 đến 500.');
+      if (!Number.isInteger(q) || q < 1 || q > 1000) {
+        setSuggestionErr('Số lượng bản đề xuất phải là số nguyên từ 1 đến 1000.');
         document.getElementById('suggestionQuantity')?.focus();
         return;
       }
@@ -2611,9 +2644,7 @@ function initSuggestionsPage() {
       publisher,
       year: yearRaw,
       quantity: qtyRaw ? `${qtyRaw} bản` : '—',
-      edition,
       reason,
-      coverUrl: coverData,
       status: 'Chờ duyệt',
       type: 'Sách / giáo trình'
     };
@@ -2639,7 +2670,6 @@ function initSuggestionsPage() {
         showToast('Đã gửi đề xuất sách thành công!', 'success');
       }
       form.reset();
-      resetCover();
       closeModal(true);
       render();
     } catch (err) {

@@ -1543,6 +1543,19 @@ td {
   white-space: nowrap;
 }
 
+#adminSuggestionsTitle {
+  margin: 0 0 16px;
+  font-size: 22px;
+}
+
+.admin-suggestions-table :is(.supplier-table-header, .supplier-table-row) {
+  grid-template-columns: 110px minmax(200px, 1.5fr) minmax(150px, 1fr) 100px 90px 120px 140px;
+}
+
+.admin-suggestions-table :is(.supplier-table-header, .table-frame) {
+  min-width: 910px;
+}
+
 .supplier-table-header > div {
   white-space: nowrap;
   padding: 14px 16px;
@@ -2107,6 +2120,20 @@ td {
   grid-template-columns: 1fr 190px;
   gap: 28px;
   align-items: flex-start;
+}
+
+.modal-card-layout.book-title-form-layout {
+  grid-template-columns: minmax(150px, 210px) minmax(0, 1fr);
+}
+
+#modalBookTitle .modal-box {
+  width: min(880px, 95vw);
+}
+
+@media (max-width: 650px) {
+  .modal-card-layout.book-title-form-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .modal-col-left,

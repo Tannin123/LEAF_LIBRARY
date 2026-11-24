@@ -1812,10 +1812,40 @@
   border-top: 1px solid var(--border-color);
 }
 
-.bookshelf-entry-progress {
-  color: var(--primary-navy);
-  font-size: 13px;
-  font-weight: 600;
+.bookshelf-entry-card button.action-icon {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.bookshelf-entry-card button.action-icon:hover {
+  background-color: var(--primary-light);
+}
+
+.bookshelf-entry-card button.action-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.bookshelf-progress-form:not([hidden]) {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bookshelf-progress-form input {
+  display: block;
+  width: 105px;
+  padding: 7px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-main);
+}
+
+.bookshelf-progress-form button {
+  min-height: 34px;
+  width: auto;
 }
 
 .bookshelf-entry-card .book-card-row-2col > div {
@@ -2631,12 +2661,23 @@
   color: #334155;
 }
 
-.user-history-row > div:last-child {
+.user-history-row > .history-status-cell {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  white-space: nowrap;
+  gap: 6px;
+  min-width: 0;
+  text-align: center;
+}
+
+.history-status-cell .btn-renew-pill {
+  margin-left: 0;
+}
+
+.history-status-cell .status-badge {
+  max-width: 100%;
+  white-space: normal;
 }
 
 /* Zebra striping: odd is white, even is soft light blue matching admin */
@@ -3086,7 +3127,7 @@
 
 .suggestion-form-grid {
   display: grid;
-  grid-template-columns: 170px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
 }
 
@@ -3200,9 +3241,6 @@
     width: 94vw;
   }
 
-  .suggestion-form-grid {
-    grid-template-columns: 130px minmax(0, 1fr);
-  }
 
   .workflow-content {
     padding: 18px;
@@ -4291,6 +4329,21 @@ body.user-interface {
 .reader-payment-guide details summary {
   font-weight: 600;
   cursor: pointer;
+}
+
+.reader-transfer-qr:not([hidden]) {
+  display: block;
+  width: min(100%, 300px);
+  aspect-ratio: 1080 / 1100;
+  object-fit: cover;
+  object-position: center 32%;
+  margin: 12px auto;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+#readerTransferReport {
+  margin-top: 10px;
 }
 
 .reader-payment-guide details :is(p, dl) {

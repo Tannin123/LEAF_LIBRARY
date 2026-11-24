@@ -83,6 +83,10 @@
           </svg>
           <span>Quản lý vi phạm</span>
         </a>
+        <a href="suggestions.html" class="sidebar-item" title="Xử lý đề xuất sách">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v5h5M9 12h6m-6 4h6"/></svg>
+          <span>Xử lý đề xuất sách</span>
+        </a>
         <a href="reports.html" class="sidebar-item" title="Báo cáo, thống kê">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           <span>Báo cáo, thống kê</span>
@@ -97,7 +101,6 @@
             <button type="button" class="subtab-item" data-tab="tabBookCopies">Danh sách cuốn sách</button>
             <button type="button" class="subtab-item" data-tab="tabImportBooks">Nhập sách mới</button>
             <button type="button" class="subtab-item" data-tab="tabSuppliers">Nhà cung cấp</button>
-            <button type="button" class="subtab-item" data-tab="tabSuggestions">Xử lý đề xuất sách</button>
           </div>
           <div class="subtabs-line"></div>
         </div>
@@ -304,45 +307,6 @@
 
 
 
-        <div class="tab-content-panel" id="tabSuggestions">
-          <div class="toolbar-container">
-            <div class="toolbar-left-group">
-              <div class="search-box book-search">
-                <input type="text" id="searchSuggestionAdminInput" class="book-search" placeholder="Tìm theo tên sách, tác giả, độc giả đề xuất...">
-                <span class="search-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                </span>
-              </div>
-              <div class="filter-box">
-                <select id="filterSuggestionAdminStatus">
-                  <option value="all">Tất cả trạng thái</option>
-                  <option value="Chờ duyệt">Chờ duyệt</option>
-                  <option value="Đã duyệt">Đã duyệt</option>
-                  <option value="Từ chối">Từ chối</option>
-                </select>
-                <span class="filter-arrow">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div class="table-responsive">
-            <div class="supplier-table-header" style="grid-template-columns: 110px 1.5fr 1.2fr 100px 100px 120px 120px;">
-              <div>Mã ĐX</div>
-              <div>Tên sách đề xuất</div>
-              <div>Tác giả / NXB</div>
-              <div>Độc giả</div>
-              <div>Số lượng</div>
-              <div>Trạng thái</div>
-              <div style="text-align: center;">Hành động</div>
-            </div>
-            <div class="table-frame" id="adminSuggestionsTableContent">
-            </div>
-          </div>
-          <div class="pagination-wrapper" id="sugAdminPagination"></div>
-        </div>
-
       </main>
 
     </div>
@@ -355,8 +319,8 @@
         <div class="modal-title" id="modalBookTitleHeader">LEAF LIBRARY - THÔNG TIN ĐẦU SÁCH</div>
         <button type="button" class="modal-close-btn" data-close="modalBookTitle">✕</button>
       </div>
-            <div class="modal-body">
-        <div class="modal-card-layout">
+      <div class="modal-body">
+        <div class="modal-card-layout book-title-form-layout">
           <div class="modal-card-col-media">
             <div class="modal-media-banner" id="btMediaBanner">
               <div class="book-cover-box" id="btDefaultCover">
@@ -390,77 +354,38 @@
             <div class="modal-id-group">
               <div class="modal-book-code-label">Mã đầu sách</div>
               <div class="modal-book-code-val" id="btCodeDisplay">DS001</div>
-              <div class="modal-book-code-label">Năm xuất bản</div>
-              <div class="modal-book-code-val" id="btPublishYearDisplay">2021</div>
             </div>
           </div>
 
           <div class="modal-card-col-main">
-            <div class="modal-section-title">Phần thông tin đầu sách</div>
-            <div class="form-grid-row" style="grid-template-columns: 85px 1fr;">
-              <label class="form-field-label">Tên sách</label>
-              <input type="text" class="form-input-text" id="btTitle" placeholder="Nhập tên đầu sách...">
-            </div>
-            <div class="form-grid-row" style="grid-template-columns: 85px 1fr;">
-              <label class="form-field-label">Thể loại</label>
-              <div class="dual-fields-container">
-                <select class="form-select-control" id="btCategory" style="flex: 1; min-width: 0;">
-                  <option value="Công nghệ thông tin">Công nghệ thông tin</option>
-                  <option value="Kinh tế">Kinh tế</option>
-                  <option value="Kỹ năng sống">Kỹ năng sống</option>
-                  <option value="Ngoại ngữ">Ngoại ngữ</option>
-                  <option value="Văn học">Văn học</option>
-                </select>
-                <div class="sub-field-group flex-fixed-field">
-                  <span class="form-sub-label">Chủ đề</span>
-                  <input type="text" class="form-input-text" id="btTopic" placeholder="Chủ đề sách..." style="width: 140px;">
-                </div>
-              </div>
-            </div>
-            <div class="form-grid-row" style="grid-template-columns: 85px 1fr;">
-              <label class="form-field-label">Khoa</label>
-              <div class="dual-fields-container">
-                <input type="text" class="form-input-text" id="btDepartment" placeholder="Khoa / Ngành..." style="flex: 1; min-width: 0;">
-                <div class="sub-field-group flex-fixed-field">
-                  <span class="form-sub-label">Tổng bản sao</span>
-                  <input type="text" class="form-input-text input-short-num" id="btQuantity" placeholder="0" readonly style="background: #F1F5F9; color: #64748B; cursor: not-allowed;" title="Tổng bản sao được đồng bộ từ danh sách cuốn sách / phiếu nhập kho">
-                </div>
-              </div>
-            </div>
-
-            <div class="modal-section-title" style="margin-top: 6px;">Phần thông tin xuất bản</div>
-            <div class="form-grid-row" style="grid-template-columns: 90px 1fr;">
-              <label class="form-field-label" style="white-space: normal; line-height: 1.2;">Nhà xuất bản</label>
-              <input type="text" class="form-input-text" id="btPubName" placeholder="Nhập tên nhà xuất bản...">
-            </div>
-            <div class="form-grid-row" style="grid-template-columns: 90px 1fr;">
-              <label class="form-field-label" style="white-space: normal; line-height: 1.2;">Năm xuất bản</label>
-              <input type="number" class="form-input-text" id="btPublishYear" placeholder="2021">
-            </div>
-          </div>
-
-          <div class="modal-card-col-side">
-            <div class="modal-section-title">Phần thông tin tác giả</div>
-            <div class="form-grid-row" style="grid-template-columns: 80px 1fr;">
-              <label class="form-field-label">Tên tác giả</label>
-              <input type="text" class="form-input-text" id="btAuthorName" placeholder="Nhập tên tác giả...">
+            <div class="modal-section-title">Thông tin đầu sách</div>
+            <div class="form-grid-row">
+              <label class="form-field-label" for="btTitle">Tên sách *</label>
+              <input type="text" class="form-input-text" id="btTitle" maxlength="255" required>
             </div>
             <div class="form-grid-row">
-              <label class="form-field-label" for="btEdition">Phiên bản</label>
-              <input type="text" class="form-input-text" id="btEdition">
+              <label class="form-field-label" for="btAuthorName">Tác giả</label>
+              <input type="text" class="form-input-text" id="btAuthorName" maxlength="150">
             </div>
             <div class="form-grid-row">
-              <label class="form-field-label" for="btGenre">Thể loại chi tiết</label>
-              <input type="text" class="form-input-text" id="btGenre">
-            </div>
-            <div class="form-grid-row">
-              <label class="form-field-label" for="btPrice">Giá đầu sách (đ)</label>
-              <input type="number" class="form-input-text" id="btPrice" min="0" step="1">
+              <label class="form-field-label" for="btGenre">Thể loại</label>
+              <input type="text" class="form-input-text" id="btGenre" list="btGenreOptions" maxlength="100">
+              <datalist id="btGenreOptions"></datalist>
             </div>
 
-            <div class="modal-actions-bottom" style="margin-top: auto; padding-top: 40px;">
+            <div class="modal-section-title">Thông tin xuất bản</div>
+            <div class="form-grid-row">
+              <label class="form-field-label" for="btPubName">Nhà xuất bản</label>
+              <input type="text" class="form-input-text" id="btPubName" maxlength="150">
+            </div>
+            <div class="form-grid-row">
+              <label class="form-field-label" for="btPublishYear">Năm xuất bản</label>
+              <input type="number" class="form-input-text" id="btPublishYear" min="1" max="2147483647" step="1">
+            </div>
+
+            <div class="modal-actions-bottom">
               <button type="button" class="btn-action-gray" data-close="modalBookTitle">THOÁT</button>
-              <button type="button" class="btn-action-blue" id="btnSaveBookTitle">CHỈNH SỬA THÔNG TIN</button>
+              <button type="button" class="btn-action-blue" id="btnSaveBookTitle">LƯU THÔNG TIN</button>
             </div>
           </div>
         </div>
@@ -494,64 +419,24 @@
         <button type="button" class="modal-close-btn" data-close="modalBookCopy">✕</button>
       </div>
       <div class="modal-body">
-        <div class="modal-card-layout">
-          <div class="modal-card-col-media">
-            <div class="modal-media-banner" id="bcMediaBanner">
-              <div class="book-cover-box" id="bcDefaultCover">
-                <div>
-                  <div class="book-cover-title">MANAGING<br>INFORMATION<br>TECHNOLOGY</div>
-                  <div class="book-cover-edition">SEVENTH EDITION</div>
-                </div>
-                <div class="book-cover-authors">
-                  CAROL V. BROWN<br>
-                  DANIEL W. DEHAYES<br>
-                  JEFFREY A. HOFFER<br>
-                  E. WAINRIGHT MARTIN<br>
-                  WILLIAM C. PERKINS
-                </div>
-              </div>
-              <div class="upload-placeholder-view" id="bcUploadPlaceholder">
-                <img class="upload-placeholder-logo" src="../assets/images/logo-leaf.png" alt="Leaf Library Logo" draggable="false">
-                <div class="upload-placeholder-title">CHƯA CÓ ẢNH BÌA</div>
-                <div class="upload-placeholder-sub">Tải ảnh từ máy hoặc dán URL bên dưới</div>
-              </div>
-              <img id="bcImagePreview" class="media-preview-img" alt="Bìa cuốn sách">
-              <button type="button" class="btn-media-clear" id="btnResetBcImage">Đổi ảnh / Xóa ảnh</button>
-            </div>
-
-            <div class="media-upload-controls">
-              <label class="btn-upload-file" for="bcImageFileInput">Tải ảnh từ máy</label>
-              <input type="file" id="bcImageFileInput" accept="image/*" hidden>
-              <input type="url" class="img-url-input" id="bcImageUrlInput" placeholder="Hoặc dán URL hình ảnh...">
-            </div>
-
-            <div class="modal-id-group">
-              <div class="modal-book-code-label">Mã cá biệt</div>
-              <div class="modal-book-code-val" id="bcCodeDisplay">CS001</div>
-            </div>
-          </div>
-
+        <div class="modal-card-layout book-title-form-layout">
           <div class="modal-card-col-main">
             <div class="modal-section-title">Phần thông tin cuốn sách</div>
             <div class="form-grid-row" style="grid-template-columns: 110px 1fr;">
               <label class="form-field-label">Mã cuốn sách</label>
-              <input type="text" class="form-input-text" id="bcIdInput" placeholder="CS001">
-            </div>
-            <div class="form-grid-row">
-              <label class="form-field-label" for="bcBarcodeInput">Mã vạch</label>
-              <input type="text" class="form-input-text" id="bcBarcodeInput">
+              <input type="text" class="form-input-text" id="bcIdInput" readonly>
             </div>
             <div class="form-grid-row" style="grid-template-columns: 110px 1fr;">
-              <label class="form-field-label">Tên cuốn sách</label>
-              <input type="text" class="form-input-text" id="bcTitleInput" placeholder="Tên đầu sách...">
+              <label class="form-field-label" for="bcTitleInput">Mã đầu sách *</label>
+              <select class="form-select-control" id="bcTitleInput" required></select>
+            </div>
+            <div class="form-grid-row">
+              <label class="form-field-label" for="bcImportDetail">Chi tiết nhập</label>
+              <input type="text" class="form-input-text" id="bcImportDetail" readonly>
             </div>
             <div class="form-grid-row" style="grid-template-columns: 110px 1fr;">
               <label class="form-field-label">Vị trí</label>
-              <input type="text" class="form-input-text" id="bcLocationInput" placeholder="A1 - Ngăn 1">
-            </div>
-            <div class="form-grid-row" style="grid-template-columns: 110px 1fr;">
-              <label class="form-field-label">Giá trị</label>
-              <input type="text" class="form-input-text" id="bcPriceInput" placeholder="100.000">
+              <input type="text" class="form-input-text" id="bcLocationInput" maxlength="100" placeholder="A1 - Ngăn 1">
             </div>
           </div>
 
@@ -609,29 +494,25 @@
             </div>
             <div class="supplier-field-block">
               <label class="supplier-label-italic">Tên đối tác / đơn vị</label>
-              <input type="text" class="form-input-text" id="supNameInput" placeholder="Ví dụ: NXB Đại học Quốc Gia">
+              <input type="text" class="form-input-text" id="supNameInput" maxlength="150" required placeholder="Ví dụ: NXB Đại học Quốc Gia">
             </div>
           </div>
 
-          <div class="supplier-field-block">
-            <label class="supplier-label-italic">Người liên hệ (đại diện)</label>
-            <input type="text" class="form-input-text" id="supContactInput" placeholder="Họ và tên người phụ trách hợp đồng...">
-          </div>
 
           <div class="supplier-row-equal">
             <div class="supplier-field-block">
               <label class="supplier-label-italic">Số điện thoại</label>
-              <input type="text" class="form-input-text" id="supPhoneInput" placeholder="09xxxxxxxx">
+              <input type="text" class="form-input-text" id="supPhoneInput" maxlength="20" placeholder="09xxxxxxxx">
             </div>
             <div class="supplier-field-block">
               <label class="supplier-label-italic">Email liên hệ</label>
-              <input type="text" class="form-input-text" id="supEmailInput" placeholder="email@domain.com">
+              <input type="text" class="form-input-text" id="supEmailInput" maxlength="150" placeholder="email@domain.com">
             </div>
           </div>
 
           <div class="supplier-field-block">
             <label class="supplier-label-italic">Địa chỉ trụ sở</label>
-            <textarea class="form-textarea" id="supAddressInput" placeholder="Quận 1, TP.HCM"></textarea>
+            <textarea class="form-textarea" id="supAddressInput" maxlength="255" placeholder="Quận 1, TP.HCM"></textarea>
           </div>
 
           <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
@@ -690,7 +571,7 @@
             </div>
             <div class="supplier-field-block">
               <label class="supplier-label-italic">Người lập phiếu</label>
-              <input type="text" class="form-input-text" id="impNewCreatorInput" placeholder="Tên nhân viên lập phiếu">
+              <input type="text" class="form-input-text" id="impNewCreatorInput" readonly>
             </div>
           </div>
 
@@ -857,27 +738,6 @@
 
   <!-- MODAL DANH MỤC TÀI LIỆU (UC04 - Seq 2.4) -->
 
-
-  <!-- MODAL TỪ CHỐI ĐỀ XUẤT KÈM LÝ DO (UC07 - Seq 2.7.3) -->
-  <div class="modal-overlay" id="modalRejectSuggestion">
-    <div class="modal-box modal-box-sm" style="max-width: 460px;">
-      <div class="modal-header">
-        <div class="modal-title">TỪ CHỐI ĐỀ XUẤT MUA SÁCH</div>
-        <button type="button" class="modal-close-btn" data-close="modalRejectSuggestion">✕</button>
-      </div>
-      <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
-        <p style="margin: 0; font-size: 13.5px; color: #475569;">Đề xuất: <strong id="rejectSuggestionTitleDisplay">—</strong></p>
-        <div>
-          <label class="form-field-label" for="rejectSuggestionReason" style="display: block; margin-bottom: 6px;">Lý do từ chối *</label>
-          <textarea class="loan-textarea" id="rejectSuggestionReason" placeholder="Nhập lý do từ chối đề xuất (VD: Đã có tài liệu tương đương trong kho / Chưa phù hợp ngân sách)..." style="width: 100%; min-height: 84px;"></textarea>
-        </div>
-        <div class="confirm-buttons-row" style="margin-top: 6px;">
-          <button type="button" class="btn-action-gray" data-close="modalRejectSuggestion">HỦY BỎ</button>
-          <button type="button" class="btn-action-blue" id="btnConfirmRejectSuggestion" style="background: #DC2626;">XÁC NHẬN TỪ CHỐI</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <script src="../js/data.js"></script>
   <script src="../js/admin.js"></script>

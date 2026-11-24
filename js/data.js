@@ -928,7 +928,7 @@ document.addEventListener('click', async event => {
     const violations = document.createElement('ul');
     for (const item of fine.details) {
       const row = document.createElement('li');
-      const parts = [item.copyId, item.violation, item.lateDays > 0 ? item.lateDays + ' ngày quá hạn' : '', item.damage, currency(item.amount)];
+      const parts = [item.copyId, item.violation, item.lateDays > 0 ? item.lateDays + ' ngày quá hạn' : '', item.damage, currency(item.amount), item.note];
       row.textContent = parts.filter(Boolean).join(' · ');
       violations.appendChild(row);
     }

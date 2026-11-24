@@ -113,6 +113,10 @@
           </svg>
           <span>Quản lý vi phạm</span>
         </a>
+        <a href="suggestions.html" class="sidebar-item" title="Xử lý đề xuất sách">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v5h5M9 12h6m-6 4h6"/></svg>
+          <span>Xử lý đề xuất sách</span>
+        </a>
         <a href="reports.html" class="sidebar-item" title="Báo cáo, thống kê">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <polygon
@@ -343,7 +347,7 @@
 
               <div class="loan-form-row">
                 <label>Mã phiếu mượn</label>
-                <input type="text" class="loan-input" id="loanIdInput" placeholder="PM001">
+                <input type="text" class="loan-input" id="loanIdInput" readonly>
               </div>
               <div class="loan-form-row">
                 <label for="loanDateInput">Ngày lập phiếu</label>
@@ -355,7 +359,7 @@
               </div>
               <div class="loan-form-row">
                 <label for="loanEmpInput">Nhân viên lập phiếu</label>
-                <input type="text" class="loan-input" id="loanEmpInput" value="NV001">
+                <input type="text" class="loan-input" id="loanEmpInput" readonly>
               </div>
               <!-- TRƯỜNG TRẠNG THÁI: Chỉ hiển thị khi Sửa phiếu mượn -->
               <div class="form-group" id="statusFieldWrapper" style="display: none;">

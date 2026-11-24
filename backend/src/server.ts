@@ -186,18 +186,18 @@ const routes: Record<Resource, { select: string; from: string; map: (row: Row) =
   readers: { id: 'mabandoc', from: 'bandoc b JOIN nguoidung u ON u.manguoidung = b.mabandoc JOIN taikhoan a ON a.tendangnhap = u.tendangnhap', select: 'b.mabandoc, u.hoten, u.email, u.sodienthoai, u.cccd, u.gioitinh, u.ngaysinh, u.diachi, u.anhdaidien, u.tendangnhap, b.loaibandoc, b.tongnophat, b.ngaycapthe, b.ngayhetthe, a.vaitro, a.trangthai', map: r => ({ id: str(r.mabandoc), name: str(r.hoten), fullName: str(r.hoten), email: str(r.email), phone: str(r.sodienthoai), cccd: str(r.cccd), username: str(r.tendangnhap), readerType: str(r.loaibandoc), outstandingFine: Number(r.tongnophat ?? 0), role: str(r.vaitro), status: str(r.trangthai), gender: str(r.gioitinh), dob: date(r.ngaysinh), address: str(r.diachi), issueDate: date(r.ngaycapthe), expiryDate: date(r.ngayhetthe), avatarUrl: str(r.anhdaidien) ?? '' }) },
   employees: { id: 'manhanvien', from: 'nhanvien n JOIN nguoidung u ON u.manguoidung = n.manhanvien JOIN taikhoan a ON a.tendangnhap = u.tendangnhap', select: 'n.manhanvien, u.hoten, u.email, u.sodienthoai, u.cccd, u.gioitinh, u.ngaysinh, u.diachi, u.anhdaidien, u.tendangnhap, n.chucvu, n.trangthailamviec, n.dantoc, a.vaitro, a.trangthai', map: r => ({ id: str(r.manhanvien), name: str(r.hoten), fullName: str(r.hoten), email: str(r.email), phone: str(r.sodienthoai), cccd: str(r.cccd), username: str(r.tendangnhap), position: str(r.chucvu), ethnicity: str(r.dantoc), employmentStatus: str(r.trangthailamviec), role: str(r.vaitro), status: str(r.trangthai), gender: str(r.gioitinh), dob: date(r.ngaysinh), address: str(r.diachi), avatarUrl: str(r.anhdaidien) ?? '', password: null, hasAccount: !['profile', 'ho so'].includes(normalizeStatus(r.trangthai)) }) },
   bookTitles: { id: 'madausach', from: 'dausach d JOIN danhmuc c ON c.madanhmuc = d.madanhmuc', select: 'd.madausach, d.madanhmuc, c.tendanhmuc, d.tensach, d.tacgia, d.theloai, d.chude, d.khoa, d.soluongtong, d.soluongsan, d.nhaxuatban, d.namxuatban, d.phienban, d.gia, d.anhbia', map: r => ({ id: str(r.madausach), categoryId: str(r.madanhmuc), category: str(r.tendanhmuc), title: str(r.tensach), authors: str(r.tacgia), author: str(r.tacgia), genre: str(r.theloai), subject: str(r.chude), faculty: str(r.khoa), total: Number(r.soluongtong ?? 0), available: Number(r.soluongsan ?? 0), totalCopies: Number(r.soluongtong ?? 0), availableCopies: Number(r.soluongsan ?? 0), publisher: str(r.nhaxuatban), publishYear: r.namxuatban ? Number(r.namxuatban) : null, namXuatBan: r.namxuatban ? Number(r.namxuatban) : null, edition: str(r.phienban), price: r.gia === null ? null : Number(r.gia), coverUrl: str(r.anhbia) ?? '' }) },
-  bookCopies: { id: 'macuonsach', from: 'cuonsach c JOIN dausach d ON d.madausach = c.madausach', select: 'c.macuonsach, c.madausach, c.mavach, c.tinhtrangvatly, c.trangthai, c.vitriluutru, c.gia, c.anhbia, d.tensach', map: r => ({ id: str(r.macuonsach), bookId: str(r.madausach), bookTitleId: str(r.madausach), bookTitle: str(r.tensach), barcode: str(r.mavach), physicalStatus: str(r.tinhtrangvatly), physicalCondition: str(r.tinhtrangvatly), circulationStatus: str(r.trangthai), status: str(r.trangthai), location: str(r.vitriluutru), price: r.gia === null ? null : Number(r.gia), coverUrl: str(r.anhbia) ?? '' }) },
+  bookCopies: { id: 'macuonsach', from: 'cuonsach c JOIN dausach d ON d.madausach = c.madausach', select: 'c.macuonsach, c.madausach, c.mavach, c.tinhtrangvatly, c.trangthai, c.vitriluutru, c.gia, c.anhbia, c.machitietnhap, d.tensach', map: r => ({ id: str(r.macuonsach), bookId: str(r.madausach), bookTitleId: str(r.madausach), bookTitle: str(r.tensach), importDetailId: str(r.machitietnhap), barcode: str(r.mavach), physicalStatus: str(r.tinhtrangvatly), physicalCondition: str(r.tinhtrangvatly), circulationStatus: str(r.trangthai), status: str(r.trangthai), location: str(r.vitriluutru), price: r.gia === null ? null : Number(r.gia), coverUrl: str(r.anhbia) ?? '' }) },
   loans: { id: 'maphieumuon', from: 'phieumuon p LEFT JOIN nguoidung u ON u.manguoidung = p.mabandoc JOIN cuonsach c ON c.macuonsach = p.macuonsach JOIN dausach d ON d.madausach = c.madausach', select: 'p.maphieumuon, p.mabandoc, u.hoten, p.manhanvien, p.macuonsach, d.tensach, p.ngaymuon, p.ngayhentra, p.ngaytrathucte, p.trangthai', map: r => ({ id: str(r.maphieumuon), loanId: str(r.maphieumuon), readerId: str(r.mabandoc), readerName: str(r.hoten), employeeId: str(r.manhanvien), copyId: str(r.macuonsach), bookTitle: str(r.tensach), borrowDate: date(r.ngaymuon), dueDate: date(r.ngayhentra), returnDate: date(r.ngaytrathucte), status: str(r.trangthai) }) },
   renewals: { id: 'magiahan', from: 'yeucaugiahan', select: '*', map: r => ({ id: str(r.magiahan), loanId: str(r.maphieumuon), requestDate: date(r.ngayyeucau), days: Number(r.songaygiahan), status: str(r.trangthaiduyet) }) },
-  importReceipts: { id: 'maphieunhap', from: 'phieunhap p LEFT JOIN chitietphieunhap ci ON ci.maphieunhap=p.maphieunhap LEFT JOIN dausach d ON d.madausach=ci.madausach', select: 'p.maphieunhap,p.manhanvien,p.ngaynhap,p.trangthai,p.nhacungcap,p.nguoitao,COALESCE(SUM(ci.soluongnhap),p.tongsoluong,0) AS tongsoluong,COALESCE(SUM(ci.soluongnhap*ci.dongia),0) AS tongtien,COALESCE(jsonb_agg(jsonb_build_object(\'bookId\',ci.madausach,\'bookTitle\',d.tensach,\'qty\',ci.soluongnhap,\'unitPrice\',ci.dongia,\'subtotal\',ci.soluongnhap*ci.dongia)) FILTER (WHERE ci.madausach IS NOT NULL),\'[]\'::jsonb) AS items', map: r => ({ id: str(r.maphieunhap), employeeId: str(r.manhanvien), date: date(r.ngaynhap), supplier: str(r.nhacungcap) ?? '', creator: str(r.nguoitao) ?? '', totalBooks: `${Number(r.tongsoluong ?? 0)} cuốn`, totalQuantity: Number(r.tongsoluong ?? 0), totalAmount: `${Number(r.tongtien ?? 0).toLocaleString('vi-VN')} ₫`, status: str(r.trangthai), items: Array.isArray(r.items) ? r.items.map((item: Row) => ({ ...item, unitPrice: `${Number(item.unitPrice ?? 0).toLocaleString('vi-VN')} ₫`, subtotal: `${Number(item.subtotal ?? 0).toLocaleString('vi-VN')} ₫` })) : [] }) },
+  importReceipts: { id: 'maphieunhap', from: 'phieunhap p LEFT JOIN chitietphieunhap ci ON ci.maphieunhap=p.maphieunhap LEFT JOIN dausach d ON d.madausach=ci.madausach LEFT JOIN nhacungcap n ON n.manhacungcap=p.nhacungcap', select: 'p.maphieunhap,p.manhanvien,p.ngaynhap,p.trangthai,COALESCE(n.tennhacungcap,p.nhacungcap) AS nhacungcap,p.nguoitao,COALESCE(SUM(ci.soluongnhap),p.tongsoluong,0) AS tongsoluong,COALESCE(SUM(ci.soluongnhap*ci.dongia),0) AS tongtien,COALESCE(jsonb_agg(jsonb_build_object(\'bookId\',ci.madausach,\'bookTitle\',d.tensach,\'qty\',ci.soluongnhap,\'unitPrice\',ci.dongia,\'subtotal\',ci.soluongnhap*ci.dongia)) FILTER (WHERE ci.madausach IS NOT NULL),\'[]\'::jsonb) AS items', map: r => ({ id: str(r.maphieunhap), employeeId: str(r.manhanvien), date: date(r.ngaynhap), supplier: str(r.nhacungcap) ?? '', creator: str(r.nguoitao) ?? '', totalBooks: `${Number(r.tongsoluong ?? 0)} cuốn`, totalQuantity: Number(r.tongsoluong ?? 0), totalAmount: `${Number(r.tongtien ?? 0).toLocaleString('vi-VN')} ₫`, status: str(r.trangthai), items: Array.isArray(r.items) ? r.items.map((item: Row) => ({ ...item, unitPrice: `${Number(item.unitPrice ?? 0).toLocaleString('vi-VN')} ₫`, subtotal: `${Number(item.subtotal ?? 0).toLocaleString('vi-VN')} ₫` })) : [] }) },
   purchaseRequests: { id: 'madexuat', from: '(SELECT * FROM phieudexuat WHERE mabandoc IS NULL) purchase_requests', select: '*', map: r => ({ id: str(r.madexuat), employeeId: str(r.manhanvien), bookInfo: str(r.thongtinsach), date: date(r.ngaydexuat), status: str(r.trangthaiduyet), rejectionReason: str(r.lydotuchoi) }) },
-  fines: { id: 'maphieuphat', from: 'phieuphat fp LEFT JOIN phieumuon p ON p.maphieumuon = fp.maphieumuon LEFT JOIN cuonsach c ON c.macuonsach = p.macuonsach LEFT JOIN dausach d ON d.madausach = c.madausach', select: 'fp.maphieuphat, fp.maphieumuon, fp.mabandoc, fp.manhanvien, fp.ngaylap, fp.loaivipham, fp.sotien, fp.trangthaithanhtoan, fp.phuongthucthanhtoan, fp.ngaythanhtoan, d.tensach', map: r => ({ id: str(r.maphieuphat), loanId: str(r.maphieumuon), readerId: str(r.mabandoc), employeeId: str(r.manhanvien), createdDate: date(r.ngaylap), date: date(r.ngaylap), ngayLap: date(r.ngaylap), violation: str(r.loaivipham), amount: Number(r.sotien ?? 0), paymentStatus: str(r.trangthaithanhtoan), paymentMethod: str(r.phuongthucthanhtoan), paidDate: date(r.ngaythanhtoan), bookTitle: str(r.tensach) }) },
+  fines: { id: 'maphieuphat', from: 'phieuphat fp LEFT JOIN phieumuon p ON p.maphieumuon = fp.maphieumuon LEFT JOIN cuonsach c ON c.macuonsach = p.macuonsach LEFT JOIN dausach d ON d.madausach = c.madausach', select: 'fp.maphieuphat, fp.maphieumuon, fp.mabandoc, fp.manhanvien, fp.ngaylap, fp.loaivipham, fp.sotien, fp.trangthaithanhtoan, fp.phuongthucthanhtoan, fp.ngaythanhtoan, fp.baochuyenkhoanluc, d.tensach', map: r => ({ id: str(r.maphieuphat), loanId: str(r.maphieumuon), readerId: str(r.mabandoc), employeeId: str(r.manhanvien), createdDate: date(r.ngaylap), date: date(r.ngaylap), ngayLap: date(r.ngaylap), violation: str(r.loaivipham), amount: Number(r.sotien ?? 0), paymentStatus: str(r.trangthaithanhtoan), paymentMethod: str(r.phuongthucthanhtoan), paidDate: date(r.ngaythanhtoan), transferReportedAt: r.baochuyenkhoanluc, bookTitle: str(r.tensach) }) },
   categories: { id: 'madanhmuc', from: 'danhmuc', select: '*', map: r => ({ id: str(r.madanhmuc), name: str(r.tendanhmuc) }) },
   accounts: { id: 'tendangnhap', from: 'taikhoan', select: 'tendangnhap, vaitro, trangthai', map: r => ({ id: str(r.tendangnhap), username: str(r.tendangnhap), role: str(r.vaitro), status: str(r.trangthai) }) },
   suppliers: { id: 'manhacungcap', from: 'nhacungcap', select: '*', map: r => ({ id: str(r.manhacungcap), name: str(r.tennhacungcap), contact: str(r.nguoilienhe), phone: str(r.sodienthoai), email: str(r.email), address: str(r.diachi), status: str(r.trangthai) }) },
   publishers: { id: 'manhaxuatban', from: 'nhaxuatban', select: '*', map: r => ({ id: str(r.manhaxuatban), name: str(r.tennhaxuatban), phone: str(r.sodienthoai), email: str(r.email), address: str(r.diachi), note: str(r.ghichu), status: str(r.trangthai) }) },
   logs: { id: 'manhatky', from: 'ixs_nhatky', select: "manhatky, TO_CHAR(thoigian,'DD / MM / YYYY') AS ngay, TO_CHAR(thoigian,'HH24:MI:SS') AS gio, nguoidung, manguoidung, hanhdong, doituong, chitiet", map: r => ({ id: String(r.manhatky), date: str(r.ngay), time: str(r.gio), user: str(r.nguoidung), userId: str(r.manguoidung), action: str(r.hanhdong), target: str(r.doituong), detail: str(r.chitiet) }) },
-  wishlist: { id: 'madausach', from: 'tusachcanhan', select: '*', map: r => ({ readerId: str(r.mabandoc), bookTitleId: str(r.madausach), id: str(r.madausach), addedAt: date(r.ngaythem) }) },
+  wishlist: { id: 'madausach', from: 'tusachcanhan', select: '*', map: r => ({ readerId: str(r.mabandoc), bookTitleId: str(r.madausach), id: str(r.madausach), addedAt: date(r.ngaythem), pagesRead: Number(r.sotrangdadoc) }) },
   waitingList: { id: 'madausach', from: 'danhsachcho', select: '*', map: r => ({ readerId: str(r.mabandoc), bookTitleId: str(r.madausach), id: str(r.madausach), registeredAt: date(r.ngaydangky), position: Number(r.thutu ?? 0), status: str(r.trangthai) }) },
   suggestions: { id: 'id', from: 'phieudexuat p JOIN chitietdexuat ct ON ct.madexuat=p.madexuat', select: 'p.madexuat AS id, p.mabandoc AS reader_id, p.ngaydexuat AS submitted_at, p.trangthaiduyet AS status, p.lydotuchoi AS rejection_reason, ct.tensach AS title, ct.tacgia AS author, ct.nhaxuatban AS publisher, ct.namxuatban AS publication_year, ct.soluongdexuat AS requested_quantity, ct.lydodexuat AS reason, ct.lanxuatban AS edition, ct.isbn, ct.anhbia AS cover_url', map: r => ({ id: str(r.id), readerId: str(r.reader_id), title: str(r.title), author: str(r.author), publisher: str(r.publisher) ?? '', year: r.publication_year ? String(r.publication_year) : '', quantity: r.requested_quantity ? `${r.requested_quantity} bản` : '—', requestedQuantity: Number(r.requested_quantity ?? 0), edition: str(r.edition) ?? '', isbn: str(r.isbn) ?? '', reason: str(r.reason) ?? '', rejectionReason: str(r.rejection_reason) ?? '', coverUrl: str(r.cover_url) ?? '', status: str(r.status) ?? 'Chờ duyệt', submittedAt: date(r.submitted_at), type: 'Sách / giáo trình' }) }
 };
@@ -705,7 +705,7 @@ app.post('/api/importReceipts/:id/confirm', async (req, res, next) => {
       await client.query('ROLLBACK');
       return res.status(409).json({ error: 'Phiếu nhập này đã được xác nhận trước đó.' });
     }
-    const itemsRes = await client.query('SELECT madausach, soluongnhap, dongia FROM chitietphieunhap WHERE maphieunhap=$1', [receiptId]);
+    const itemsRes = await client.query('SELECT machitietnhap, madausach, soluongnhap, dongia FROM chitietphieunhap WHERE maphieunhap=$1', [receiptId]);
     const generatedCopies: Row[] = [];
     for (const item of itemsRes.rows) {
       const bookId = String(item.madausach);
@@ -717,8 +717,8 @@ app.post('/api/importReceipts/:id/confirm', async (req, res, next) => {
       for (let i = 0; i < qty; i++) {
         const copyId = await generateNextCode(client, 'cuonsach', 'macuonsach', 'CS');
         await client.query(
-          "INSERT INTO cuonsach (macuonsach, madausach, mavach, tinhtrangvatly, trangthai, vitriluutru, gia, anhbia) VALUES ($1,$2,$3,'TỐT','SẴN SÀNG','A1 - Ngăn 1',$4,$5) ON CONFLICT (macuonsach) DO NOTHING",
-          [copyId, bookId, copyId, price, coverUrl]
+          "INSERT INTO cuonsach (macuonsach, madausach, mavach, tinhtrangvatly, trangthai, vitriluutru, gia, anhbia, machitietnhap) VALUES ($1,$2,$3,'TỐT','SẴN SÀNG','A1 - Ngăn 1',$4,$5,$6) ON CONFLICT (macuonsach) DO NOTHING",
+          [copyId, bookId, copyId, price, coverUrl, item.machitietnhap]
         );
         generatedCopies.push({ id: copyId, bookId, bookTitle: titleName, physicalStatus: 'TỐT', circulationStatus: 'SẴN SÀNG', location: 'A1 - Ngăn 1', price });
       }
@@ -974,6 +974,22 @@ app.post('/api/auth/register', async (req, res, next) => {
   } finally { client.release(); }
 });
 
+app.post('/api/fines/:id/transfer-report', async (req, res, next) => {
+  try {
+    const readerId = await getReaderId(req);
+    if (!readerId) return res.status(403).json({ error: 'Vui lòng đăng nhập bằng tài khoản bạn đọc.' });
+    const result = await pool.query(
+      `UPDATE phieuphat SET baochuyenkhoanluc=COALESCE(baochuyenkhoanluc,NOW())
+       WHERE maphieuphat=$1 AND mabandoc=$2 AND ngaythanhtoan IS NULL
+         AND LOWER(COALESCE(trangthaithanhtoan,'')) NOT IN ('đã thanh toán','da thanh toan','paid')
+       RETURNING baochuyenkhoanluc`,
+      [req.params.id, readerId]
+    );
+    if (!result.rowCount) return res.status(404).json({ error: 'Không tìm thấy phiếu phạt chưa thanh toán của bạn.' });
+    return res.json({ transferReportedAt: result.rows[0].baochuyenkhoanluc });
+  } catch (error) { next(error); }
+});
+
 app.get('/api/fines/:id', async (req, res, next) => {
   try {
     const staffId = await getStaffId(req);
@@ -988,7 +1004,7 @@ app.get('/api/fines/:id', async (req, res, next) => {
     if (!result.rowCount) return res.status(404).json({ error: 'Không tìm thấy phiếu phạt.' });
     const details = await pool.query(
       `SELECT ct.loaivipham AS violation, ct.songayquahan AS "lateDays",
-              ct.mucdohuhong AS damage, ct.sotienphat AS amount, loan.macuonsach AS "copyId"
+              ct.mucdohuhong AS damage, ct.sotienphat AS amount, ct.ghichu AS note, loan.macuonsach AS "copyId"
        FROM chitietphieuphat ct JOIN chitietphieumuon loan USING (machitietmuon)
        WHERE ct.maphieuphat=$1 ORDER BY ct.machitietphat`,
       [req.params.id]
@@ -1048,8 +1064,8 @@ app.get('/api/:resource', async (req, res, next) => {
       return res.json(result.rows.map(route.map));
     }
     if (requested === 'wishlist') {
-      const readerId = String(req.query.readerId ?? '');
-      if (!readerId) return res.status(400).json({ error: 'readerId query parameter is required' });
+      const readerId = await getReaderId(req);
+      if (!readerId) return res.status(403).json({ error: 'Vui lòng đăng nhập bằng tài khoản bạn đọc.' });
       const result = await pool.query('SELECT * FROM tusachcanhan WHERE mabandoc=$1', [readerId]);
       return res.json(result.rows.map(route.map));
     }
@@ -1061,7 +1077,7 @@ app.get('/api/:resource', async (req, res, next) => {
       );
       return res.json(result.rows.map(route.map));
     }
-    const result = await pool.query(`SELECT ${route.select} FROM ${route.from}${requested === 'importReceipts' ? ' GROUP BY p.maphieunhap' : ''}`);
+    const result = await pool.query(`SELECT ${route.select} FROM ${route.from}${requested === 'importReceipts' ? ' GROUP BY p.maphieunhap,p.manhanvien,p.ngaynhap,p.trangthai,p.nhacungcap,p.nguoitao,p.tongsoluong,n.tennhacungcap' : ''}`);
     res.json(result.rows.map(route.map));
   } catch (error) { next(error); }
 });
@@ -1128,12 +1144,12 @@ app.post('/api/:resource', async (req, res, next) => {
       const total = Number(value(body, 'total', 'totalCopies', 'soLuongTong') ?? 0);
       const available = Number(value(body, 'available', 'availableCopies', 'soLuongSan') ?? 0);
       const publishYearRaw = value(body, 'publishYear', 'namXuatBan');
-      const publishYear = publishYearRaw ? Number(publishYearRaw) : 2021;
+      const publishYear = publishYearRaw == null || publishYearRaw === '' ? null : Number(publishYearRaw);
       if (!Number.isInteger(total) || total < 0 || !Number.isInteger(available) || available < 0 || available > total) {
         return res.status(400).json({ error: 'Số lượng tổng và số lượng sẵn có phải là số nguyên không âm và số sẵn có không vượt quá tổng.' });
       }
-      if (!Number.isInteger(publishYear) || publishYear < 1800 || publishYear > 2100) {
-        return res.status(400).json({ error: 'Năm xuất bản phải nằm trong khoảng 1800 đến 2100.' });
+      if (publishYear !== null && (!Number.isInteger(publishYear) || publishYear < 1 || publishYear > 2_147_483_647)) {
+        return res.status(400).json({ error: 'Năm xuất bản phải nằm trong khoảng 1 đến 2147483647.' });
       }
       await pool.query('INSERT INTO dausach (madausach,madanhmuc,tensach,tacgia,theloai,chude,khoa,soluongtong,soluongsan,nhaxuatban,namxuatban,anhbia,phienban,gia) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)', [id, categoryId, title, value(body, 'authors', 'author', 'tacGia'), value(body, 'genre', 'theLoai'), value(body, 'subject', 'chuDe'), value(body, 'faculty', 'khoa'), total, available, value(body,'publisher','nhaXuatBan'), publishYear, value(body,'coverUrl'), str(value(body,'edition','phienban')), value(body,'price','gia') ?? null]);
       return res.status(201).json({ ...body, id });
@@ -1261,7 +1277,16 @@ app.post('/api/:resource', async (req, res, next) => {
       if (!Number.isFinite(fineAmount) || fineAmount < 0) return res.status(400).json({ error: 'Số tiền phạt phải lớn hơn hoặc bằng 0.' });
       const payStatus = 'Chưa thanh toán';
       const violation = str(value(body,'violation','loaiViPham'))?.trim();
-      if (!violation || violation.length > 255) return res.status(400).json({ error: 'Nội dung vi phạm không hợp lệ.' });
+      if (!violation || violation.length > 100) return res.status(400).json({ error: 'Nội dung vi phạm không hợp lệ.' });
+      const lateDays = value(body, 'lateDays', 'soNgayQuaHan') ?? null;
+      const damage = str(value(body, 'damage', 'mucDoHuHong'))?.trim() || null;
+      const note = str(value(body, 'note', 'ghiChu'))?.trim() || null;
+      if (lateDays !== null && (typeof lateDays !== 'number' || !Number.isInteger(lateDays) || lateDays < 0 || lateDays > 2_147_483_647)) {
+        return res.status(400).json({ error: 'Số ngày quá hạn phải là số nguyên không âm.' });
+      }
+      if ((damage?.length ?? 0) > 100 || (note?.length ?? 0) > 500) {
+        return res.status(400).json({ error: 'Mức độ hư hỏng tối đa 100 ký tự và ghi chú tối đa 500 ký tự.' });
+      }
       const client = await pool.connect();
       try {
         await client.query('BEGIN');
@@ -1277,8 +1302,8 @@ app.post('/api/:resource', async (req, res, next) => {
         }
         await client.query('INSERT INTO phieuphat (maphieuphat, maphieumuon, mabandoc, manhanvien, ngaylap, loaivipham, sotien, trangthaithanhtoan) VALUES ($1,$2,$3,$4,COALESCE($5,CURRENT_TIMESTAMP),$6,$7,$8)', [id, loanId, readerId, employeeId, dateValue(value(body,'ngayLap','date','createdDate')), violation, fineAmount, payStatus]);
         await client.query(
-          `INSERT INTO chitietphieuphat (machitietphat,maphieuphat,machitietmuon,loaivipham,sotienphat) VALUES (next_library_code('CP','chitietphieuphat','machitietphat'),$1,$2,$3,$4)`,
-          [id, detail.rows[0].machitietmuon, violation, fineAmount]
+          `INSERT INTO chitietphieuphat (machitietphat,maphieuphat,machitietmuon,loaivipham,sotienphat,songayquahan,mucdohuhong,ghichu) VALUES (next_library_code('CP','chitietphieuphat','machitietphat'),$1,$2,$3,$4,$5,$6,$7)`,
+          [id, detail.rows[0].machitietmuon, violation, fineAmount, lateDays, damage, note]
         );
         await client.query('UPDATE bandoc SET tongnophat = COALESCE(tongnophat, 0) + $1 WHERE mabandoc=$2', [fineAmount, readerId]);
         await client.query('COMMIT');
@@ -1350,6 +1375,10 @@ app.post('/api/:resource', async (req, res, next) => {
       const employeeId = str(value(body, 'employeeId', 'maNhanVien'));
       const receiptDate = dateValue(value(body, 'date', 'ngayNhap'));
       if (!id || !employeeId || !receiptDate) return res.status(400).json({ error: 'id, employeeId and date are required' });
+      const supplierId = str(value(body, 'supplier', 'supplierId'))?.trim();
+      if (!supplierId || !(await pool.query('SELECT 1 FROM nhacungcap WHERE manhacungcap=$1', [supplierId])).rowCount) {
+        return res.status(400).json({ error: 'Vui lòng chọn nhà cung cấp hợp lệ.' });
+      }
       const quantity = Number(value(body, 'totalQuantity', 'tongSoLuong') ?? 0);
       if (!Number.isInteger(quantity) || quantity < 0) return res.status(400).json({ error: 'totalQuantity must be a non-negative integer' });
       const client = await pool.connect();
@@ -1357,7 +1386,7 @@ app.post('/api/:resource', async (req, res, next) => {
         await client.query('BEGIN');
         await client.query(
           'INSERT INTO phieunhap (maphieunhap,manhanvien,ngaynhap,tongsoluong,trangthai,nhacungcap,nguoitao) VALUES ($1,$2,$3,$4,$5,$6,$7)',
-          [id, employeeId, receiptDate, quantity, value(body, 'status', 'trangThai') ?? 'CHỜ XÁC NHẬN', value(body,'supplier'), value(body,'creator')]
+          [id, employeeId, receiptDate, quantity, value(body, 'status', 'trangThai') ?? 'CHỜ XÁC NHẬN', supplierId, value(body,'creator')]
         );
         const items = Array.isArray(body.items) ? body.items as Row[] : [];
         for (const item of items) {
@@ -1399,9 +1428,9 @@ app.post('/api/:resource', async (req, res, next) => {
         return res.status(403).json({ error: 'Bạn đọc chỉ có thể gửi đề xuất cho tài khoản của mình.' });
       }
       const title = str(value(body, 'title'))?.trim();
-      const author = str(value(body, 'author'))?.trim();
-      if (!readerId || !title || !author) {
-        return res.status(400).json({ error: 'Vui lòng nhập đầy đủ tên sách, tác giả và mã bạn đọc.' });
+      const author = str(value(body, 'author'))?.trim() || null;
+      if (!title) {
+        return res.status(400).json({ error: 'Vui lòng nhập tên sách đề xuất.' });
       }
       const publisher = str(value(body, 'publisher'))?.trim() || null;
       const yearRaw = value(body, 'year', 'publication_year');
@@ -1418,6 +1447,9 @@ app.post('/api/:resource', async (req, res, next) => {
       const edition = str(value(body, 'edition'))?.trim() || null;
       const isbn = str(value(body, 'isbn'))?.trim() || null;
       const reason = str(value(body, 'reason'))?.trim() || null;
+      if (title.length > 255 || (author?.length ?? 0) > 150 || (publisher?.length ?? 0) > 150 || (reason?.length ?? 0) > 500) {
+        return res.status(400).json({ error: 'Thông tin đề xuất vượt quá độ dài cho phép.' });
+      }
       const coverUrl = str(value(body, 'coverUrl', 'cover_url'));
       const status = 'Chờ duyệt';
       const client = await pool.connect();
@@ -1445,10 +1477,11 @@ app.post('/api/:resource', async (req, res, next) => {
       const readerId = str(value(body, 'readerId', 'mabandoc')); const bookId = str(value(body, 'bookTitleId', 'madausach'));
       if (!readerId || !bookId) return res.status(400).json({ error: 'readerId and bookTitleId are required' });
       if (resource === 'wishlist') {
+        if (await getReaderId(req) !== readerId) return res.status(403).json({ error: 'Bạn chỉ có thể thay đổi tủ sách của mình.' });
         const dup = await pool.query('SELECT 1 FROM tusachcanhan WHERE mabandoc=$1 AND madausach=$2', [readerId, bookId]);
         if (dup.rowCount) return res.status(409).json({ error: 'Sách đã có trong tủ sách cá nhân.' });
         const added = await pool.query('INSERT INTO tusachcanhan (mabandoc, madausach) VALUES ($1,$2) RETURNING ngaythem', [readerId, bookId]);
-        return res.status(201).json({ id: bookId, readerId, bookTitleId: bookId, addedAt: date(added.rows[0].ngaythem) });
+        return res.status(201).json({ id: bookId, readerId, bookTitleId: bookId, addedAt: date(added.rows[0].ngaythem), pagesRead: 0 });
       } else {
         const existingWait = await pool.query(
           "SELECT 1 FROM danhsachcho WHERE mabandoc=$1 AND madausach=$2 AND UPPER(COALESCE(trangthai,'')) IN ('DANG CHO','DANG_CHO','SAN SANG','DA_GIU_SACH')",
@@ -1502,6 +1535,20 @@ app.put('/api/:resource/:id', async (req, res, next) => {
     const requested = req.params.resource === 'readerHistory' ? 'loans' : req.params.resource;
     if (!isResource(requested)) return res.status(404).json({ error: 'Unknown resource' });
     const resource = requested; const id = req.params.id; const body = req.body as Row;
+    if (resource === 'wishlist') {
+      const readerId = await getReaderId(req);
+      if (!readerId) return res.status(403).json({ error: 'Vui lòng đăng nhập bằng tài khoản bạn đọc.' });
+      const pagesRead = body?.pagesRead;
+      if (typeof pagesRead !== 'number' || !Number.isInteger(pagesRead) || pagesRead < 0 || pagesRead > 2_147_483_647) {
+        return res.status(400).json({ error: 'Số trang đã đọc phải là số nguyên không âm hợp lệ.' });
+      }
+      const result = await pool.query(
+        'UPDATE tusachcanhan SET sotrangdadoc=$1 WHERE mabandoc=$2 AND madausach=$3 RETURNING *',
+        [pagesRead, readerId, id]
+      );
+      if (!result.rowCount) return res.status(404).json({ error: 'Đầu sách không có trong tủ của bạn.' });
+      return res.json(routes.wishlist.map(result.rows[0]));
+    }
     if (['loans', 'bookTitles', 'bookCopies', 'suppliers', 'importReceipts', 'purchaseRequests', 'categories'].includes(resource) && !await getStaffId(req)) {
       return res.status(403).json({ error: 'Bạn không có quyền cập nhật dữ liệu nghiệp vụ này.' });
     }
@@ -1526,12 +1573,12 @@ app.put('/api/:resource/:id', async (req, res, next) => {
       const total = Number(value(body,'total','totalCopies','soLuongTong') ?? 0);
       const available = Number(value(body,'available','availableCopies','soLuongSan') ?? 0);
       const publishYearRaw = value(body,'publishYear','namXuatBan');
-      const publishYear = publishYearRaw ? Number(publishYearRaw) : 2021;
+      const publishYear = publishYearRaw == null || publishYearRaw === '' ? null : Number(publishYearRaw);
       if (!Number.isInteger(total) || total < 0 || !Number.isInteger(available) || available < 0 || available > total) {
         return res.status(400).json({ error: 'Số lượng tổng và số sẵn có không hợp lệ.' });
       }
-      if (!Number.isInteger(publishYear) || publishYear < 1800 || publishYear > 2100) {
-        return res.status(400).json({ error: 'Năm xuất bản phải nằm trong khoảng 1800 đến 2100.' });
+      if (publishYear !== null && (!Number.isInteger(publishYear) || publishYear < 1 || publishYear > 2_147_483_647)) {
+        return res.status(400).json({ error: 'Năm xuất bản phải nằm trong khoảng 1 đến 2147483647.' });
       }
       await pool.query('INSERT INTO dausach (madausach,madanhmuc,tensach,tacgia,theloai,chude,khoa,soluongtong,soluongsan,nhaxuatban,namxuatban,anhbia,phienban,gia) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) ON CONFLICT (madausach) DO UPDATE SET madanhmuc=EXCLUDED.madanhmuc,tensach=EXCLUDED.tensach,tacgia=EXCLUDED.tacgia,theloai=EXCLUDED.theloai,chude=EXCLUDED.chude,khoa=EXCLUDED.khoa,soluongtong=EXCLUDED.soluongtong,soluongsan=EXCLUDED.soluongsan,nhaxuatban=EXCLUDED.nhaxuatban,namxuatban=EXCLUDED.namxuatban,anhbia=EXCLUDED.anhbia,phienban=COALESCE(EXCLUDED.phienban,dausach.phienban),gia=COALESCE(EXCLUDED.gia,dausach.gia)', [id, categoryId, title, value(body,'authors','author','tacGia'), value(body,'genre','theLoai'), value(body,'subject','chuDe'), value(body,'faculty','khoa'), total, available, value(body,'publisher','nhaXuatBan'), publishYear, value(body,'coverUrl'), str(value(body,'edition','phienban')), value(body,'price','gia') ?? null]);
       return res.json({ ...body, id });
@@ -1809,8 +1856,9 @@ app.delete('/api/:resource/:id', async (req, res, next) => {
       return res.status(204).end();
     }
     if (resource === 'wishlist') {
-      const readerId = String(req.query.readerId ?? ''); const bookId = String(req.query.bookTitleId ?? id);
-      if (!readerId || !bookId) return res.status(400).json({ error: 'readerId and bookTitleId query parameters are required' });
+      const readerId = await getReaderId(req);
+      if (!readerId) return res.status(403).json({ error: 'Vui lòng đăng nhập bằng tài khoản bạn đọc.' });
+      const bookId = id;
       const result = await pool.query('DELETE FROM tusachcanhan WHERE mabandoc=$1 AND madausach=$2', [readerId, bookId]);
       if (!result.rowCount) return res.status(404).json({ error: 'Record not found' });
       return res.status(204).end();

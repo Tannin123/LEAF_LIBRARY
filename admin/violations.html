@@ -113,6 +113,10 @@
           </svg>
           <span>Quản lý vi phạm</span>
         </a>
+        <a href="suggestions.html" class="sidebar-item" title="Xử lý đề xuất sách">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v5h5M9 12h6m-6 4h6"/></svg>
+          <span>Xử lý đề xuất sách</span>
+        </a>
         <a href="reports.html" class="sidebar-item" title="Báo cáo, thống kê">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <polygon
@@ -201,19 +205,31 @@
 
       <!-- MODAL LẬP PHIẾU PHẠT & ĐỀN BÙ (Seq 2.9.1) -->
       <div class="modal-overlay" id="modalCreateFine" style="display: none;">
-        <div class="modal-box" style="max-width: 500px; background: #fff; border-radius: 12px; padding: 24px;">
-          <div class="modal-header" style="padding: 0 0 12px 0; border-bottom: 1px solid #E2E8F0; margin-bottom: 16px;">
+        <div class="modal-box modal-box-md">
+          <div class="modal-header">
             <div class="modal-title">LẬP PHIẾU PHẠT / ĐỀN BÙ</div>
             <button type="button" class="modal-close-btn" id="btnCloseCreateFine" aria-label="Đóng">✕</button>
           </div>
-          <div class="modal-body" style="padding: 0; display: flex; flex-direction: column; gap: 12px;">
+          <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
             <div class="form-grid-row" style="grid-template-columns: 140px 1fr;">
               <label class="form-field-label" for="fineReaderIdInput">Mã độc giả *</label>
               <input type="text" class="form-input-text" id="fineReaderIdInput" placeholder="VD: BD004">
             </div>
             <div class="form-grid-row" style="grid-template-columns: 140px 1fr;">
-              <label class="form-field-label" for="fineLoanIdInput">Mã phiếu mượn</label>
-              <input type="text" class="form-input-text" id="fineLoanIdInput" placeholder="VD: PM001 (tùy chọn)">
+              <label class="form-field-label" for="fineLoanIdInput">Mã phiếu mượn *</label>
+              <input type="text" class="form-input-text" id="fineLoanIdInput" placeholder="VD: PM001" maxlength="20" required>
+            </div>
+            <div class="form-grid-row" style="grid-template-columns: 140px 1fr;">
+              <label class="form-field-label" for="fineLateDaysInput">Số ngày quá hạn</label>
+              <input type="number" min="0" max="2147483647" step="1" class="form-input-text" id="fineLateDaysInput">
+            </div>
+            <div class="form-grid-row" style="grid-template-columns: 140px 1fr;">
+              <label class="form-field-label" for="fineDamageInput">Mức độ hư hỏng</label>
+              <input type="text" maxlength="100" class="form-input-text" id="fineDamageInput">
+            </div>
+            <div class="form-grid-row" style="grid-template-columns: 140px 1fr;">
+              <label class="form-field-label" for="fineNoteInput">Ghi chú</label>
+              <textarea class="form-textarea" maxlength="500" rows="2" id="fineNoteInput"></textarea>
             </div>
             <div class="form-grid-row" style="grid-template-columns: 140px 1fr;">
               <label class="form-field-label" for="fineTypeSelect">Loại vi phạm</label>

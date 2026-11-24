@@ -956,6 +956,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         : savedDob;
       document.getElementById('editEthnicity').value = emp.ethnicity || 'Kinh';
       document.getElementById('editEmployeeCccd').value = emp.cccd || '';
+      document.getElementById('editEmployeePosition').value = emp.position || '';
       document.getElementById('editAddress').value = emp.address || '';
       document.getElementById('editPhone').value = emp.phone ? emp.phone.replace(/\./g, '') : '';
       document.getElementById('editEmail').value = emp.email
@@ -1124,6 +1125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         dob: dobVal,
         ethnicity: document.getElementById('editEthnicity').value,
         cccd: document.getElementById('editEmployeeCccd').value.trim(),
+        position: document.getElementById('editEmployeePosition').value.trim(),
         address: document.getElementById('editAddress').value.trim(),
         phone: formattedPhone,
         email: normalizedEmail,
@@ -1382,156 +1384,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderEmployeeTable();
   }
 
-  /**
-   * 2. PHÂN HỆ QUẢN LÝ KHO SÁCH (admin/books.html)
-   */
-  const bookCardsGrid = document.getElementById('bookTitlesGrid') || document.getElementById('bookCardsGrid');
-
-  if (bookCardsGrid) {
-    let selectedBookTitleId = null;
-    let isCreatingBookTitle = false;
-    let selectedBookCopyId = null;
-    let isCreatingBookCopy = false;
-    let selectedSupplierId = null;
-    let isCreatingSupplier = false;
-
-    let btPage = 1;
-    let bcPage = 1;
-    let impPage = 1;
-    let supPage = 1;
-
-    const BT_PAGE_SIZE = 4;
-    const BC_PAGE_SIZE = 5;
-    const IMP_PAGE_SIZE = 5;
-    const SUP_PAGE_SIZE = 5;
-
-    const btUploadWidget = setupMediaUploadWidget({
-      bannerId: 'btMediaBanner',
-      defaultGraphicId: 'btDefaultCover',
-      placeholderId: 'btUploadPlaceholder',
-      imgPreviewId: 'btImagePreview',
-      resetBtnId: 'btnResetBtImage',
-      fileInputId: 'btImageFileInput',
-      urlInputId: 'btImageUrlInput'
-    });
-
-    const bcUploadWidget = setupMediaUploadWidget({
-      bannerId: 'bcMediaBanner',
-      defaultGraphicId: 'bcDefaultCover',
-      placeholderId: 'bcUploadPlaceholder',
-      imgPreviewId: 'bcImagePreview',
-      resetBtnId: 'btnResetBcImage',
-      fileInputId: 'bcImageFileInput',
-      urlInputId: 'bcImageUrlInput'
-    });
-
-    const searchBookTitleInput = document.getElementById('searchBookTitleInput');
-    const filterBookCategory = document.getElementById('filterBookCategory');
-
-    function renderBookPosterGraphic(coverUrl, titleText) {
-      if (coverUrl) {
-        return `
-          <div class="book-cover-box has-custom-img">
-            <img class="book-cover-custom-img" src="${coverUrl}" alt="${titleText || 'Book Cover'}">
-          </div>
-        `;
-      }
-      return `
-        <div class="book-cover-box">
-          <div>
-            <div class="book-cover-title">MANAGING<br>INFORMATION<br>TECHNOLOGY</div>
-            <div class="book-cover-edition">SEVENTH EDITION</div>
-          </div>
-          <div class="book-cover-authors">
-            CAROL V. BROWN<br>
-            DANIEL W. DEHAYES<br>
-            JEFFREY A. HOFFER<br>
-            E. WAINRIGHT MARTIN<br>
-            WILLIAM C. PERKINS
-          </div>
-        </div>
-      `;
-    }
-
-    function renderBookTitlesGrid() {
-      const books = getBookTitles();
-      const q = (searchBookTitleInput.value || '').trim().toLowerCase();
-      const cat = filterBookCategory.value;
-      const isFiltered = Boolean(q) || cat !== 'all';
-
-      const filtered = books.filter(b => {
-        const matchCat = cat === 'all' || b.category === cat;
-        const matchQ = !q ||
-          b.id.toLowerCase().includes(q) ||
-          b.title.toLowerCase().includes(q) ||
-          b.authors.toLowerCase().includes(q) ||
-          String(b.publishYear ?? '').includes(q);
-        return matchCat && matchQ;
-      });
-
-      const totalPages = Math.max(1, Math.ceil(filtered.length / BT_PAGE_SIZE));
-      if (btPage > totalPages) btPage = totalPages;
-      const start = (btPage - 1) * BT_PAGE_SIZE;
-      const paged = filtered.slice(start, start + BT_PAGE_SIZE);
-
-      let html = '';
-      if (paged.length === 0) {
-        html = renderEmptyState(isFiltered, 'Thêm đầu sách +');
-      } else {
-        paged.forEach(b => {
-          html += `
-            <div class="book-card" data-id="${b.id}">
-              ${renderBookPosterGraphic(b.coverUrl, b.title)}
-              <div class="book-card-info">
-                <div class="book-card-row-2col">
-                  <div>
-                    <div class="book-meta-label">Mã sách</div>
-                    <div class="book-meta-value">${b.id}</div>
-                  </div>
-                  <div style="text-align: right;">
-                    <div class="book-meta-label">Năm xuất bản</div>
-                    <div class="book-meta-value">${b.publishYear || b.namXuatBan || '2021'}</div>
-                  </div>
-                </div>
-
-                <div>
-                  <div class="book-meta-label">Tên sách, tác giả</div>
-                  <div class="book-title-main">${b.title}</div>
-                  <div class="book-author-sub">${b.authors}</div>
-                </div>
-
-                <div class="book-card-row-2col">
-                  <div>
-                    <div class="book-meta-label">Nhà xuất bản</div>
-                    <div class="book-meta-value">${b.publisher}</div>
-                  </div>
-                  <div style="text-align: right;">
-                    <div class="book-meta-label">Thể loại</div>
-                    <div class="book-meta-value">${b.category}</div>
-                  </div>
-                </div>
-
-                <div class="book-card-footer">
-                  <div class="book-card-actions">
-                    <span class="link-view-copies" data-action="view-copies" data-id="${b.id}">Xem các bản sao →</span>
-                    <span class="action-icon" title="Chỉnh sửa đầu sách" data-action="edit-book" data-id="${b.id}">${ICON_EDIT}</span>
-                    <span class="action-icon" title="Xóa đầu sách" data-action="delete-book" data-id="${b.id}">${ICON_DELETE}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          `;
-        });
-      }
-
-      bookCardsGrid.innerHTML = html;
-      renderDynamicPagination('btPagination', filtered.length, BT_PAGE_SIZE, btPage, (newPage) => {
-        btPage = newPage;
-        renderBookTitlesGrid();
-      });
-    }
-
-    const adminSuggestionsTableContent = document.getElementById('adminSuggestionsTableContent');
+  const adminSuggestionsTableContent = document.getElementById('adminSuggestionsTableContent');
+  if (adminSuggestionsTableContent) {
     const searchSuggestionAdminInput = document.getElementById('searchSuggestionAdminInput');
     const filterSuggestionAdminStatus = document.getElementById('filterSuggestionAdminStatus');
 
@@ -1577,7 +1431,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         ` : `<span style="font-size: 12px; color: #94A3B8;">${s.status}</span>`;
 
         return `
-          <div class="supplier-table-row" style="grid-template-columns: 110px 1.5fr 1.2fr 100px 100px 120px 120px; display: grid; align-items: center; min-height: 52px; border-bottom: 1px solid var(--border-color); padding: 8px 12px; font-size: 13.5px;">
+          <div class="supplier-table-row">
             <div style="font-weight: 600; color: var(--primary-navy);">${escapeAdminHtml(s.id)}</div>
             <div>
               <div style="font-weight: 600;">${escapeAdminHtml(s.title)}</div>
@@ -1675,11 +1529,147 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.addEventListener('ixs:data-loaded', renderAdminSuggestionsTable);
     window.addEventListener('ixs:data-changed', renderAdminSuggestionsTable);
-    const tabSugBtn = document.querySelector('.subtab-item[data-tab="tabSuggestions"]');
-    if (tabSugBtn) {
-      tabSugBtn.addEventListener('click', renderAdminSuggestionsTable);
-    }
     renderAdminSuggestionsTable();
+  }
+
+  /**
+   * 2. PHÂN HỆ QUẢN LÝ KHO SÁCH (admin/books.html)
+   */
+  const bookCardsGrid = document.getElementById('bookTitlesGrid') || document.getElementById('bookCardsGrid');
+
+  if (bookCardsGrid) {
+    let selectedBookTitleId = null;
+    let isCreatingBookTitle = false;
+    let selectedBookCopyId = null;
+    let isCreatingBookCopy = false;
+    let selectedSupplierId = null;
+    let isCreatingSupplier = false;
+
+    let btPage = 1;
+    let bcPage = 1;
+    let impPage = 1;
+    let supPage = 1;
+
+    const BT_PAGE_SIZE = 4;
+    const BC_PAGE_SIZE = 5;
+    const IMP_PAGE_SIZE = 5;
+    const SUP_PAGE_SIZE = 5;
+
+    const btUploadWidget = setupMediaUploadWidget({
+      bannerId: 'btMediaBanner',
+      defaultGraphicId: 'btDefaultCover',
+      placeholderId: 'btUploadPlaceholder',
+      imgPreviewId: 'btImagePreview',
+      resetBtnId: 'btnResetBtImage',
+      fileInputId: 'btImageFileInput',
+      urlInputId: 'btImageUrlInput'
+    });
+
+    const searchBookTitleInput = document.getElementById('searchBookTitleInput');
+    const filterBookCategory = document.getElementById('filterBookCategory');
+
+    function renderBookPosterGraphic(coverUrl, titleText) {
+      if (coverUrl) {
+        return `
+          <div class="book-cover-box has-custom-img">
+            <img class="book-cover-custom-img" src="${coverUrl}" alt="${titleText || 'Book Cover'}">
+          </div>
+        `;
+      }
+      return `
+        <div class="book-cover-box">
+          <div>
+            <div class="book-cover-title">MANAGING<br>INFORMATION<br>TECHNOLOGY</div>
+            <div class="book-cover-edition">SEVENTH EDITION</div>
+          </div>
+          <div class="book-cover-authors">
+            CAROL V. BROWN<br>
+            DANIEL W. DEHAYES<br>
+            JEFFREY A. HOFFER<br>
+            E. WAINRIGHT MARTIN<br>
+            WILLIAM C. PERKINS
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBookTitlesGrid() {
+      const books = getBookTitles();
+      const q = (searchBookTitleInput.value || '').trim().toLowerCase();
+      const cat = filterBookCategory.value;
+      const isFiltered = Boolean(q) || cat !== 'all';
+
+      const filtered = books.filter(b => {
+        const matchCat = cat === 'all' || b.category === cat;
+        const matchQ = !q ||
+          b.id.toLowerCase().includes(q) ||
+          b.title.toLowerCase().includes(q) ||
+          String(b.authors ?? '').toLowerCase().includes(q) ||
+          String(b.publishYear ?? '').includes(q);
+        return matchCat && matchQ;
+      });
+
+      const totalPages = Math.max(1, Math.ceil(filtered.length / BT_PAGE_SIZE));
+      if (btPage > totalPages) btPage = totalPages;
+      const start = (btPage - 1) * BT_PAGE_SIZE;
+      const paged = filtered.slice(start, start + BT_PAGE_SIZE);
+
+      let html = '';
+      if (paged.length === 0) {
+        html = renderEmptyState(isFiltered, 'Thêm đầu sách +');
+      } else {
+        paged.forEach(b => {
+          html += `
+            <div class="book-card" data-id="${b.id}">
+              ${renderBookPosterGraphic(b.coverUrl, b.title)}
+              <div class="book-card-info">
+                <div class="book-card-row-2col">
+                  <div>
+                    <div class="book-meta-label">Mã sách</div>
+                    <div class="book-meta-value">${b.id}</div>
+                  </div>
+                  <div style="text-align: right;">
+                    <div class="book-meta-label">Năm xuất bản</div>
+                    <div class="book-meta-value">${b.publishYear || b.namXuatBan || '2021'}</div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="book-meta-label">Tên sách, tác giả</div>
+                  <div class="book-title-main">${b.title}</div>
+                  <div class="book-author-sub">${b.authors}</div>
+                </div>
+
+                <div class="book-card-row-2col">
+                  <div>
+                    <div class="book-meta-label">Nhà xuất bản</div>
+                    <div class="book-meta-value">${b.publisher}</div>
+                  </div>
+                  <div style="text-align: right;">
+                    <div class="book-meta-label">Thể loại</div>
+                    <div class="book-meta-value">${b.category}</div>
+                  </div>
+                </div>
+
+                <div class="book-card-footer">
+                  <div class="book-card-actions">
+                    <span class="link-view-copies" data-action="view-copies" data-id="${b.id}">Xem các bản sao →</span>
+                    <span class="action-icon" title="Chỉnh sửa đầu sách" data-action="edit-book" data-id="${b.id}">${ICON_EDIT}</span>
+                    <span class="action-icon" title="Xóa đầu sách" data-action="delete-book" data-id="${b.id}">${ICON_DELETE}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      bookCardsGrid.innerHTML = html;
+      renderDynamicPagination('btPagination', filtered.length, BT_PAGE_SIZE, btPage, (newPage) => {
+        btPage = newPage;
+        renderBookTitlesGrid();
+      });
+    }
 
     searchBookTitleInput.addEventListener('input', () => {
       btPage = 1;
@@ -1701,28 +1691,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       const codeEl = document.getElementById('btCodeDisplay');
       if (codeEl) codeEl.textContent = book.id;
-      const yearDisp = document.getElementById('btPublishYearDisplay');
-      if (yearDisp) yearDisp.textContent = book.publishYear || book.namXuatBan || '2021';
-      
-      const titleEl = document.getElementById('btTitle');
-      if (titleEl) titleEl.value = book.title || '';
-      const catEl = document.getElementById('btCategory');
-      if (catEl) catEl.value = book.category || 'Công nghệ thông tin';
-      const topicEl = document.getElementById('btTopic');
-      if (topicEl) topicEl.value = book.topic || book.subject || book.chuDe || '';
-      const deptEl = document.getElementById('btDepartment');
-      if (deptEl) deptEl.value = book.faculty || book.department || book.khoa || '';
-      document.getElementById('btEdition').value = book.edition ?? '';
+      document.getElementById('btTitle').value = book.title || '';
       document.getElementById('btGenre').value = book.genre ?? '';
-      document.getElementById('btPrice').value = book.price ?? '';
-      const qtyEl = document.getElementById('btQuantity');
-      if (qtyEl) qtyEl.value = book.total !== undefined ? book.total : 0;
-      const pubEl = document.getElementById('btPubName');
-      if (pubEl) pubEl.value = book.publisher || book.nhaXuatBan || '';
-      const pubYearEl = document.getElementById('btPublishYear');
-      if (pubYearEl) pubYearEl.value = book.publishYear || book.namXuatBan || '2021';
-      const authorEl = document.getElementById('btAuthorName');
-      if (authorEl) authorEl.value = book.authors || book.author || book.tacGia || '';
+      document.getElementById('btPubName').value = book.publisher ?? '';
+      document.getElementById('btPublishYear').value = book.publishYear ?? book.namXuatBan ?? '';
+      document.getElementById('btAuthorName').value = book.authors || book.author || '';
 
       btUploadWidget.setState(book.coverUrl || '', !createMode);
       openModal('modalBookTitle');
@@ -1735,11 +1708,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         title: '',
         authors: '',
         publisher: '',
-        category: 'Công nghệ thông tin',
-        edition: '1',
-        price: 120000,
-        total: 0,
-        available: 0,
         coverUrl: ''
       }, true);
     });
@@ -1782,23 +1750,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('btTitle')?.focus();
         return;
       }
-      const qtyRaw = valOf('btQuantity', '0');
-      const qtyNum = Number(qtyRaw);
-      if (!Number.isInteger(qtyNum) || qtyNum < 0 || qtyNum > 500) {
-        showToast('Số lượng bản sao phải là số nguyên từ 0 đến 500!', 'error');
-        document.getElementById('btQuantity')?.focus();
-        return;
-      }
-      const pubYearVal = valOf('btPublishYear');
-      const curYear = new Date().getFullYear();
-      if (pubYearVal) {
-        const yNum = Number(pubYearVal);
-        if (!Number.isInteger(yNum) || yNum < 1900 || yNum > curYear + 1) {
-          showToast(`Năm xuất bản phải từ 1900 đến ${curYear + 1}!`, 'error');
-          document.getElementById('btPublishYear')?.focus();
-          return;
-        }
-      }
+      const yearInput = document.getElementById('btPublishYear');
+      if (!yearInput.reportValidity()) return;
+      const publishYear = yearInput.value === '' ? null : yearInput.valueAsNumber;
       const normalizedTitle = titleVal.toUpperCase();
       if (isCreatingBookTitle && books.some(b => String(b.title || '').trim().toUpperCase() === normalizedTitle)) {
         showToast('Đầu sách với tên này đã tồn tại trong thư viện!', 'error');
@@ -1806,19 +1760,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
 
-      const authorVal = valOf('btAuthorName') || 'Chưa cập nhật';
-      const pubVal = valOf('btPubName') || 'Chưa cập nhật';
-      const catVal = valOf('btCategory') || 'Chung';
-      const topicVal = valOf('btTopic');
-      const deptVal = valOf('btDepartment');
-      const qtyVal = qtyNum;
-      const priceVal = valOf('btPrice') === '' ? null : document.getElementById('btPrice').valueAsNumber;
-      if (priceVal !== null && (!Number.isInteger(priceVal) || priceVal < 0)) {
-        showToast('Giá đầu sách phải là số nguyên không âm.', 'error');
-        document.getElementById('btPrice').focus();
-        return;
-      }
-      const coverVal = btUploadWidget.getValue();
+      const authors = valOf('btAuthorName') || null;
+      const publisher = valOf('btPubName') || null;
+      const genre = valOf('btGenre') || null;
+      const coverUrl = btUploadWidget.getValue();
 
       const origText = btnSave ? btnSave.textContent : '';
       if (btnSave) {
@@ -1832,18 +1777,14 @@ document.addEventListener('DOMContentLoaded', async () => {
           books.unshift({
             id: selectedBookTitleId,
             title: normalizedTitle,
-            authors: authorVal,
-            publisher: pubVal,
-            category: catVal,
-            subject: topicVal,
-            faculty: deptVal,
-            edition: valOf('btEdition'),
-            genre: valOf('btGenre'),
-            price: priceVal,
+            authors,
+            publisher,
+            category: genre || 'Chung',
+            genre,
             total: 0,
             available: 0,
-            publishYear: pubYearVal || String(curYear),
-            coverUrl: coverVal
+            publishYear,
+            coverUrl
           });
           saveBookTitles(books);
 
@@ -1858,16 +1799,17 @@ document.addEventListener('DOMContentLoaded', async () => {
           const b = books.find(item => item.id === selectedBookTitleId);
           if (b) {
             b.title = normalizedTitle;
-            b.authors = authorVal;
-            b.publisher = pubVal;
-            b.category = catVal;
-            b.subject = topicVal;
-            b.faculty = deptVal;
-            b.edition = valOf('btEdition');
-            b.genre = valOf('btGenre');
-            b.publishYear = pubYearVal || b.publishYear || '';
-            b.price = priceVal;
-            b.coverUrl = coverVal;
+            b.authors = authors;
+            b.author = authors;
+            b.publisher = publisher;
+            if (genre !== (b.genre || null)) {
+              b.category = genre || 'Chung';
+              delete b.categoryId;
+            }
+            b.genre = genre;
+            b.publishYear = publishYear;
+            b.namXuatBan = publishYear;
+            b.coverUrl = coverUrl;
             saveBookTitles(books);
             syncBookCountsWithCopies(b.id);
 
@@ -2041,24 +1983,28 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderBookCopiesTable();
     });
 
+    const copyBookSelect = document.getElementById('bcTitleInput');
+    function setCopyBookOptions(bookId, editable) {
+      copyBookSelect.replaceChildren(...getBookTitles().map(book => new Option(`${book.id} - ${book.title}`, book.id)));
+      copyBookSelect.value = bookId || '';
+      copyBookSelect.disabled = !editable;
+      updateBookCopyStockSummary(copyBookSelect.value);
+    }
+    copyBookSelect.addEventListener('change', () => updateBookCopyStockSummary(copyBookSelect.value));
+
     document.getElementById('btnAddBookCopy').addEventListener('click', () => {
       const books = getBookTitles();
       isCreatingBookCopy = true;
-      const firstBook = books[0] || { id: 'DS001', title: 'Clean Code: A Handbook of Agile Software Craftsmanship', price: '120.000', coverUrl: '' };
+      const firstBook = books[0];
       selectedBookCopyId = DataService.generateNextId(DataService.KEYS.BOOK_COPIES, 'CS', 3);
 
       document.getElementById('modalBookCopyHeader').textContent = 'LEAF LIBRARY - THÊM CUỐN SÁCH MỚI';
-      const codeDisp = document.getElementById('bcCodeDisplay');
-      if (codeDisp) codeDisp.textContent = selectedBookCopyId;
       document.getElementById('bcIdInput').value = selectedBookCopyId;
-      document.getElementById('bcBarcodeInput').value = '';
-      document.getElementById('bcTitleInput').value = firstBook.title;
+      setCopyBookOptions(firstBook?.id, true);
+      document.getElementById('bcImportDetail').value = '';
       document.getElementById('bcLocationInput').value = 'A1 - Ngăn 1';
-      document.getElementById('bcPriceInput').value = firstBook.price || '120.000';
       document.getElementById('bcPhysicalInput').value = 'TỐT';
       document.getElementById('bcCirculationInput').value = 'SẴN SÀNG';
-      updateBookCopyStockSummary(firstBook.id);
-      bcUploadWidget.setState(firstBook.coverUrl || '', false);
       openModal('modalBookCopy');
     });
 
@@ -2076,18 +2022,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (action === 'edit-copy') {
         isCreatingBookCopy = false;
         document.getElementById('modalBookCopyHeader').textContent = 'LEAF LIBRARY - THÔNG TIN CUỐN SÁCH';
-        const codeDisp = document.getElementById('bcCodeDisplay');
-        if (codeDisp) codeDisp.textContent = copy.id;
         document.getElementById('bcIdInput').value = copy.id;
-        document.getElementById('bcBarcodeInput').value = copy.barcode ?? '';
-        document.getElementById('bcTitleInput').value = copy.bookTitle;
+        setCopyBookOptions(copy.bookId, false);
+        document.getElementById('bcImportDetail').value = copy.importDetailId || '';
         document.getElementById('bcLocationInput').value = copy.location;
-        document.getElementById('bcPriceInput').value = copy.price || '120.000';
         document.getElementById('bcPhysicalInput').value = copy.physicalStatus;
         const supportedStatus = Array.from(bcCirculationInput.options).some(option => option.value === copy.circulationStatus);
         bcCirculationInput.value = supportedStatus ? copy.circulationStatus : '';
-        updateBookCopyStockSummary(copy.bookId);
-        bcUploadWidget.setState(copy.coverUrl || '', true);
         openModal('modalBookCopy');
       }
     });
@@ -2097,10 +2038,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       const copies = getBookCopies();
       const books = getBookTitles();
       const idVal = document.getElementById('bcIdInput').value.trim() || selectedBookCopyId;
-      const barcode = document.getElementById('bcBarcodeInput').value.trim() || idVal;
-      const titleVal = document.getElementById('bcTitleInput').value.trim().toUpperCase();
-      if (!idVal || !titleVal) {
-        showToast('Vui lòng nhập Mã cuốn sách và Tên cuốn sách!', 'error');
+      const matchedBook = books.find(book => book.id === copyBookSelect.value);
+      if (!idVal || !matchedBook) {
+        showToast('Vui lòng chọn đầu sách hợp lệ.', 'error');
         return;
       }
       if (isCreatingBookCopy && copies.some(c => String(c.id).toUpperCase() === idVal.toUpperCase())) {
@@ -2109,25 +2049,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
       const locVal = document.getElementById('bcLocationInput').value.trim() || 'A1 - Ngăn 1';
-      const priceVal = document.getElementById('bcPriceInput').value.trim() || '120.000';
-      if (Number(priceVal.replace(/[^\d]/g, '')) < 0) {
-        showToast('Giá tiền không hợp lệ!', 'error');
-        return;
-      }
       const phyVal = document.getElementById('bcPhysicalInput').value.trim().toUpperCase() || 'TỐT';
       const existingCopy = isCreatingBookCopy ? undefined : copies.find(copy => copy.id === selectedBookCopyId);
       let cirVal = bcCirculationInput.value || existingCopy?.circulationStatus || 'SẴN SÀNG';
-      const coverVal = bcUploadWidget.getValue();
 
       const rules = getLibraryRules();
       if (cirVal === 'SẴN SÀNG' && phyVal.includes('RÁCH NÁT') && (!rules || rules.autoLockTornBooks === 'Bật')) {
         cirVal = 'HƯ HỎNG';
       }
 
-      const matchedBook = books.find(b => b.title.toUpperCase() === titleVal) ||
-        books.find(b => idVal.startsWith(b.id)) ||
-        books[0];
-      const parentBookId = matchedBook ? matchedBook.id : idVal.split('-')[0];
+      const parentBookId = matchedBook.id;
 
       const origText = btnSave ? btnSave.textContent : '';
       if (btnSave) {
@@ -2140,13 +2071,13 @@ document.addEventListener('DOMContentLoaded', async () => {
           copies.unshift({
             id: idVal,
             bookId: parentBookId,
-            barcode,
-            bookTitle: matchedBook ? matchedBook.title : titleVal,
+            barcode: idVal,
+            bookTitle: matchedBook.title,
             location: locVal,
             physicalStatus: phyVal,
             circulationStatus: cirVal,
-            price: priceVal,
-            coverUrl: coverVal
+            price: matchedBook.price ?? 0,
+            coverUrl: matchedBook.coverUrl ?? ''
           });
           saveBookCopies(copies);
           syncBookCountsWithCopies(parentBookId);
@@ -2161,13 +2092,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           const copy = copies.find(c => c.id === selectedBookCopyId);
           if (copy) {
             copy.id = idVal;
-            copy.barcode = barcode;
-            copy.bookTitle = titleVal;
             copy.location = locVal;
-            copy.price = priceVal;
             copy.physicalStatus = phyVal;
             copy.circulationStatus = cirVal;
-            copy.coverUrl = coverVal;
             saveBookCopies(copies);
             syncBookCountsWithCopies(copy.bookId || parentBookId);
             const savesSucceeded = await DataService.waitForWrites([
@@ -2371,9 +2298,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const supSelect = document.getElementById('impNewSupplierSelect');
       if (suppliers.length > 0) {
-        supSelect.innerHTML = suppliers.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+        supSelect.replaceChildren(...suppliers.map(s => new Option(s.name, s.id)));
       } else {
-        supSelect.innerHTML = `<option value="Công ty Cổ phần Phát hành Sách TP.HCM (FAHASA)">Công ty Cổ phần Phát hành Sách TP.HCM (FAHASA)</option>`;
+        supSelect.replaceChildren(new Option('Chưa có nhà cung cấp', ''));
       }
 
       if (impNewItemsBody) {
@@ -2668,7 +2595,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('modalSupplierHeader').textContent = 'LEAF LIBRARY - THÊM NHÀ CUNG CẤP MỚI';
       document.getElementById('supIdDisplay').textContent = selectedSupplierId;
       document.getElementById('supNameInput').value = '';
-      document.getElementById('supContactInput').value = '';
       document.getElementById('supPhoneInput').value = '';
       document.getElementById('supEmailInput').value = '';
       document.getElementById('supAddressInput').value = '';
@@ -2691,7 +2617,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('modalSupplierHeader').textContent = 'LEAF LIBRARY - CẬP NHẬT NHÀ CUNG CẤP';
         document.getElementById('supIdDisplay').textContent = sup.id;
         document.getElementById('supNameInput').value = sup.name;
-        document.getElementById('supContactInput').value = sup.contact;
         document.getElementById('supPhoneInput').value = sup.phone;
         document.getElementById('supEmailInput').value = sup.email;
         document.getElementById('supAddressInput').value = sup.address || '';
@@ -2710,7 +2635,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('supNameInput')?.focus();
         return;
       }
-      const contactVal = document.getElementById('supContactInput').value.trim() || 'Đại diện kinh doanh';
       const phoneVal = document.getElementById('supPhoneInput').value.trim();
       const phoneDigits = phoneVal.replace(/[\s.-]/g, '');
       if (phoneVal && !/^(\+84|0)\d{8,10}$/.test(phoneDigits)) {
@@ -2724,7 +2648,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('supEmailInput')?.focus();
         return;
       }
-      const addrVal = document.getElementById('supAddressInput').value.trim() || 'TP.HCM';
+      const addrVal = document.getElementById('supAddressInput').value.trim();
 
       if (isCreatingSupplier) {
         const button = event.currentTarget;
@@ -2733,9 +2657,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           const created = await DataService.request('POST', '/suppliers', {
           id: selectedSupplierId,
           name: nameVal,
-          contact: contactVal,
-          phone: phoneVal || '0909123456',
-          email: emailVal || 'contact@partner.vn',
+          phone: phoneDigits || null,
+          email: emailVal || null,
           address: addrVal,
           status: 'HOẠT ĐỘNG'
           });
@@ -2752,9 +2675,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const sup = suppliers.find(s => s.id === selectedSupplierId);
         if (sup) {
           sup.name = nameVal;
-          sup.contact = contactVal;
-          sup.phone = phoneVal || sup.phone;
-          sup.email = emailVal || sup.email;
+          sup.phone = phoneDigits || null;
+          sup.email = emailVal || null;
           sup.address = addrVal;
           saveSuppliers(suppliers);
           addLog('CẬP NHẬT', sup.id, `Cập nhật thông tin đối tác cung cấp <strong>${escapeAdminHtml(sup.name)}</strong>`);
@@ -2786,13 +2708,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function syncCategorySelects() {
       const cats = typeof getCategories === 'function' ? getCategories() : [];
-      const btCat = document.getElementById('btCategory');
       const filterCat = document.getElementById('filterBookCategory');
-      if (btCat && cats.length) {
-        const cur = btCat.value;
-        btCat.innerHTML = cats.map(c => `<option value="${escapeAdminHtml(c.name)}">${escapeAdminHtml(c.name)}</option>`).join('');
-        if (cur && cats.some(c => c.name === cur)) btCat.value = cur;
-      }
+      const genreOptions = document.getElementById('btGenreOptions');
+      genreOptions.replaceChildren(...cats.map(category => new Option(category.name, category.name)));
       if (filterCat && cats.length) {
         const cur = filterCat.value;
         filterCat.innerHTML = `<option value="all">Tất cả thể loại</option>` + cats.map(c => `<option value="${escapeAdminHtml(c.name)}">${escapeAdminHtml(c.name)}</option>`).join('');
@@ -3412,6 +3330,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const searchReaderHistoryInput = document.getElementById('searchReaderHistoryInput');
     const filterReaderHistoryStatus = document.getElementById('filterReaderHistoryStatus');
 
+    function getHistoryStatus(loan, today) {
+      const status = String(loan.status || '').trim().toUpperCase();
+      if (loan.returnDate || loan.actualReturnDate || ['ĐÃ TRẢ', 'DA TRA'].includes(status)) return 'ĐÃ TRẢ';
+      const dueDate = parseVNDate(loan.dueDate);
+      if (dueDate ? dueDate < today : ['QUÁ HẠN', 'QUA HAN'].includes(status)) return 'QUÁ HẠN';
+      return 'ĐANG MƯỢN';
+    }
+
     function getHistoryBadge(status) {
       if (status === 'ĐANG MƯỢN') return `<span class="badge-copy status-badge badge-circ-borrowed">ĐANG MƯỢN</span>`;
       if (status === 'ĐÃ TRẢ') return `<span class="badge-copy status-badge badge-phys-good">ĐÃ TRẢ</span>`;
@@ -3419,7 +3345,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function renderReaderHistoryTable() {
-      const history = getReaderHistory();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const history = getReaderHistory().map(loan => ({ ...loan, status: getHistoryStatus(loan, today) }));
       const q = (searchReaderHistoryInput.value || '').trim().toLowerCase();
       const st = filterReaderHistoryStatus.value;
       const isFiltered = Boolean(q) || st !== 'all';
@@ -3458,7 +3386,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               </div>
               <div>${h.borrowDate}</div>
               <div>${h.dueDate}</div>
-              <div>${h.returnDate}</div>
+              <div>${escapeAdminHtml(h.returnDate || h.actualReturnDate || '—')}</div>
               <div>${getHistoryBadge(h.status)}</div>
             </div>
           `;
@@ -3721,7 +3649,9 @@ document.addEventListener('DOMContentLoaded', function () {
           const isPaid = stText.toLowerCase().includes('đã thanh toán') || stText.toLowerCase().includes('da thanh toan');
           const badge = isPaid
             ? `<span class="badge status-badge badge-reader-valid">Đã thanh toán</span>`
-            : `<span class="badge status-badge badge-reader-locked">Chưa thanh toán</span>`;
+            : f.transferReportedAt
+              ? `<span class="badge status-badge badge-reader-expired">Chờ đối soát</span>`
+              : `<span class="badge status-badge badge-reader-locked">Chưa thanh toán</span>`;
           const action = !isPaid
             ? `<button type="button" class="btn-action-blue btn-pay-fine" data-id="${esc(f.id)}" style="padding: 4px 10px; font-size: 11px; height: auto;">Thu tiền</button>`
             : `<span style="color:#64748B; font-size:12px;">Đã thu</span>`;
@@ -4435,6 +4365,10 @@ document.addEventListener('DOMContentLoaded', function () {
       if (rIn) rIn.value = '';
       if (lIn) lIn.value = '';
       if (aIn) aIn.value = '20000';
+      for (const id of ['fineLateDaysInput', 'fineDamageInput', 'fineNoteInput']) {
+        const input = document.getElementById(id);
+        if (input) input.value = '';
+      }
       if (modalCreateFine) {
         modalCreateFine.style.display = 'flex';
         modalCreateFine.classList.add('active');
@@ -4452,6 +4386,15 @@ document.addEventListener('DOMContentLoaded', function () {
       setFineFormErr('');
       const readerId = document.getElementById('fineReaderIdInput')?.value.trim() || '';
       const loanId = document.getElementById('fineLoanIdInput')?.value.trim() || '';
+      if (!loanId) {
+        setFineFormErr('Vui lòng nhập mã phiếu mượn.');
+        return;
+      }
+      const lateDaysInput = document.getElementById('fineLateDaysInput');
+      if (!lateDaysInput.reportValidity()) return;
+      const lateDays = lateDaysInput.value === '' ? null : lateDaysInput.valueAsNumber;
+      const damage = document.getElementById('fineDamageInput').value.trim();
+      const note = document.getElementById('fineNoteInput').value.trim();
       const reason = document.getElementById('fineTypeSelect')?.value || 'Phạt trả quá hạn';
       const amount = Number(document.getElementById('fineAmountInput')?.value || 0);
       const readers = getReaders();
@@ -4465,18 +4408,13 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
       const newFine = {
-        id: `PP-${Date.now().toString().slice(-6)}`,
-        loanId: loanId || null,
+        loanId,
         readerId: rd.id,
-        employeeId: getActiveUserSession().id || 'NV001',
-        ngayLap: formatDMY(new Date()),
-        date: formatDMY(new Date()),
         violation: reason,
-        lyDoPhat: reason,
         amount,
-        soTien: amount,
-        paymentStatus: 'Chưa thanh toán',
-        status: 'Chưa thanh toán'
+        lateDays,
+        damage,
+        note
       };
       try {
         const saved = await DataService.request('POST', '/fines', newFine);

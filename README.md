@@ -82,7 +82,7 @@ ixs-library/
 5. Mở frontend bằng Live Server như hướng dẫn bên dưới; `js/data.js` tải và ghi dữ liệu nghiệp vụ qua API tại `http://localhost:3000/api`. Dữ liệu chỉ cache trong bộ nhớ khi trang đang mở, không ghi vào `localStorage`.
 6. Kết nối PostgreSQL từ công cụ trên máy host bằng `localhost:5434` (container dùng cổng nội bộ `5432`).
 
-Các bảng PostgreSQL được khởi tạo từ `database/library_db.sql` ở lần chạy đầu tiên. Nếu thay đổi schema sau khi volume đã tạo, chạy `docker compose down -v` rồi `docker compose up --build` để tạo lại database (lệnh này xóa dữ liệu hiện tại).
+PostgreSQL khởi tạo 18 bảng nghiệp vụ từ `database/QuanLyThuVien_PostgreSQL.sql` trên volume `postgres_erd_data`. Khi API khởi động lần đầu, migration bổ sung trường và bảng phục vụ giao diện, tạo các view dùng chung bộ dữ liệu và nạp đầu sách mẫu cùng tài khoản quản trị viên.
 
 1. **Tải / Clone mã nguồn** về máy tính.
 2. Mở thư mục `ixs-library/` bằng trình soạn thảo **VS Code**.
@@ -120,7 +120,7 @@ Hộp thoại xác nhận	confirm-modal
 
 ## Database migrations
 
-Versioned SQL migrations live in `backend/migrations/`. The API applies unapplied migration files in filename order and records them in `ixs_schema_migrations` before it starts listening. Add a new numbered file for each schema change; do not modify a migration that has already run. The initial `database/library_db.sql` file is still used to create a fresh PostgreSQL volume.
+Versioned SQL migrations live in `backend/migrations/`. The API applies unapplied migration files in filename order and records them in `ixs_schema_migrations` before it starts listening. Add a new numbered file for each schema change. The initial `database/QuanLyThuVien_PostgreSQL.sql` file is used to create a fresh PostgreSQL volume.
 
 ## Đăng ký tài khoản bạn đọc
 
