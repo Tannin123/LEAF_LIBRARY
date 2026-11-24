@@ -915,33 +915,27 @@ function initGlobalSearch() {
       if (event.target.closest('[data-detail-action="add-shelf"]')) {
         const bookId = detailView.dataset.bookId;
         const reader = getBorrowReaderProfile();
-        const storageKey = 'ixs_library_personal_bookshelf';
+        const storageKey = `ixs_library_personal_bookshelf:${reader.id}`;
         let shelf = [];
         try {
           const raw = localStorage.getItem(storageKey);
           shelf = raw ? JSON.parse(raw) : [];
         } catch (_) {}
-        if (shelf.some(item => String(item.bookId) === String(bookId))) {
-          showToast('Sách đã có trong tủ sách cá nhân của bạn!', 'warning');
-          return;
-        }
+        let saved;
         try {
-          await DataService.request('POST', '/wishlist', { readerId: reader.id, bookTitleId: bookId });
+          saved = await DataService.request('POST', '/wishlist', { readerId: reader.id, bookTitleId: bookId });
         } catch (apiErr) {
           if (apiErr && apiErr.status === 409) {
             showToast('Sách đã có trong tủ sách cá nhân của bạn!', 'warning');
             return;
           }
+          showToast(apiErr.message || 'Không thể thêm sách vào tủ cá nhân.', 'error');
+          return;
         }
-        shelf.unshift({
-          bookId,
-          status: 'Chưa đọc',
-          currentPage: 0,
-          totalPages: 0,
-          addedAt: new Date().toISOString().slice(0, 10),
-          note: ''
-        });
-        localStorage.setItem(storageKey, JSON.stringify(shelf));
+        localStorage.setItem(storageKey, JSON.stringify([
+          { bookId, addedAt: saved.addedAt },
+          ...shelf.filter(item => String(item.bookId) !== String(bookId))
+        ]));
         showToast('Đã thêm sách vào tủ sách cá nhân!', 'success');
         return;
       }
@@ -1459,29 +1453,19 @@ function initBookshelfPage() {
   const list = document.getElementById('bookshelfBookList');
   if (!list) return;
 
-  const storageKey = 'ixs_library_personal_bookshelf';
-  const initialShelf = [
-    { bookId: 'DS001', status: 'Đang đọc', currentPage: 70, totalPages: 350 },
-    { bookId: 'DS002', status: 'Chưa đọc', currentPage: 0, totalPages: 280 },
-    { bookId: 'DS004', status: 'Đã đọc', currentPage: 350, totalPages: 350 },
-    { bookId: 'DS012', status: 'Đang đọc', currentPage: 240, totalPages: 320 }
-  ];
+  const storageKey = `ixs_library_personal_bookshelf:${getBorrowReaderProfile().id}`;
+  const initialShelf = [];
   const searchInput = document.getElementById('bookshelfSearchInput');
-  const statusFilter = document.getElementById('bookshelfStatusFilter');
   const addModal = document.getElementById('modalAddToBookshelf');
   const bookSelect = document.getElementById('bookshelfAddBookSelect');
   const addForm = document.getElementById('formAddToBookshelf');
   const addCover = document.getElementById('bookshelfAddBookCover');
   const addTitle = document.getElementById('bookshelfAddBookPreviewTitle');
   const addMeta = document.getElementById('bookshelfAddBookPreviewMeta');
-  const editModal = document.getElementById('modalEditShelfEntry');
-  const editForm = document.getElementById('formEditShelfEntry');
-  let editingBookId = null;
 
   const BS_PAGE_SIZE = 4;
   let bsPage = 1;
 
-  const ICON_EDIT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
   const ICON_DELETE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>`;
 
   function renderBookPosterGraphic(coverUrl) {
@@ -1576,17 +1560,15 @@ function initBookshelfPage() {
   function render() {
     const books = getBooks();
     const query = normalizeCatalogText(searchInput?.value);
-    const status = statusFilter?.value || 'all';
     const entries = getShelf().map(entry => ({
       ...entry,
       book: books.find(book => String(book.id) === String(entry.bookId))
     })).filter(entry => entry.book)
-      .filter(entry => !query || normalizeCatalogText(`${entry.book.title} ${entry.book.authors || entry.book.author}`).includes(query))
-      .filter(entry => status === 'all' || entry.status === status);
+      .filter(entry => !query || normalizeCatalogText(`${entry.book.title} ${entry.book.authors || entry.book.author}`).includes(query));
 
     const pagination = document.getElementById('bookshelfPagination');
     if (!entries.length) {
-      list.innerHTML = `<div class="bookshelf-empty-state">${query || status !== 'all'
+      list.innerHTML = `<div class="bookshelf-empty-state">${query
         ? 'Không tìm thấy sách phù hợp.'
         : 'Tủ sách chưa có sách. Bấm Thêm vào tủ sách để lưu cuốn đầu tiên.'}</div>`;
       if (pagination) {
@@ -1603,13 +1585,6 @@ function initBookshelfPage() {
 
     list.innerHTML = pagedEntries.map(entry => {
       const book = entry.book;
-      const totalPages = Number(entry.totalPages) || 0;
-      const currentPage = Number(entry.currentPage) || 0;
-      const progress = totalPages ? Math.min(100, Math.round(currentPage / totalPages * 100)) : 0;
-      const progressLabel = totalPages
-        ? `Trang ${currentPage} / ${totalPages} (${progress}%)`
-        : 'Chưa cập nhật tiến độ';
-
       return `
         <div class="book-card bookshelf-entry-card" data-id="${escapeCatalogHtml(book.id)}">
           ${renderBookPosterGraphic(book.coverUrl)}
@@ -1620,10 +1595,8 @@ function initBookshelfPage() {
                 <div class="book-meta-value">${escapeCatalogHtml(book.id || 'DS001')}</div>
               </div>
               <div style="text-align: right;">
-                <div class="book-meta-label">Trạng thái</div>
-                <div style="margin-top: 2px;">
-                  <span class="badge status-badge ${entry.status === 'Đã đọc' ? 'badge-reader-valid' : (entry.status === 'Đang đọc' ? 'badge-circ-borrowed' : 'badge-admin')}">${escapeCatalogHtml(entry.status || 'Đang đọc')}</span>
-                </div>
+                <div class="book-meta-label">Ngày thêm</div>
+                <div class="book-meta-value">${escapeCatalogHtml(entry.addedAt || '—')}</div>
               </div>
             </div>
 
@@ -1645,12 +1618,7 @@ function initBookshelfPage() {
             </div>
 
             <div class="book-card-footer">
-              <div>
-                <div class="book-meta-label">Tiến độ đọc</div>
-                <div class="bookshelf-entry-progress">${progressLabel}</div>
-              </div>
               <div class="book-card-actions">
-                <button type="button" class="user-action-icon" title="Chỉnh sửa tiến độ đọc" aria-label="Chỉnh sửa tiến độ đọc" data-shelf-action="edit" data-id="${escapeCatalogHtml(book.id)}">${ICON_EDIT}</button>
                 <button type="button" class="user-action-icon is-danger" title="Xóa khỏi tủ sách" aria-label="Xóa khỏi tủ sách" data-shelf-action="remove" data-id="${escapeCatalogHtml(book.id)}">${ICON_DELETE}</button>
               </div>
             </div>
@@ -1695,13 +1663,10 @@ function initBookshelfPage() {
   }
 
   searchInput?.addEventListener('input', () => { bsPage = 1; render(); });
-  statusFilter?.addEventListener('change', () => { bsPage = 1; render(); });
   bookSelect?.addEventListener('change', updateAddPreview);
 
   document.getElementById('btnOpenAddToBookshelf')?.addEventListener('click', () => {
     refreshAddOptions();
-    const dateInput = document.getElementById('bookshelfAddDate');
-    if (dateInput && !dateInput.value) dateInput.value = new Date().toISOString().slice(0, 10);
     addModal?.classList.add('active');
   });
 
@@ -1710,13 +1675,6 @@ function initBookshelfPage() {
   document.getElementById('btnCancelAddToBookshelf')?.addEventListener('click', closeAddModal);
   addModal?.addEventListener('click', event => {
     if (event.target === addModal) closeAddModal();
-  });
-
-  const closeEditModal = () => editModal?.classList.remove('active');
-  document.getElementById('btnCloseEditShelfEntry')?.addEventListener('click', closeEditModal);
-  document.getElementById('btnCancelEditShelfEntry')?.addEventListener('click', closeEditModal);
-  editModal?.addEventListener('click', event => {
-    if (event.target === editModal) closeEditModal();
   });
 
   // Modal bản sao
@@ -1736,38 +1694,18 @@ function initBookshelfPage() {
       return;
     }
     const reader = getBorrowReaderProfile();
-    const addedAt = document.getElementById('bookshelfAddDate')?.value || new Date().toISOString().slice(0, 10);
-    const note = document.getElementById('bookshelfAddNote')?.value.trim() || '';
     try {
-      await DataService.request('POST', '/wishlist', { readerId: reader.id, bookTitleId: book.id });
-    } catch (apiErr) {
-      if (apiErr && apiErr.status === 409) {
-        showToast('Đầu sách này đã có trong tủ sách cá nhân.', 'warning');
-        return;
-      }
+      const saved = await DataService.request('POST', '/wishlist', { readerId: reader.id, bookTitleId: book.id });
+      saveShelf([...getShelf(), { bookId: book.id, addedAt: saved.addedAt }]);
+    } catch (err) {
+      showToast(err.message || 'Kh?ng th? th?m s?ch v?o t? c? nh?n.', err.status === 409 ? 'warning' : 'error');
+      return;
     }
-    saveShelf([...getShelf(), {
-      bookId: book.id,
-      status: 'Chưa đọc',
-      currentPage: 0,
-      totalPages: 0,
-      addedAt,
-      note
-    }]);
     addForm.reset();
-    const dateInput = document.getElementById('bookshelfAddDate');
-    if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
     closeAddModal();
     render();
     showToast(`Đã thêm “${book.title}” vào tủ cá nhân.`, 'success');
   });
-
-  const setShelfErr = (msg) => {
-    const errEl = document.getElementById('editShelfError');
-    if (!errEl) return;
-    errEl.textContent = msg || '';
-    errEl.style.display = msg ? 'block' : 'none';
-  };
 
   list.addEventListener('click', async event => {
     // 1. Xem các bản sao
@@ -1786,21 +1724,6 @@ function initBookshelfPage() {
     if (!bookId) return;
 
     const shelf = getShelf();
-    if (actionButton.dataset.shelfAction === 'edit') {
-      const entry = shelf.find(item => String(item.bookId) === bookId);
-      const book = getBooks().find(item => String(item.id) === bookId);
-      if (!entry || !book || !editModal) return;
-      editingBookId = bookId;
-      document.getElementById('editShelfBookTitle').textContent = book.title;
-      document.getElementById('editShelfStatus').value = entry.status || 'Chưa đọc';
-      document.getElementById('editShelfCurrentPage').value = Number(entry.currentPage) || 0;
-      document.getElementById('editShelfTotalPages').value = Number(entry.totalPages) || 0;
-      setShelfErr('');
-      editModal.classList.add('active');
-      document.getElementById('editShelfStatus')?.focus();
-      return;
-    }
-
     if (actionButton.dataset.shelfAction === 'remove') {
       const book = getBooks().find(item => String(item.id) === bookId);
       const ok = await openUserConfirmModal({
@@ -1815,19 +1738,23 @@ function initBookshelfPage() {
       try {
         await DataService.request('DELETE', `/wishlist/${encodeURIComponent(bookId)}?readerId=${encodeURIComponent(reader.id)}`);
       } catch (err) {
-        if (err && err.status !== 0 && err.status !== 404) {
+        if (err.status !== 404) {
           showToast(err.message || 'Không thể xóa sách khỏi tủ cá nhân.', 'error');
           return;
         }
       }
-      const previousShelf = [...shelf];
       saveShelf(shelf.filter(entry => String(entry.bookId) !== bookId));
       render();
       showToast(`Đã xóa “${book?.title || 'sách'}” khỏi tủ cá nhân.`, 'success', {
         label: 'Hoàn tác',
         onClick: async () => {
-          try { await DataService.request('POST', '/wishlist', { readerId: reader.id, bookTitleId: bookId }); } catch (_) {}
-          saveShelf(previousShelf);
+          try {
+            const saved = await DataService.request('POST', '/wishlist', { readerId: reader.id, bookTitleId: bookId });
+            saveShelf([...getShelf(), { bookId, addedAt: saved.addedAt }]);
+          } catch (err) {
+            showToast(err.message || 'Không thể khôi phục sách về tủ cá nhân.', 'error');
+            return;
+          }
           render();
           showToast('Đã khôi phục sách về tủ cá nhân.', 'success');
         }
@@ -1835,47 +1762,12 @@ function initBookshelfPage() {
     }
   });
 
-  editForm?.addEventListener('submit', event => {
-    event.preventDefault();
-    if (!editingBookId) return;
-    const totalRaw = Number(document.getElementById('editShelfTotalPages').value);
-    const currentRaw = Number(document.getElementById('editShelfCurrentPage').value);
-    const status = document.getElementById('editShelfStatus').value;
-
-    setShelfErr('');
-    if (!Number.isFinite(totalRaw) || totalRaw < 0 || !Number.isFinite(currentRaw) || currentRaw < 0) {
-      setShelfErr('Số trang phải là số không âm.');
-      return;
-    }
-    const totalPages = Math.floor(totalRaw);
-    let currentPage = Math.floor(currentRaw);
-    if (totalPages > 0 && currentPage > totalPages) {
-      setShelfErr(`Trang đang đọc (${currentPage}) không thể lớn hơn tổng số trang (${totalPages}).`);
-      document.getElementById('editShelfCurrentPage')?.focus();
-      return;
-    }
-    if (status === 'Đã đọc' && totalPages > 0) currentPage = totalPages;
-
-    saveShelf(getShelf().map(entry => String(entry.bookId) === editingBookId
-      ? { ...entry, status, currentPage, totalPages }
-      : entry));
-    closeEditModal();
-    render();
-    showToast('Đã cập nhật tiến độ đọc.', 'success');
-  });
-
   Promise.resolve(DataService.ready).catch(() => {}).then(async () => {
     try {
       const reader = getBorrowReaderProfile();
       const apiWishlist = await DataService.request('GET', `/wishlist?readerId=${encodeURIComponent(reader.id)}`);
       if (Array.isArray(apiWishlist)) {
-        const local = getShelf();
-        const merged = apiWishlist.map(w => {
-          const bId = String(w.bookTitleId || w.id);
-          const existing = local.find(l => String(l.bookId) === bId);
-          return existing || { bookId: bId, status: 'Chưa đọc', currentPage: 0, totalPages: 0, addedAt: w.addedAt || new Date().toISOString().slice(0, 10), note: '' };
-        });
-        saveShelf(merged);
+        saveShelf(apiWishlist.map(item => ({ bookId: item.bookTitleId || item.id, addedAt: item.addedAt })));
       }
     } catch (_) {}
     render();
@@ -2579,7 +2471,7 @@ function initSuggestionsPage() {
 
   const hasSuggestionDraft = () => {
     if (!form) return false;
-    return ['suggestionTitle', 'suggestionAuthor', 'suggestionPublisher', 'suggestionYear', 'suggestionQuantity', 'suggestionIsbn', 'suggestionReason']
+    return ['suggestionTitle', 'suggestionAuthor', 'suggestionPublisher', 'suggestionYear', 'suggestionQuantity', 'suggestionEdition', 'suggestionReason']
       .some(id => (document.getElementById(id)?.value || '').trim().length > 0) || Boolean(coverData);
   };
 
@@ -2639,7 +2531,6 @@ function initSuggestionsPage() {
       setTxt('sugDetailAuthor', suggestion.author || 'Chưa cập nhật');
       setTxt('sugDetailPublisher', suggestion.publisher || 'Chưa cập nhật');
       setTxt('sugDetailYearQty', `${suggestion.year || '—'} · ${suggestion.quantity || '—'}`);
-      setTxt('sugDetailIsbn', suggestion.isbn || 'Chưa có');
       setTxt('sugDetailStatus', normalizeStatus(suggestion.status));
       const rejectNote = suggestion.rejectionReason || suggestion.lyDoTuChoi;
       const reasonDisplay = rejectNote
@@ -2680,7 +2571,6 @@ function initSuggestionsPage() {
     const yearRaw = document.getElementById('suggestionYear').value.trim();
     const qtyRaw = document.getElementById('suggestionQuantity').value.trim();
     const edition = document.getElementById('suggestionEdition').value;
-    const isbn = document.getElementById('suggestionIsbn').value.trim();
     const reason = document.getElementById('suggestionReason').value.trim();
 
     if (!title) {
@@ -2722,7 +2612,6 @@ function initSuggestionsPage() {
       year: yearRaw,
       quantity: qtyRaw ? `${qtyRaw} bản` : '—',
       edition,
-      isbn,
       reason,
       coverUrl: coverData,
       status: 'Chờ duyệt',

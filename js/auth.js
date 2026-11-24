@@ -193,7 +193,12 @@ async function validateRegister() {
   const phone = document.getElementById('reg-phone').value.trim().replace(/[\s.-]/g, '');
   const cccdEl = document.getElementById('reg-cccd');
   const cccd = cccdEl ? cccdEl.value.trim() : '';
-  const identifier = document.getElementById('reg-email').value.trim();
+  const username = document.getElementById('reg-username').value.trim().toLowerCase();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const gender = document.getElementById('reg-gender').value;
+  const dob = document.getElementById('reg-dob').value;
+  const address = document.getElementById('reg-address').value.trim();
+  const readerType = document.getElementById('reg-reader-type').value;
   const password = document.getElementById('reg-pwd').value;
   const confirmation = document.getElementById('reg-pwd-confirm').value;
   const terms = document.getElementById('reg-terms').checked;
@@ -201,12 +206,18 @@ async function validateRegister() {
 
   if (!name) { showFieldError('err-reg-name', 'Vui lòng nhập họ và tên.', 'reg-name'); isValid = false; }
   if (!/^\d{10,11}$/.test(phone)) { showFieldError('err-reg-phone', 'Số điện thoại phải gồm 10 hoặc 11 chữ số.', 'reg-phone'); isValid = false; }
-  if (cccd && !/^\d{9}$|^\d{12}$/.test(cccd)) { showFieldError('err-reg-cccd', 'Số CCCD/CMND phải gồm 9 hoặc 12 chữ số.', 'reg-cccd'); isValid = false; }
-  if (!identifier || identifier.length < 3 || /\s/.test(identifier)) {
-    showFieldError('err-reg-email', 'Vui lòng nhập tên đăng nhập hoặc email hợp lệ (tối thiểu 3 ký tự, không khoảng trắng).', 'reg-email');
+  if (!/^(?:\d{9}|\d{12})$/.test(cccd)) { showFieldError('err-reg-cccd', 'Số CCCD/CMND phải gồm 9 hoặc 12 chữ số.', 'reg-cccd'); isValid = false; }
+  if (username.length < 3 || /\s/.test(username)) {
+    showFieldError('err-reg-username', 'Tên đăng nhập phải có ít nhất 3 ký tự và không chứa khoảng trắng.', 'reg-username');
     isValid = false;
-  } else if (identifier.includes('@') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier)) {
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     showFieldError('err-reg-email', 'Địa chỉ email không đúng định dạng.', 'reg-email');
+    isValid = false;
+  }
+  const dobInput = document.getElementById('reg-dob');
+  if (!dobInput.validity.valid || (dob && new Date(dob + 'T00:00:00') > new Date())) {
+    showFieldError('err-reg-dob', 'Ngày sinh không hợp lệ.', 'reg-dob');
     isValid = false;
   }
   if (password.length < 8) { showFieldError('err-reg-pwd', 'Mật khẩu phải có tối thiểu 8 ký tự.', 'reg-pwd'); isValid = false; }
@@ -218,16 +229,20 @@ async function validateRegister() {
     return;
   }
 
-  const username = identifier.toLowerCase();
   setButtonLoading('btn-register-submit', true, 'Đang tạo tài khoản...');
   try {
     await DataService.request('POST', '/auth/register', {
-      name, username, email: username.includes('@') ? username : '', phone, cccd, password, accountType: 'reader'
+      name, username, email, phone, cccd, password, gender, dob, address, readerType
     });
     document.getElementById('reg-name').value = '';
     document.getElementById('reg-phone').value = '';
     if (cccdEl) cccdEl.value = '';
     document.getElementById('reg-email').value = '';
+    document.getElementById('reg-username').value = '';
+    document.getElementById('reg-dob').value = '';
+    document.getElementById('reg-address').value = '';
+    document.getElementById('reg-gender').selectedIndex = 0;
+    document.getElementById('reg-reader-type').selectedIndex = 0;
     document.getElementById('reg-pwd').value = '';
     document.getElementById('reg-pwd-confirm').value = '';
     document.getElementById('reg-terms').checked = true;

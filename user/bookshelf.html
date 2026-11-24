@@ -71,15 +71,6 @@
 							<input type="search" id="bookshelfSearchInput" placeholder="Tìm kiếm sách trong tủ sách..." aria-label="Tìm sách trong tủ sách">
 						</label>
 						<div class="bookshelf-controls">
-							<label class="bookshelf-filter-control">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16M7 12h10m-7 7h4"/></svg>
-								<select id="bookshelfStatusFilter" aria-label="Lọc sách theo trạng thái">
-									<option value="all">Tất cả trạng thái</option>
-									<option value="Đang đọc">Đang đọc</option>
-									<option value="Đã đọc">Đã đọc</option>
-									<option value="Chưa đọc">Chưa đọc</option>
-								</select>
-							</label>
 							<button type="button" class="bookshelf-add-button" id="btnOpenAddToBookshelf">
 								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
 								<span>Thêm vào tủ sách</span>
@@ -111,10 +102,6 @@
 						<p class="bookshelf-add-section-title">Thông tin tài liệu</p>
 						<label for="bookshelfAddBookSelect">Sách cần thêm</label>
 						<select id="bookshelfAddBookSelect" required></select>
-						<label for="bookshelfAddDate">Ngày thêm vào tủ</label>
-						<input type="date" id="bookshelfAddDate" required>
-						<label for="bookshelfAddNote">Ghi chú cá nhân</label>
-						<textarea id="bookshelfAddNote" rows="3" placeholder="Ghi chú của bạn..."></textarea>
 					</div>
 				</div>
 				<div class="reader-modal-actions bookshelf-create-actions">
@@ -125,36 +112,6 @@
 		</div>
 	</div>
 
-	<div class="modal-overlay" id="modalEditShelfEntry">
-		<div class="modal-box bookshelf-edit-modal" role="dialog" aria-modal="true" aria-labelledby="editShelfEntryTitle">
-			<div class="user-modal-header">
-				<h2 class="user-modal-title" id="editShelfEntryTitle">CHỈNH SỬA TIẾN ĐỘ ĐỌC</h2>
-				<button type="button" class="user-modal-close-btn" id="btnCloseEditShelfEntry" aria-label="Đóng">✕</button>
-			</div>
-			<form class="bookshelf-edit-form" id="formEditShelfEntry">
-				<p id="editShelfBookTitle"></p>
-				<label for="editShelfStatus">Trạng thái</label>
-				<select id="editShelfStatus" required>
-					<option value="Chưa đọc">Chưa đọc</option>
-					<option value="Đang đọc">Đang đọc</option>
-					<option value="Đã đọc">Đã đọc</option>
-				</select>
-				<div class="bookshelf-edit-page-fields">
-					<label for="editShelfCurrentPage">Trang hiện tại</label>
-					<input id="editShelfCurrentPage" type="number" min="0" required>
-					<label for="editShelfTotalPages">Tổng số trang (0 = chưa xác định)</label>
-					<input id="editShelfTotalPages" type="number" min="0" required>
-				</div>
-				<div id="editShelfError" class="field-error-text" role="alert" style="display: none;"></div>
-				<div class="bookshelf-add-actions">
-					<button type="button" class="bookshelf-cancel-button" id="btnCancelEditShelfEntry">Hủy</button>
-					<button type="submit" class="bookshelf-add-button">Lưu thay đổi</button>
-				</div>
-			</form>
-		</div>
-	</div>
-
-  <!-- ===== MODAL THÔNG TIN CÁ NHÂN ===== -->
   <div class="modal-overlay" id="modalUserProfile">
     <div class="modal-box user-profile-modal-box">
       <div class="user-modal-header">

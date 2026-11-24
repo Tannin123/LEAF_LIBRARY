@@ -1754,14 +1754,6 @@ td {
   gap: 8px;
 }
 
-.leaf-card-topbar-icon {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-  flex-shrink: 0;
-  filter: brightness(0) invert(1);
-}
-
 .leaf-card-body {
   position: relative;
   padding: 14px 16px 12px 16px;
@@ -2077,6 +2069,28 @@ td {
 .modal-body {
   padding: 24px 28px;
   overflow-y: auto;
+}
+
+#modalAdminConfirmGlobal .modal-header {
+  gap: 12px;
+}
+
+#modalAdminConfirmGlobal .modal-body {
+  padding: 20px 22px;
+}
+
+.admin-confirm-message {
+  margin: 0 0 20px;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.admin-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .modal-card-layout,
@@ -3327,6 +3341,11 @@ td {
 .search-input-field {
   width: 100%; 
   padding-left: 36px;
+}
+
+.search-input-wrapper > .search-icon {
+  left: 12px;
+  right: auto;
 }
 
 .search-icon-span {

@@ -92,7 +92,7 @@
           <div class="suggestion-cover-column"><label for="suggestionCover">Ảnh bìa tài liệu dự kiến</label><label class="suggestion-upload-box" for="suggestionCover"><img id="suggestionCoverPreview" alt="Ảnh bìa xem trước" hidden><span id="suggestionCoverPrompt">Chọn ảnh bìa<br><small>PNG, JPG hoặc WEBP (tối đa 5 MB)</small></span></label><input id="suggestionCover" type="file" accept="image/png,image/jpeg,image/webp"><div class="suggestion-form-note">Mã đề xuất được tạo tự động khi gửi.</div></div>
           <div class="suggestion-fields-column"><div class="suggestion-form-section-title">Thông tin giáo trình / sách</div><label for="suggestionTitle">Tên tài liệu / giáo trình <b>*</b></label><input id="suggestionTitle" name="title" required placeholder="Ví dụ: Thiết kế hệ thống phân tán">
             <div class="suggestion-fields-two"><div><label for="suggestionAuthor">Tác giả / Nhóm tác giả <b>*</b></label><input id="suggestionAuthor" name="author" required placeholder="Tên tác giả"></div><div><label for="suggestionPublisher">Nhà xuất bản</label><input id="suggestionPublisher" name="publisher" placeholder="Nhà xuất bản"></div></div>
-            <div class="suggestion-fields-four"><div><label for="suggestionYear">Năm xuất bản</label><input id="suggestionYear" name="year" type="number" min="1800" max="2100" placeholder="2026"></div><div><label for="suggestionQuantity">Số lượng</label><input id="suggestionQuantity" name="quantity" type="number" min="1" max="1000" placeholder="5"></div><div><label for="suggestionEdition">Tái bản lần thứ</label><input id="suggestionEdition" name="edition" placeholder="Lần 1"></div><div><label for="suggestionIsbn">Mã ISBN-10/13</label><input id="suggestionIsbn" name="isbn" placeholder="978-604-..."></div></div>
+            <div class="suggestion-fields-three"><div><label for="suggestionYear">Năm xuất bản</label><input id="suggestionYear" name="year" type="number" min="1800" max="2100" placeholder="2026"></div><div><label for="suggestionQuantity">Số lượng</label><input id="suggestionQuantity" name="quantity" type="number" min="1" max="1000" placeholder="5"></div><div><label for="suggestionEdition">Tái bản lần thứ</label><input id="suggestionEdition" name="edition" placeholder="Lần 1"></div></div>
             <label for="suggestionReason">Lý do đề xuất</label><textarea id="suggestionReason" name="reason" rows="3" placeholder="Nêu lý do thư viện nên bổ sung sách này..."></textarea>
             <div id="suggestionFormError" class="field-error-text" role="alert" style="display: none;"></div>
           </div>
@@ -121,7 +121,6 @@
           <div><span style="color:#64748B;">Năm XB:</span> <strong id="sugDetailYear"></strong></div>
           <div><span style="color:#64748B;">Số lượng:</span> <strong id="sugDetailQty"></strong></div>
           <div><span style="color:#64748B;">Tái bản:</span> <strong id="sugDetailEdition"></strong></div>
-          <div><span style="color:#64748B;">ISBN:</span> <strong id="sugDetailIsbn"></strong></div>
         </div>
         <div>
           <div style="color:#64748B; font-weight: 600; margin-bottom: 4px;">Lý do đề xuất:</div>

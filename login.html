@@ -63,68 +63,103 @@
                 </div>
                 <div class="subtitle">Đăng ký tài khoản bạn đọc</div>
             </div>
-            
-            <div class="input-group">
-                <label for="reg-name">Họ và tên <span aria-hidden="true">*</span></label>
-                <div class="input-wrapper">
-                    <i class="fa-regular fa-user left-icon" aria-hidden="true"></i>
-                    <input type="text" id="reg-name" autocomplete="name" placeholder="Nguyễn Văn A">
+            <div class="registration-fields">
+                <div class="input-group">
+                    <label for="reg-name">Họ và tên <span aria-hidden="true">*</span></label>
+                    <div class="input-wrapper">
+                        <i class="fa-regular fa-user left-icon" aria-hidden="true"></i>
+                        <input type="text" id="reg-name" autocomplete="name" placeholder="Nguyễn Văn A">
+                    </div>
+                    <div id="err-reg-name" class="field-error" role="alert"></div>
                 </div>
-                <div id="err-reg-name" class="field-error" role="alert"></div>
-            </div>
-            
-            <div class="input-group">
-                <label for="reg-phone">Số điện thoại <span aria-hidden="true">*</span></label>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-phone left-icon" aria-hidden="true"></i>
-                    <input type="tel" id="reg-phone" autocomplete="tel" placeholder="0912345678 (10 chữ số)">
+
+                <div class="input-group">
+                    <label for="reg-phone">Số điện thoại <span aria-hidden="true">*</span></label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-phone left-icon" aria-hidden="true"></i>
+                        <input type="tel" id="reg-phone" autocomplete="tel" placeholder="10 hoặc 11 chữ số">
+                    </div>
+                    <div id="err-reg-phone" class="field-error" role="alert"></div>
                 </div>
-                <div id="err-reg-phone" class="field-error" role="alert"></div>
+
+                <div class="input-group">
+                    <label for="reg-cccd">Số CCCD / CMND <span aria-hidden="true">*</span></label>
+                    <div class="input-wrapper">
+                        <i class="fa-regular fa-id-card left-icon" aria-hidden="true"></i>
+                        <input type="text" id="reg-cccd" placeholder="9 hoặc 12 chữ số">
+                    </div>
+                    <div id="err-reg-cccd" class="field-error" role="alert"></div>
+                </div>
+
+                <div class="input-group">
+                    <label for="reg-username">Tên đăng nhập <span aria-hidden="true">*</span></label>
+                    <div class="input-wrapper">
+                        <i class="fa-regular fa-user left-icon" aria-hidden="true"></i>
+                        <input type="text" id="reg-username" autocomplete="username" maxlength="255" placeholder="Tên đăng nhập">
+                    </div>
+                    <div id="err-reg-username" class="field-error" role="alert"></div>
+                </div>
+
+                <div class="input-group">
+                    <label for="reg-email">Email <span aria-hidden="true">*</span></label>
+                    <div class="input-wrapper">
+                        <i class="fa-regular fa-envelope left-icon" aria-hidden="true"></i>
+                        <input type="email" id="reg-email" autocomplete="email" placeholder="bandoc@leaflibrary.vn">
+                    </div>
+                    <div id="err-reg-email" class="field-error" role="alert"></div>
+                </div>
+
+                <div class="input-group">
+                    <label for="reg-gender">Giới tính</label>
+                    <div class="input-wrapper no-left-icon">
+                        <select id="reg-gender"><option>Nam</option><option>Nữ</option><option>Khác</option></select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="reg-dob">Ngày sinh</label>
+                    <div class="input-wrapper no-left-icon">
+                        <input type="date" id="reg-dob" autocomplete="bday">
+                    </div>
+                    <div id="err-reg-dob" class="field-error" role="alert"></div>
+                </div>
+                <div class="input-group">
+                    <label for="reg-address">Địa chỉ</label>
+                    <div class="input-wrapper no-left-icon">
+                        <input type="text" id="reg-address" autocomplete="street-address" placeholder="Địa chỉ liên hệ">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="reg-reader-type">Đối tượng</label>
+                    <div class="input-wrapper no-left-icon">
+                        <select id="reg-reader-type"><option>Sinh viên</option><option>Giảng viên</option><option>Khách tự do</option></select>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="reg-pwd">Mật khẩu <span aria-hidden="true">*</span></label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock left-icon" aria-hidden="true"></i>
+                        <input type="password" id="reg-pwd" autocomplete="new-password" placeholder="Tối thiểu 8 ký tự">
+                        <button type="button" class="password-toggle-btn" aria-label="Hiển thị hoặc ẩn mật khẩu" onclick="togglePassword(this)">
+                            <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <div id="err-reg-pwd" class="field-error" role="alert"></div>
+                </div>
+
+                <div class="input-group">
+                    <label for="reg-pwd-confirm">Xác nhận mật khẩu <span aria-hidden="true">*</span></label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock left-icon" aria-hidden="true"></i>
+                        <input type="password" id="reg-pwd-confirm" autocomplete="new-password" placeholder="Nhập lại mật khẩu">
+                        <button type="button" class="password-toggle-btn" aria-label="Hiển thị hoặc ẩn mật khẩu xác nhận" onclick="togglePassword(this)">
+                            <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <div id="err-reg-pwd-confirm" class="field-error" role="alert"></div>
+                </div>
             </div>
 
-            <div class="input-group">
-                <label for="reg-cccd">Số CCCD / CMND (tùy chọn)</label>
-                <div class="input-wrapper">
-                    <i class="fa-regular fa-id-card left-icon" aria-hidden="true"></i>
-                    <input type="text" id="reg-cccd" placeholder="9 hoặc 12 chữ số">
-                </div>
-                <div id="err-reg-cccd" class="field-error" role="alert"></div>
-            </div>
-
-            <div class="input-group">
-                <label for="reg-email">Tên đăng nhập hoặc Email <span aria-hidden="true">*</span></label>
-                <div class="input-wrapper">
-                    <i class="fa-regular fa-envelope left-icon" aria-hidden="true"></i>
-                    <input type="text" id="reg-email" autocomplete="username" placeholder="bandoc@leaflibrary.vn">
-                </div>
-                <div class="field-hint">Tài khoản đăng ký mới được cấp quyền Bạn đọc (Sinh viên) theo quy định thư viện.</div>
-                <div id="err-reg-email" class="field-error" role="alert"></div>
-            </div>
-
-            <div class="input-group">
-                <label for="reg-pwd">Mật khẩu <span aria-hidden="true">*</span></label>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-lock left-icon" aria-hidden="true"></i>
-                    <input type="password" id="reg-pwd" autocomplete="new-password" placeholder="Tối thiểu 8 ký tự">
-                    <button type="button" class="password-toggle-btn" aria-label="Hiển thị hoặc ẩn mật khẩu" onclick="togglePassword(this)">
-                        <i class="fa-regular fa-eye" aria-hidden="true"></i>
-                    </button>
-                </div>
-                <div id="err-reg-pwd" class="field-error" role="alert"></div>
-            </div>
-
-            <div class="input-group">
-                <label for="reg-pwd-confirm">Xác nhận mật khẩu <span aria-hidden="true">*</span></label>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-lock left-icon" aria-hidden="true"></i>
-                    <input type="password" id="reg-pwd-confirm" autocomplete="new-password" placeholder="Nhập lại mật khẩu">
-                    <button type="button" class="password-toggle-btn" aria-label="Hiển thị hoặc ẩn mật khẩu xác nhận" onclick="togglePassword(this)">
-                        <i class="fa-regular fa-eye" aria-hidden="true"></i>
-                    </button>
-                </div>
-                <div id="err-reg-pwd-confirm" class="field-error" role="alert"></div>
-            </div>
-            
             <div class="actions-row reg-terms" style="margin-bottom: 15px;">
                 <label class="checkbox-label" style="align-items: flex-start;">
                     <input type="checkbox" id="reg-terms" style="margin-top: 3px;" checked> 

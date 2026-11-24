@@ -185,7 +185,7 @@ async function releaseHeldCopyOrPromoteNextWaiter(
 const routes: Record<Resource, { select: string; from: string; map: (row: Row) => Row; id: string }> = {
   readers: { id: 'mabandoc', from: 'bandoc b JOIN nguoidung u ON u.manguoidung = b.mabandoc JOIN taikhoan a ON a.tendangnhap = u.tendangnhap', select: 'b.mabandoc, u.hoten, u.email, u.sodienthoai, u.cccd, u.gioitinh, u.ngaysinh, u.diachi, u.anhdaidien, u.tendangnhap, b.loaibandoc, b.tongnophat, b.ngaycapthe, b.ngayhetthe, a.vaitro, a.trangthai', map: r => ({ id: str(r.mabandoc), name: str(r.hoten), fullName: str(r.hoten), email: str(r.email), phone: str(r.sodienthoai), cccd: str(r.cccd), username: str(r.tendangnhap), readerType: str(r.loaibandoc), outstandingFine: Number(r.tongnophat ?? 0), role: str(r.vaitro), status: str(r.trangthai), gender: str(r.gioitinh), dob: date(r.ngaysinh), address: str(r.diachi), issueDate: date(r.ngaycapthe), expiryDate: date(r.ngayhetthe), avatarUrl: str(r.anhdaidien) ?? '' }) },
   employees: { id: 'manhanvien', from: 'nhanvien n JOIN nguoidung u ON u.manguoidung = n.manhanvien JOIN taikhoan a ON a.tendangnhap = u.tendangnhap', select: 'n.manhanvien, u.hoten, u.email, u.sodienthoai, u.cccd, u.gioitinh, u.ngaysinh, u.diachi, u.anhdaidien, u.tendangnhap, n.chucvu, n.trangthailamviec, n.dantoc, a.vaitro, a.trangthai', map: r => ({ id: str(r.manhanvien), name: str(r.hoten), fullName: str(r.hoten), email: str(r.email), phone: str(r.sodienthoai), cccd: str(r.cccd), username: str(r.tendangnhap), position: str(r.chucvu), ethnicity: str(r.dantoc), employmentStatus: str(r.trangthailamviec), role: str(r.vaitro), status: str(r.trangthai), gender: str(r.gioitinh), dob: date(r.ngaysinh), address: str(r.diachi), avatarUrl: str(r.anhdaidien) ?? '', password: null, hasAccount: !['profile', 'ho so'].includes(normalizeStatus(r.trangthai)) }) },
-  bookTitles: { id: 'madausach', from: 'dausach d JOIN danhmuc c ON c.madanhmuc = d.madanhmuc', select: 'd.madausach, d.madanhmuc, c.tendanhmuc, d.tensach, d.tacgia, d.theloai, d.chude, d.khoa, d.soluongtong, d.soluongsan, d.nhaxuatban, d.namxuatban, d.anhbia', map: r => ({ id: str(r.madausach), categoryId: str(r.madanhmuc), category: str(r.tendanhmuc), title: str(r.tensach), authors: str(r.tacgia), author: str(r.tacgia), genre: str(r.theloai), subject: str(r.chude), faculty: str(r.khoa), total: Number(r.soluongtong ?? 0), available: Number(r.soluongsan ?? 0), totalCopies: Number(r.soluongtong ?? 0), availableCopies: Number(r.soluongsan ?? 0), publisher: str(r.nhaxuatban), publishYear: r.namxuatban ? Number(r.namxuatban) : null, namXuatBan: r.namxuatban ? Number(r.namxuatban) : null, coverUrl: str(r.anhbia) ?? '' }) },
+  bookTitles: { id: 'madausach', from: 'dausach d JOIN danhmuc c ON c.madanhmuc = d.madanhmuc', select: 'd.madausach, d.madanhmuc, c.tendanhmuc, d.tensach, d.tacgia, d.theloai, d.chude, d.khoa, d.soluongtong, d.soluongsan, d.nhaxuatban, d.namxuatban, d.phienban, d.gia, d.anhbia', map: r => ({ id: str(r.madausach), categoryId: str(r.madanhmuc), category: str(r.tendanhmuc), title: str(r.tensach), authors: str(r.tacgia), author: str(r.tacgia), genre: str(r.theloai), subject: str(r.chude), faculty: str(r.khoa), total: Number(r.soluongtong ?? 0), available: Number(r.soluongsan ?? 0), totalCopies: Number(r.soluongtong ?? 0), availableCopies: Number(r.soluongsan ?? 0), publisher: str(r.nhaxuatban), publishYear: r.namxuatban ? Number(r.namxuatban) : null, namXuatBan: r.namxuatban ? Number(r.namxuatban) : null, edition: str(r.phienban), price: r.gia === null ? null : Number(r.gia), coverUrl: str(r.anhbia) ?? '' }) },
   bookCopies: { id: 'macuonsach', from: 'cuonsach c JOIN dausach d ON d.madausach = c.madausach', select: 'c.macuonsach, c.madausach, c.mavach, c.tinhtrangvatly, c.trangthai, c.vitriluutru, c.gia, c.anhbia, d.tensach', map: r => ({ id: str(r.macuonsach), bookId: str(r.madausach), bookTitleId: str(r.madausach), bookTitle: str(r.tensach), barcode: str(r.mavach), physicalStatus: str(r.tinhtrangvatly), physicalCondition: str(r.tinhtrangvatly), circulationStatus: str(r.trangthai), status: str(r.trangthai), location: str(r.vitriluutru), price: r.gia === null ? null : Number(r.gia), coverUrl: str(r.anhbia) ?? '' }) },
   loans: { id: 'maphieumuon', from: 'phieumuon p LEFT JOIN nguoidung u ON u.manguoidung = p.mabandoc JOIN cuonsach c ON c.macuonsach = p.macuonsach JOIN dausach d ON d.madausach = c.madausach', select: 'p.maphieumuon, p.mabandoc, u.hoten, p.manhanvien, p.macuonsach, d.tensach, p.ngaymuon, p.ngayhentra, p.ngaytrathucte, p.trangthai', map: r => ({ id: str(r.maphieumuon), loanId: str(r.maphieumuon), readerId: str(r.mabandoc), readerName: str(r.hoten), employeeId: str(r.manhanvien), copyId: str(r.macuonsach), bookTitle: str(r.tensach), borrowDate: date(r.ngaymuon), dueDate: date(r.ngayhentra), returnDate: date(r.ngaytrathucte), status: str(r.trangthai) }) },
   renewals: { id: 'magiahan', from: 'yeucaugiahan', select: '*', map: r => ({ id: str(r.magiahan), loanId: str(r.maphieumuon), requestDate: date(r.ngayyeucau), days: Number(r.songaygiahan), status: str(r.trangthaiduyet) }) },
@@ -916,19 +916,37 @@ app.post('/api/auth/register', async (req, res, next) => {
     const password = str(req.body?.password);
     const phone = cleanPhoneDigits(req.body?.phone);
     const cccd = str(req.body?.cccd)?.trim() || null;
-    const emailInput = str(req.body?.email)?.trim().toLowerCase() ?? '';
-    const email = emailInput || null;
+    const email = str(req.body?.email)?.trim().toLowerCase() ?? '';
+    const gender = str(req.body?.gender)?.trim() || 'Nam';
+    const readerType = str(req.body?.readerType)?.trim() || 'Sinh viên';
+    const dob = dateValue(req.body?.dob);
+    const address = str(req.body?.address)?.trim() || null;
     if (!name || !username || !password || !phone) return res.status(400).json({ error: 'Vui lòng nhập đầy đủ họ tên, tên đăng nhập, số điện thoại và mật khẩu.' });
     if (name.length > 255) return res.status(400).json({ error: 'Họ và tên không được vượt quá 255 ký tự.' });
     if (username.length < 3 || /\s/.test(username)) return res.status(400).json({ error: 'Tên đăng nhập phải có ít nhất 3 ký tự và không chứa khoảng trắng.' });
-    if (email && !isValidEmail(email)) return res.status(400).json({ error: 'Địa chỉ email không hợp lệ.' });
-    if (cccd && !isValidCccd(cccd)) return res.status(400).json({ error: 'Số CCCD/CMND phải gồm 9 hoặc 12 chữ số.' });
+    if (!isValidEmail(email)) return res.status(400).json({ error: 'Địa chỉ email không hợp lệ.' });
+    if (!isValidCccd(cccd)) return res.status(400).json({ error: 'Số CCCD/CMND phải gồm 9 hoặc 12 chữ số.' });
+    if (!['Nam', 'Nữ', 'Khác'].includes(gender) || !['Sinh viên', 'Giảng viên', 'Khách tự do'].includes(readerType)) {
+      return res.status(400).json({ error: 'Giới tính hoặc đối tượng bạn đọc không hợp lệ.' });
+    }
+    if (dob) {
+      const parsedDob = new Date(dob + 'T00:00:00Z');
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dob) || dob.startsWith('0000-') || !Number.isFinite(parsedDob.getTime()) || parsedDob.toISOString().slice(0, 10) !== dob || dob > new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' })) {
+        return res.status(400).json({ error: 'Ngày sinh không hợp lệ.' });
+      }
+    }
     if (password.length < 8) return res.status(400).json({ error: 'Mật khẩu phải có tối thiểu 8 ký tự.' });
     if (!/^\d{10,11}$/.test(phone)) return res.status(400).json({ error: 'Số điện thoại phải gồm 10 hoặc 11 chữ số.' });
 
     await client.query('BEGIN');
     transactionStarted = true;
     await client.query("SELECT pg_advisory_xact_lock(781235901246::bigint)");
+    const existingAccount = await client.query('SELECT 1 FROM taikhoan WHERE LOWER(tendangnhap)=$1', [username]);
+    if (existingAccount.rowCount) {
+      await client.query('ROLLBACK');
+      transactionStarted = false;
+      return res.status(409).json({ error: 'Tên đăng nhập đã được sử dụng.' });
+    }
     const dupCheck = await client.query(
       `SELECT manguoidung FROM nguoidung
        WHERE regexp_replace(COALESCE(sodienthoai,''), '[^0-9]', '', 'g')=$1
@@ -945,8 +963,8 @@ app.post('/api/auth/register', async (req, res, next) => {
 
     const id = await generateNextCode(client, 'nguoidung', 'manguoidung', 'BD');
     await client.query('INSERT INTO taikhoan (tendangnhap,matkhau,vaitro,trangthai) VALUES ($1,$2,$3,$4)', [username, hashPassword(password), 'BẠN ĐỌC', 'PENDING']);
-    await client.query('INSERT INTO nguoidung (manguoidung,tendangnhap,hoten,email,sodienthoai,cccd,gioitinh,ngaysinh,diachi,anhdaidien) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)', [id, username, name, email, phone, cccd, req.body.gender ?? 'Nam', dateValue(req.body.dob), req.body.address ?? null, req.body.avatarUrl ?? null]);
-    await client.query("INSERT INTO bandoc (mabandoc,loaibandoc,tongnophat,ngaycapthe,ngayhetthe) VALUES ($1,'Sinh viên',0,CURRENT_DATE,CURRENT_DATE + INTERVAL '1 year')", [id]);
+    await client.query('INSERT INTO nguoidung (manguoidung,tendangnhap,hoten,email,sodienthoai,cccd,gioitinh,ngaysinh,diachi,anhdaidien) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)', [id, username, name, email, phone, cccd, gender, dob, address, req.body.avatarUrl ?? null]);
+    await client.query("INSERT INTO bandoc (mabandoc,loaibandoc,tongnophat,ngaycapthe,ngayhetthe) VALUES ($1,$2,0,CURRENT_DATE,CURRENT_DATE + INTERVAL '1 year')", [id, readerType]);
     await client.query('COMMIT');
     transactionStarted = false;
     return res.status(201).json({ user: { id, username, fullName: name, name, role: 'BẠN ĐỌC', status: 'PENDING', accountType: 'reader', email: email ?? '', phone, cccd: cccd ?? '' } });
@@ -1117,7 +1135,7 @@ app.post('/api/:resource', async (req, res, next) => {
       if (!Number.isInteger(publishYear) || publishYear < 1800 || publishYear > 2100) {
         return res.status(400).json({ error: 'Năm xuất bản phải nằm trong khoảng 1800 đến 2100.' });
       }
-      await pool.query('INSERT INTO dausach (madausach,madanhmuc,tensach,tacgia,theloai,chude,khoa,soluongtong,soluongsan,nhaxuatban,namxuatban,anhbia) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)', [id, categoryId, title, value(body, 'authors', 'author', 'tacGia'), value(body, 'genre', 'theLoai'), value(body, 'subject', 'chuDe'), value(body, 'faculty', 'khoa'), total, available, value(body,'publisher','nhaXuatBan'), publishYear, value(body,'coverUrl')]);
+      await pool.query('INSERT INTO dausach (madausach,madanhmuc,tensach,tacgia,theloai,chude,khoa,soluongtong,soluongsan,nhaxuatban,namxuatban,anhbia,phienban,gia) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)', [id, categoryId, title, value(body, 'authors', 'author', 'tacGia'), value(body, 'genre', 'theLoai'), value(body, 'subject', 'chuDe'), value(body, 'faculty', 'khoa'), total, available, value(body,'publisher','nhaXuatBan'), publishYear, value(body,'coverUrl'), str(value(body,'edition','phienban')), value(body,'price','gia') ?? null]);
       return res.status(201).json({ ...body, id });
     }
     if (resource === 'categories') {
@@ -1429,7 +1447,8 @@ app.post('/api/:resource', async (req, res, next) => {
       if (resource === 'wishlist') {
         const dup = await pool.query('SELECT 1 FROM tusachcanhan WHERE mabandoc=$1 AND madausach=$2', [readerId, bookId]);
         if (dup.rowCount) return res.status(409).json({ error: 'Sách đã có trong tủ sách cá nhân.' });
-        await pool.query('INSERT INTO tusachcanhan (mabandoc, madausach) VALUES ($1,$2)', [readerId, bookId]);
+        const added = await pool.query('INSERT INTO tusachcanhan (mabandoc, madausach) VALUES ($1,$2) RETURNING ngaythem', [readerId, bookId]);
+        return res.status(201).json({ id: bookId, readerId, bookTitleId: bookId, addedAt: date(added.rows[0].ngaythem) });
       } else {
         const existingWait = await pool.query(
           "SELECT 1 FROM danhsachcho WHERE mabandoc=$1 AND madausach=$2 AND UPPER(COALESCE(trangthai,'')) IN ('DANG CHO','DANG_CHO','SAN SANG','DA_GIU_SACH')",
@@ -1514,7 +1533,7 @@ app.put('/api/:resource/:id', async (req, res, next) => {
       if (!Number.isInteger(publishYear) || publishYear < 1800 || publishYear > 2100) {
         return res.status(400).json({ error: 'Năm xuất bản phải nằm trong khoảng 1800 đến 2100.' });
       }
-      await pool.query('INSERT INTO dausach (madausach,madanhmuc,tensach,tacgia,theloai,chude,khoa,soluongtong,soluongsan,nhaxuatban,namxuatban,anhbia) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) ON CONFLICT (madausach) DO UPDATE SET madanhmuc=EXCLUDED.madanhmuc,tensach=EXCLUDED.tensach,tacgia=EXCLUDED.tacgia,theloai=EXCLUDED.theloai,chude=EXCLUDED.chude,khoa=EXCLUDED.khoa,soluongtong=EXCLUDED.soluongtong,soluongsan=EXCLUDED.soluongsan,nhaxuatban=EXCLUDED.nhaxuatban,namxuatban=EXCLUDED.namxuatban,anhbia=EXCLUDED.anhbia', [id, categoryId, title, value(body,'authors','author','tacGia'), value(body,'genre','theLoai'), value(body,'subject','chuDe'), value(body,'faculty','khoa'), total, available, value(body,'publisher','nhaXuatBan'), publishYear, value(body,'coverUrl')]);
+      await pool.query('INSERT INTO dausach (madausach,madanhmuc,tensach,tacgia,theloai,chude,khoa,soluongtong,soluongsan,nhaxuatban,namxuatban,anhbia,phienban,gia) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) ON CONFLICT (madausach) DO UPDATE SET madanhmuc=EXCLUDED.madanhmuc,tensach=EXCLUDED.tensach,tacgia=EXCLUDED.tacgia,theloai=EXCLUDED.theloai,chude=EXCLUDED.chude,khoa=EXCLUDED.khoa,soluongtong=EXCLUDED.soluongtong,soluongsan=EXCLUDED.soluongsan,nhaxuatban=EXCLUDED.nhaxuatban,namxuatban=EXCLUDED.namxuatban,anhbia=EXCLUDED.anhbia,phienban=COALESCE(EXCLUDED.phienban,dausach.phienban),gia=COALESCE(EXCLUDED.gia,dausach.gia)', [id, categoryId, title, value(body,'authors','author','tacGia'), value(body,'genre','theLoai'), value(body,'subject','chuDe'), value(body,'faculty','khoa'), total, available, value(body,'publisher','nhaXuatBan'), publishYear, value(body,'coverUrl'), str(value(body,'edition','phienban')), value(body,'price','gia') ?? null]);
       return res.json({ ...body, id });
     }
     if (resource === 'readers' || resource === 'employees') {

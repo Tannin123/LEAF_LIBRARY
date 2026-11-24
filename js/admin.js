@@ -108,15 +108,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         modal.className = 'modal-overlay';
         modal.id = 'modalAdminConfirmGlobal';
         modal.innerHTML = `
-          <div class="modal-box" style="max-width: 430px; background: #fff; border-radius: 12px; padding: 22px 24px; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);">
-            <div class="modal-header" style="padding: 0 0 12px 0; border-bottom: 1px solid #E2E8F0; margin-bottom: 14px;">
-              <div class="modal-title" id="adminConfirmTitle" style="font-size: 16px;">Xác nhận</div>
+          <div class="modal-box modal-box-sm" role="dialog" aria-modal="true" aria-labelledby="adminConfirmTitle" aria-describedby="adminConfirmMessage">
+            <div class="modal-header">
+              <div class="modal-title" id="adminConfirmTitle">Xác nhận</div>
               <button type="button" class="modal-close-btn" id="adminConfirmCloseBtn" aria-label="Đóng">✕</button>
             </div>
-            <p id="adminConfirmMessage" style="margin: 0 0 20px 0; color: #334155; font-size: 14px; line-height: 1.55;"></p>
-            <div style="display: flex; justify-content: flex-end; gap: 10px;">
-              <button type="button" class="btn-action-gray" id="adminConfirmCancelBtn">Hủy</button>
-              <button type="button" class="btn-action-blue" id="adminConfirmOkBtn">Xác nhận</button>
+            <div class="modal-body">
+              <p class="admin-confirm-message" id="adminConfirmMessage"></p>
+              <div class="admin-confirm-actions">
+                <button type="button" class="btn-action-gray" id="adminConfirmCancelBtn">Hủy</button>
+                <button type="button" class="btn-action-blue" id="adminConfirmOkBtn">Xác nhận</button>
+              </div>
             </div>
           </div>
         `;
@@ -953,7 +955,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         ? [dateParts[3], dateParts[2].padStart(2, '0'), dateParts[1].padStart(2, '0')].join('-')
         : savedDob;
       document.getElementById('editEthnicity').value = emp.ethnicity || 'Kinh';
-      document.getElementById('editReligion').value = emp.religion || 'Không';
+      document.getElementById('editEmployeeCccd').value = emp.cccd || '';
       document.getElementById('editAddress').value = emp.address || '';
       document.getElementById('editPhone').value = emp.phone ? emp.phone.replace(/\./g, '') : '';
       document.getElementById('editEmail').value = emp.email
@@ -1018,7 +1020,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         gender: 'Nam',
         dob: '',
         ethnicity: 'Kinh',
-        religion: 'Không',
         address: '',
         phone: '',
         email: '',
@@ -1122,6 +1123,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         gender: document.getElementById('editGender').value,
         dob: dobVal,
         ethnicity: document.getElementById('editEthnicity').value,
+        cccd: document.getElementById('editEmployeeCccd').value.trim(),
         address: document.getElementById('editAddress').value.trim(),
         phone: formattedPhone,
         email: normalizedEmail,
@@ -1463,7 +1465,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           b.id.toLowerCase().includes(q) ||
           b.title.toLowerCase().includes(q) ||
           b.authors.toLowerCase().includes(q) ||
-          b.isbn.toLowerCase().includes(q);
+          String(b.publishYear ?? '').includes(q);
         return matchCat && matchQ;
       });
 
@@ -1709,7 +1711,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       const topicEl = document.getElementById('btTopic');
       if (topicEl) topicEl.value = book.topic || book.subject || book.chuDe || '';
       const deptEl = document.getElementById('btDepartment');
-      if (deptEl) deptEl.value = book.department || book.khoa || '';
+      if (deptEl) deptEl.value = book.faculty || book.department || book.khoa || '';
+      document.getElementById('btEdition').value = book.edition ?? '';
+      document.getElementById('btGenre').value = book.genre ?? '';
+      document.getElementById('btPrice').value = book.price ?? '';
       const qtyEl = document.getElementById('btQuantity');
       if (qtyEl) qtyEl.value = book.total !== undefined ? book.total : 0;
       const pubEl = document.getElementById('btPubName');
@@ -1727,15 +1732,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       const nextId = DataService.generateNextId(DataService.KEYS.BOOK_TITLES, 'DS', 3);
       openBookTitleModal({
         id: nextId,
-        isbn: '3031390156, 978-3031390159',
-        isbn13: '978-3031390159',
         title: '',
         authors: '',
         publisher: '',
-        publisherCode: 'NXB260001',
         category: 'Công nghệ thông tin',
         edition: '1',
-        price: '120.000',
+        price: 120000,
         total: 0,
         available: 0,
         coverUrl: ''
@@ -1810,7 +1812,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       const topicVal = valOf('btTopic');
       const deptVal = valOf('btDepartment');
       const qtyVal = qtyNum;
-      const priceVal = valOf('btPrice') || '120.000';
+      const priceVal = valOf('btPrice') === '' ? null : document.getElementById('btPrice').valueAsNumber;
+      if (priceVal !== null && (!Number.isInteger(priceVal) || priceVal < 0)) {
+        showToast('Giá đầu sách phải là số nguyên không âm.', 'error');
+        document.getElementById('btPrice').focus();
+        return;
+      }
       const coverVal = btUploadWidget.getValue();
 
       const origText = btnSave ? btnSave.textContent : '';
@@ -1824,16 +1831,14 @@ document.addEventListener('DOMContentLoaded', async () => {
           // Theo phân biệt DAUSACH vs CUONSACH: tạo Đầu sách mới chỉ lưu thông tin tựa sách (0 bản sao vật lý cho đến khi lập phiếu nhập hoặc thêm cuốn sách)
           books.unshift({
             id: selectedBookTitleId,
-            isbn: valOf('btIsbn') || '',
-            isbn13: valOf('btIsbn13') || '',
             title: normalizedTitle,
             authors: authorVal,
             publisher: pubVal,
-            publisherCode: valOf('btPubCode'),
             category: catVal,
-            topic: topicVal,
-            department: deptVal,
-            edition: valOf('btEdition') || '1',
+            subject: topicVal,
+            faculty: deptVal,
+            edition: valOf('btEdition'),
+            genre: valOf('btGenre'),
             price: priceVal,
             total: 0,
             available: 0,
@@ -1856,8 +1861,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             b.authors = authorVal;
             b.publisher = pubVal;
             b.category = catVal;
-            b.topic = topicVal;
-            b.department = deptVal;
+            b.subject = topicVal;
+            b.faculty = deptVal;
+            b.edition = valOf('btEdition');
+            b.genre = valOf('btGenre');
             b.publishYear = pubYearVal || b.publishYear || '';
             b.price = priceVal;
             b.coverUrl = coverVal;
@@ -1974,6 +1981,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const matchCir = cir === 'all' || String(c.circulationStatus || '').toUpperCase() === cir.toUpperCase();
         const matchQ = !q ||
           c.id.toLowerCase().includes(q) ||
+          String(c.barcode || '').toLowerCase().includes(q) ||
           (c.bookId && c.bookId.toLowerCase().includes(q)) ||
           c.bookTitle.toLowerCase().includes(q);
         return matchLoc && matchPhy && matchCir && matchQ;
@@ -2043,6 +2051,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const codeDisp = document.getElementById('bcCodeDisplay');
       if (codeDisp) codeDisp.textContent = selectedBookCopyId;
       document.getElementById('bcIdInput').value = selectedBookCopyId;
+      document.getElementById('bcBarcodeInput').value = '';
       document.getElementById('bcTitleInput').value = firstBook.title;
       document.getElementById('bcLocationInput').value = 'A1 - Ngăn 1';
       document.getElementById('bcPriceInput').value = firstBook.price || '120.000';
@@ -2070,6 +2079,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const codeDisp = document.getElementById('bcCodeDisplay');
         if (codeDisp) codeDisp.textContent = copy.id;
         document.getElementById('bcIdInput').value = copy.id;
+        document.getElementById('bcBarcodeInput').value = copy.barcode ?? '';
         document.getElementById('bcTitleInput').value = copy.bookTitle;
         document.getElementById('bcLocationInput').value = copy.location;
         document.getElementById('bcPriceInput').value = copy.price || '120.000';
@@ -2087,6 +2097,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const copies = getBookCopies();
       const books = getBookTitles();
       const idVal = document.getElementById('bcIdInput').value.trim() || selectedBookCopyId;
+      const barcode = document.getElementById('bcBarcodeInput').value.trim() || idVal;
       const titleVal = document.getElementById('bcTitleInput').value.trim().toUpperCase();
       if (!idVal || !titleVal) {
         showToast('Vui lòng nhập Mã cuốn sách và Tên cuốn sách!', 'error');
@@ -2129,6 +2140,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           copies.unshift({
             id: idVal,
             bookId: parentBookId,
+            barcode,
             bookTitle: matchedBook ? matchedBook.title : titleVal,
             location: locVal,
             physicalStatus: phyVal,
@@ -2149,6 +2161,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           const copy = copies.find(c => c.id === selectedBookCopyId);
           if (copy) {
             copy.id = idVal;
+            copy.barcode = barcode;
             copy.bookTitle = titleVal;
             copy.location = locVal;
             copy.price = priceVal;
@@ -2912,7 +2925,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       registrationTable.innerHTML = visible.length ? visible.map(reader => `
         <div class="readers-table-row" data-id="${escapeAdminHtml(reader.id)}">
           <div>${escapeAdminHtml(reader.id)}</div>
-          <div>${escapeAdminHtml(reader.name)}</div>
+          <div>
+            <details>
+              <summary>${escapeAdminHtml(reader.name)}</summary>
+              <div>CCCD/CMND: ${escapeAdminHtml(reader.cccd || '—')}</div>
+              <div>Giới tính: ${escapeAdminHtml(reader.gender || '—')}</div>
+              <div>Ngày sinh: ${escapeAdminHtml(reader.dob || '—')}</div>
+              <div>Địa chỉ: ${escapeAdminHtml(reader.address || '—')}</div>
+              <div>Đối tượng: ${escapeAdminHtml(reader.readerType || '—')}</div>
+            </details>
+          </div>
           <div>${escapeAdminHtml(reader.username || '—')}</div>
           <div>${escapeAdminHtml(reader.email || '—')}</div>
           <div>${escapeAdminHtml(reader.phone || '—')}</div>
@@ -3292,8 +3314,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         issueReaderPassword.focus();
         return;
       }
-      if (!/^\d{9,12}$/.test(cccdVal)) {
-        showToast('Số CCCD/CMND phải gồm 9 đến 12 chữ số!', 'error');
+      if (!/^(?:\d{9}|\d{12})$/.test(cccdVal)) {
+        showToast('Số CCCD/CMND phải gồm 9 hoặc 12 chữ số!', 'error');
         issueReaderCccd.focus();
         return;
       }
@@ -3306,8 +3328,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
       const pDigits = phoneVal.replace(/[\s.-]/g, '');
-      if (!/^(\+84|0)\d{8,10}$/.test(pDigits)) {
-        showToast('Vui lòng nhập Số điện thoại Việt Nam hợp lệ (9–11 chữ số)!', 'error');
+      if (!/^\d{10,11}$/.test(pDigits)) {
+        showToast('Số điện thoại phải gồm 10 hoặc 11 chữ số!', 'error');
         issueReaderPhone.focus();
         return;
       }
@@ -3351,11 +3373,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         password: passwordVal,
         name: nameVal,
         gender: issueReaderGender.value || 'Nam',
-        dob: dobVal || '15 / 08 / 2004',
+        dob: dobVal || null,
         cccd: cccdVal,
-        phone: phoneVal,
+        phone: pDigits,
         email: emailVal,
-        address: issueReaderAddress.value.trim() || 'TP.HCM',
+        address: issueReaderAddress.value.trim() || null,
         readerType: rType,
         issueDate,
         expiryDate,
@@ -3999,8 +4021,6 @@ document.addEventListener('DOMContentLoaded', function () {
       if (loanReaderIdInput) loanReaderIdInput.value = '';
       if (loanReaderNameInput) loanReaderNameInput.value = '-';
       if (loanCopyIdInput) loanCopyIdInput.value = '';
-      const noteEl = document.getElementById('loanNoteInput');
-      if (noteEl) noteEl.value = '';
       const statusWrap = document.getElementById('statusFieldWrapper');
       if (statusWrap) statusWrap.style.display = 'none';
       const titleEl = document.getElementById('loanModalTitle');

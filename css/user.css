@@ -667,9 +667,9 @@
   display: grid;
   place-items: center;
   margin: 0 auto 12px;
-  color: #059669;
-  background: #D1FAE5;
-  border: 5px solid #ECFDF5;
+  color: var(--primary-navy);
+  background: var(--primary-light);
+  border: 5px solid var(--primary-light);
   border-radius: 50%;
   font-size: 25px;
   font-weight: 700;
@@ -2492,6 +2492,16 @@
   margin-bottom: 12px;
 }
 
+#btnOpenSuggestionForm {
+  background-color: var(--primary-navy);
+  border-color: var(--primary-navy);
+  color: #fff;
+}
+
+#btnOpenSuggestionForm:hover {
+  filter: brightness(0.9);
+}
+
 #btnOpenSuggestionForm svg {
   flex: 0 0 16px;
 }
@@ -3165,7 +3175,7 @@
 }
 
 .suggestion-fields-two,
-.suggestion-fields-four {
+.suggestion-fields-three {
   display: grid;
   gap: 8px;
 }
@@ -3174,12 +3184,12 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.suggestion-fields-four {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+.suggestion-fields-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .suggestion-fields-two > div,
-.suggestion-fields-four > div {
+.suggestion-fields-three > div {
   min-width: 0;
   display: grid;
   gap: 7px;
@@ -3227,7 +3237,7 @@
     grid-row: span 2;
   }
 
-  .suggestion-fields-four {
+  .suggestion-fields-three {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -4344,7 +4354,7 @@ body.user-interface {
 
 @media (max-width: 460px) {
   .suggestion-fields-two,
-  .suggestion-fields-four {
+  .suggestion-fields-three {
     grid-template-columns: minmax(0, 1fr);
   }
 }
